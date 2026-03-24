@@ -17,6 +17,7 @@ import {
     FileText
 } from 'lucide-react';
 import { TicketService } from '@/lib/services';
+import { useRouter } from 'next/navigation';
 
 interface Ticket {
     id: string;
@@ -36,6 +37,7 @@ export default function Dashboard() {
     const [currentUser, setCurrentUser] = useState<any>(null);
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -126,7 +128,13 @@ export default function Dashboard() {
             {/* KPI Section */}
             <section className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
                 {kpiCards.map((kpi) => (
-                    <div key={kpi.label} className="card kpi-card glass" style={{ position: 'relative', overflow: 'hidden' }}>
+                    <div 
+                        key={kpi.label} 
+                        className="card kpi-card glass" 
+                        style={{ position: 'relative', overflow: 'hidden', cursor: 'pointer' }}
+                        onClick={() => router.push(`/tickets?filter=${kpi.label}`)}
+                        title={`Ver detalles de ${kpi.label} en Gestión Tickets`}
+                    >
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                             <div className={`icon-box ${kpi.type}`} style={{
                                 width: '48px', height: '48px', borderRadius: 'var(--radius-sm)',

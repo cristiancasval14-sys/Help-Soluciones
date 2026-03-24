@@ -69,6 +69,13 @@ export default function TicketsList() {
                 }
                 setTickets(filtered as Ticket[]);
                 setStaffList(staffData);
+
+                // Auto-apply filter if coming from dashboard URL query
+                const params = new URLSearchParams(window.location.search);
+                const queryFilter = params.get('filter');
+                if (queryFilter) {
+                    setActiveFilter(queryFilter);
+                }
             } catch (err) {
                 console.error("Error connecting to Supabase:", err);
             }
