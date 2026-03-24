@@ -90,15 +90,17 @@ export default function NewTicket() {
     const clientEmployees = selectedCompanyObj?.employees || [];
     
     const filteredInventory = inventory.filter(item => {
+        // 1. Si NO se ha seleccionado un usuario, NO mostrar NINGÚN equipo
+        if (!formData.requester) return false;
+
         const itemClient = item.company?.name || item.clientName;
         const itemEmployee = item.assigned_employee || item.assignedEmployee;
         
+        // 2. Comprobar que pertenece al cliente
         if (selectedClient && itemClient !== selectedClientName) return false;
         
-        // Si hay un empleado seleccionado, mostrar ESTRICTAMENTE SUS equipos
-        if (formData.requester && itemEmployee !== formData.requester) {
-            return false;
-        }
+        // 3. Comprobar estrictamente que está asignado a la persona seleccionada
+        if (itemEmployee !== formData.requester) return false;
         
         return true;
     });
