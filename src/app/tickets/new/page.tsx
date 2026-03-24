@@ -128,9 +128,34 @@ export default function NewTicket() {
         setLoading(true);
 
         try {
+            // Generar ID consecutivo por empresa
+            const allTickets = await TicketService.getAll();
+            const companyTickets = allTickets.filter((t: any) => t.company_id === selectedClient);
+            const clientPrefix = selectedCompanyObj?.name?.substring(0, 3).toUpperCase() || 'EMP';
+            const prefix = `TIC-${clientPrefix}`;
+            
+            let maxNum = 0;
+            companyTickets.forEach((t: any) => {
+                const eqId = t.id || '';
+                if (eqId.toUpperCase().startsWith(prefix.toUpperCase() + '-')) {
+                    const parts = eqId.split('-');
+                    const numStr = parts[parts.length - 1];
+                    // Ignorar tickets viejos con ID aleatorio de 5 dígitos (ej. TIC-82194)
+                    if (numStr && numStr.length <= 4) {
+                        const num = parseInt(numStr, 10);
+                        if (!isNaN(num) && num > maxNum) {
+                            maxNum = num;
+                        }
+                    }
+                }
+            });
+            
+            const nextNum = (maxNum + 1).toString().padStart(2, '0');
+            const newTicketId = `${prefix}-${nextNum}`;
+
             const locationCoords = getLocationCoords();
             const newTicket = {
-                id: 'TIC-' + Math.floor(Math.random() * 100000).toString().padStart(5, '0'),
+                id: newTicketId,
                 company_id: selectedClient,
                 requester_name: formData.requester,
                 type: formData.serviceType,
