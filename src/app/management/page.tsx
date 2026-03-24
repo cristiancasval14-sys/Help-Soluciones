@@ -295,7 +295,7 @@ export default function AdministrativeManagement() {
                 .action-btn.update:hover { color: var(--warning); border-color: var(--warning); }
                 .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-                .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: flex-start; justify-content: center; padding-top: 5vh; padding-bottom: 5vh; overflow-y: auto; z-index: 2000; }
+                .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000; }
                 .modal-content { background: var(--surface); padding: 2.5rem; border-radius: 16px; width: 400px; box-shadow: 0 30px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; border: 1px solid var(--surface-border); }
                 
                 .staff-option { width: 100%; padding: 1.2rem; display: flex; align-items: center; justify-content: space-between; border-radius: 12px; transition: 0.2s; cursor: pointer; border: 1px solid transparent; }
