@@ -130,17 +130,19 @@ export default function NewTicket() {
         try {
             const locationCoords = getLocationCoords();
             const newTicket = {
+                id: 'TIC-' + Math.floor(Math.random() * 100000).toString().padStart(5, '0'),
                 company_id: selectedClient,
                 sede_id: selectedSede || null,
                 requester_name: formData.requester,
                 contact_info: formData.contact,
                 service_type: formData.serviceType,
                 modality: modality,
-                any_desk_id: modality === 'Remoto' ? formData.anydesk : '',
+                any_desk_id: modality === 'Remoto' ? formData.anydesk : null,
                 description: formData.description,
                 priority: (formData.priority === 'Low' ? 'Baja' : formData.priority === 'Medium' ? 'Media' : formData.priority === 'High' ? 'Alta' : 'Crítica') as Priority,
                 status: 'Nuevo' as TicketStatus,
-                equipment_short_id: selectedAsset?.equipment_id || 'N/A'
+                date: new Date().toISOString().split('T')[0],
+                equipment_short_id: selectedAsset?.equipment_id || null
             };
 
             await TicketService.create(newTicket as any);
@@ -148,9 +150,9 @@ export default function NewTicket() {
             setLoading(false);
             setSuccess(true);
             setTimeout(() => router.push('/tickets'), 1500);
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error creating ticket:", err);
-            alert("Error al guardar el ticket en Supabase");
+            alert("Error de Supabase: " + (err.message || "Error desconocido al guardar"));
             setLoading(false);
         }
     };
