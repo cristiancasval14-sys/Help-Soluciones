@@ -45,6 +45,7 @@ export default function TicketsList() {
     const [techNotes, setTechNotes] = useState('');
     const [staffList, setStaffList] = useState<Staff[]>([]);
     const [selectedStaffId, setSelectedStaffId] = useState('');
+    const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -151,11 +152,19 @@ export default function TicketsList() {
     const isTech = currentUser?.role === 'Técnico';
 
     const stats = [
-        { label: 'Total Tickets', value: tickets.length.toString(), color: 'var(--primary)', icon: TicketIcon },
-        { label: 'Urgentes', value: tickets.filter(t => t.priority === 'Crítica' || t.priority === 'Alta').length.toString(), color: 'var(--error)', icon: AlertTriangle },
-        { label: 'En Proceso', value: tickets.filter(t => ['En Proceso', 'Asignado', 'Pendiente'].includes(t.status)).length.toString(), color: 'var(--warning)', icon: Clock },
-        { label: 'Resueltos', value: tickets.filter(st => ['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(st.status)).length.toString(), color: 'var(--success)', icon: CheckCircle },
-    ];
+        { id: 'Total', label: 'Total Tickets', value: tickets.length.toString(), color: 'var(--primary)', icon: TicketIcon, visible: true },
+        { id: 'Urgentes', label: 'Urgentes', value: tickets.filter(t => t.priority === 'Crítica' || t.priority === 'Alta').length.toString(), color: 'var(--error)', icon: AlertTriangle, visible: true },
+        { id: 'En Proceso', label: 'En Proceso', value: tickets.filter(t => ['En Proceso', 'Asignado', 'Pendiente'].includes(t.status)).length.toString(), color: 'var(--warning)', icon: Clock, visible: true },
+        { id: 'Resueltos', label: 'Resueltos', value: tickets.filter(st => ['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(st.status)).length.toString(), color: 'var(--success)', icon: CheckCircle, visible: isAdmin },
+    ].filter(s => s.visible);
+
+    const displayedTickets = tickets.filter(t => {
+        if (!activeFilter || activeFilter === 'Total') return true;
+        if (activeFilter === 'Urgentes') return t.priority === 'Crítica' || t.priority === 'Alta';
+        if (activeFilter === 'En Proceso') return ['En Proceso', 'Asignado', 'Pendiente'].includes(t.status);
+        if (activeFilter === 'Resueltos') return ['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(t.status);
+        return true;
+    });
 
     return (
         <div className="tickets-page fade-in">
@@ -174,9 +183,25 @@ export default function TicketsList() {
             </header>
 
             {!isClient && (
-                <div className="stats-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
+                <div className="stats-row" style={{ display: 'grid', gridTemplateColumns: `repeat(${stats.length}, 1fr)`, gap: '1.5rem', marginBottom: '2.5rem' }}>
                     {stats.map(stat => (
-                        <div key={stat.label} className="card glass stat-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.2rem' }}>
+                        <div 
+                            key={stat.id} 
+                            className={`card glass stat-card ${activeFilter === stat.id ? 'active-filter' : ''}`} 
+                            style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '1rem', 
+                                padding: '1.2rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                                border: activeFilter === stat.id ? `2px solid ${stat.color}` : '1px solid transparent',
+                                transform: activeFilter === stat.id ? 'translateY(-3px)' : 'none',
+                                boxShadow: activeFilter === stat.id ? `0 10px 25px ${stat.color}20` : 'none'
+                            }}
+                            onClick={() => setActiveFilter(activeFilter === stat.id ? null : stat.id)}
+                            title={`Filtrar por ${stat.label}`}
+                        >
                             <div style={{ background: `${stat.color}15`, color: stat.color, padding: '0.8rem', borderRadius: '12px' }}>
                                 <stat.icon size={24} />
                             </div>
@@ -211,7 +236,7 @@ export default function TicketsList() {
                         </tr>
                     </thead>
                     <tbody>
-                        {tickets.map(ticket => (
+                        {displayedTickets.map(ticket => (
                             <tr key={ticket.id} className="ticket-row">
                                 <td style={{ fontWeight: 800, color: 'var(--primary)' }}>{ticket.id}</td>
                                 <td>
@@ -388,6 +413,7 @@ export default function TicketsList() {
                 .ticket-row:hover { background: rgba(99, 102, 241, 0.02); }
                 .row-btn { color: var(--text-muted); padding: 4px; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; }
                 .row-btn:hover { color: var(--primary); transform: translateX(3px); }
+                .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
                 .assign-btn { color: var(--primary); background: rgba(99, 102, 241, 0.05); border-radius: 6px; padding: 6px; }
                 .assign-btn:hover { background: rgba(99, 102, 241, 0.15); transform: scale(1.1) !important; }
                 .status-btn { cursor: pointer; transition: all 0.2s ease; }
