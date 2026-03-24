@@ -1,5 +1,15 @@
 import { supabase, Ticket as DBTicket, Company as DBCompany, Staff as DBStaff } from './supabase';
 
+
+const sanitize = (obj: any) => {
+    if (!obj || typeof obj !== 'object') return obj;
+    const clean = { ...obj };
+    Object.keys(clean).forEach(k => {
+        if (clean[k] === '') clean[k] = null;
+    });
+    return clean;
+};
+
 export const TicketService = {
     async getAll() {
         const { data, error } = await supabase
@@ -27,7 +37,7 @@ export const TicketService = {
     async update(id: string, updates: any) {
         const { data, error } = await supabase
             .from('tickets')
-            .update(updates)
+            .update(sanitize(updates))
             .eq('id', id)
             .select();
         if (error) throw error;
@@ -37,7 +47,7 @@ export const TicketService = {
     async create(ticket: any) {
         const { data, error } = await supabase
             .from('tickets')
-            .insert([ticket])
+            .insert([sanitize(ticket)])
             .select();
         if (error) throw error;
         return data ? data[0] : null;
@@ -66,7 +76,7 @@ export const CompanyService = {
         if (company.lat === '') company.lat = null;
         if (company.lng === '') company.lng = null;
 
-        const { data, error } = await supabase.from('companies').insert([company]).select();
+        const { data, error } = await supabase.from('companies').insert([sanitize(company)]).select();
         if (error) {
             console.error("CompanyService.create error:", error);
             throw error;
@@ -78,7 +88,7 @@ export const CompanyService = {
         if (updates.lat === '') updates.lat = null;
         if (updates.lng === '') updates.lng = null;
 
-        const { data, error } = await supabase.from('companies').update(updates).eq('id', id).select();
+        const { data, error } = await supabase.from('companies').update(sanitize(updates)).eq('id', id).select();
         if (error) throw error;
         return data ? data[0] : null;
     },
@@ -89,7 +99,7 @@ export const CompanyService = {
     },
 
     async addEmployee(employee: any) {
-        const { data, error } = await supabase.from('company_employees').insert([employee]).select();
+        const { data, error } = await supabase.from('company_employees').insert([sanitize(employee)]).select();
         if (error) throw error;
         return data ? data[0] : null;
     },
@@ -103,7 +113,7 @@ export const CompanyService = {
         if (sede.lat === '') sede.lat = null;
         if (sede.lng === '') sede.lng = null;
 
-        const { data, error } = await supabase.from('company_sedes').insert([sede]).select();
+        const { data, error } = await supabase.from('company_sedes').insert([sanitize(sede)]).select();
         if (error) throw error;
         return data ? data[0] : null;
     },
@@ -123,7 +133,7 @@ export const InventoryService = {
     },
 
     async create(asset: any) {
-        const { data, error } = await supabase.from('inventory').insert([asset]).select();
+        const { data, error } = await supabase.from('inventory').insert([sanitize(asset)]).select();
         if (error) {
             console.error("InventoryService.create error:", error);
             throw error;
@@ -132,7 +142,7 @@ export const InventoryService = {
     },
 
     async update(id: string, updates: any) {
-        const { data, error } = await supabase.from('inventory').update(updates).eq('id', id).select();
+        const { data, error } = await supabase.from('inventory').update(sanitize(updates)).eq('id', id).select();
         if (error) throw error;
         return data ? data[0] : null;
     },
@@ -152,7 +162,7 @@ export const StaffService = {
     },
 
     async create(staff: any) {
-        const { data, error } = await supabase.from('staff').insert([staff]).select();
+        const { data, error } = await supabase.from('staff').insert([sanitize(staff)]).select();
         if (error) {
             console.error("StaffService.create error:", error);
             throw error;
@@ -161,7 +171,7 @@ export const StaffService = {
     },
 
     async update(id: string, updates: any) {
-        const { data, error } = await supabase.from('staff').update(updates).eq('id', id).select();
+        const { data, error } = await supabase.from('staff').update(sanitize(updates)).eq('id', id).select();
         if (error) throw error;
         return data ? data[0] : null;
     },
@@ -185,13 +195,13 @@ export const KnowledgeBaseService = {
     },
 
     async create(article: any) {
-        const { data, error } = await supabase.from('knowledge_base').insert([article]).select();
+        const { data, error } = await supabase.from('knowledge_base').insert([sanitize(article)]).select();
         if (error) throw error;
         return data ? data[0] : null;
     },
 
     async update(id: string, updates: any) {
-        const { data, error } = await supabase.from('knowledge_base').update(updates).eq('id', id).select();
+        const { data, error } = await supabase.from('knowledge_base').update(sanitize(updates)).eq('id', id).select();
         if (error) throw error;
         return data ? data[0] : null;
     },
@@ -213,7 +223,7 @@ export const ServiceReportService = {
     },
 
     async create(report: any) {
-        const { data, error } = await supabase.from('service_reports').insert([report]).select();
+        const { data, error } = await supabase.from('service_reports').insert([sanitize(report)]).select();
         if (error) throw error;
         return data ? data[0] : null;
     }
@@ -234,7 +244,7 @@ export const UserService = {
     async create(user: any) {
         if (!supabase) throw new Error("Supabase is missing");
 
-        const { data, error } = await supabase.from('profiles').insert([user]).select();
+        const { data, error } = await supabase.from('profiles').insert([sanitize(user)]).select();
         if (error) {
             console.error("UserService.create error:", error);
             throw error;
@@ -244,7 +254,7 @@ export const UserService = {
 
     async update(id: string, updates: any) {
         if (!supabase) throw new Error("Supabase is missing");
-        const { data, error } = await supabase.from('profiles').update(updates).eq('id', id).select();
+        const { data, error } = await supabase.from('profiles').update(sanitize(updates)).eq('id', id).select();
         if (error) throw error;
         return data ? data[0] : null;
     },
@@ -280,7 +290,7 @@ export const UserService = {
 
 export const PasswordRequestService = {
     async create(username: string) {
-        const { data, error } = await supabase.from('password_requests').insert([{ username }]).select();
+        const { data, error } = await supabase.from('password_requests').insert([sanitize({ username })]).select();
         if (error) throw error;
         return data ? data[0] : null;
     },
@@ -290,7 +300,7 @@ export const PasswordRequestService = {
         return data || [];
     },
     async update(id: string, updates: any) {
-        const { data, error } = await supabase.from('password_requests').update(updates).eq('id', id).select();
+        const { data, error } = await supabase.from('password_requests').update(sanitize(updates)).eq('id', id).select();
         if (error) throw error;
         return data ? data[0] : null;
     },
@@ -308,12 +318,12 @@ export const VisitService = {
         return data || [];
     },
     async create(visit: any) {
-        const { data, error } = await supabase.from('visits').insert([visit]).select();
+        const { data, error } = await supabase.from('visits').insert([sanitize(visit)]).select();
         if (error) throw error;
         return data ? data[0] : null;
     },
     async update(id: string, updates: any) {
-        const { data, error } = await supabase.from('visits').update(updates).eq('id', id).select();
+        const { data, error } = await supabase.from('visits').update(sanitize(updates)).eq('id', id).select();
         if (error) throw error;
         return data ? data[0] : null;
     },
