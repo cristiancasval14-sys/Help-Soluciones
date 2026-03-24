@@ -191,12 +191,16 @@ export default function Inventory() {
 
         let maxNum = 0;
         matchingAssets.forEach(a => {
-            const parts = (a.equipment_id || '').split('-');
-            if (parts.length > 1) {
+            const eqId = a.equipment_id || '';
+            if (eqId.toUpperCase().startsWith(prefix.toUpperCase() + '-')) {
+                const parts = eqId.split('-');
                 const numStr = parts[parts.length - 1];
-                const num = parseInt(numStr, 10);
-                if (!isNaN(num) && num > maxNum) {
-                    maxNum = num;
+                // Ignore 4-digit randoms generated previously so we strictly start from 01
+                if (numStr && numStr.length <= 3) {
+                    const num = parseInt(numStr, 10);
+                    if (!isNaN(num) && num > maxNum) {
+                        maxNum = num;
+                    }
                 }
             }
         });
