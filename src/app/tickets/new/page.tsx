@@ -94,7 +94,7 @@ export default function NewTicket() {
         if (!formData.requester) return false;
 
         const itemClient = item.company?.name || item.clientName;
-        const itemEmployee = item.assigned_employee || item.assignedEmployee;
+        const itemEmployee = item.employee?.name || item.assignedEmployee;
         
         // 2. Comprobar que pertenece al cliente
         if (selectedClient && itemClient !== selectedClientName) return false;
@@ -249,7 +249,7 @@ export default function NewTicket() {
                                         }));
 
                                         // Auto-seleccionar el equipo si el empleado tiene uno asignado
-                                        const empAssets = inventory.filter(item => (item.assigned_employee || item.assignedEmployee) === empName);
+                                        const empAssets = inventory.filter(item => (item.employee?.name || item.assignedEmployee) === empName);
                                         if (empAssets.length === 1) {
                                             setSelectedAsset(empAssets[0]);
                                         } else {

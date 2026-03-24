@@ -139,7 +139,7 @@ export const CompanyService = {
 
 export const InventoryService = {
     async getAll() {
-        const { data, error } = await supabase.from('inventory').select('*, company:companies(name)');
+        const { data, error } = await supabase.from('inventory').select('*, company:companies(name), employee:company_employees(name)');
         if (error) throw error;
         return data || [];
     },

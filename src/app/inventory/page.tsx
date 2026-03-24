@@ -110,7 +110,7 @@ export default function Inventory() {
                     ...a,
                     equipment_id: a.equipment_id || 'N/A',
                     clientName: a.company?.name || 'Inventario Base',
-                    assignedEmployee: a.assigned_employee || '',
+                    assignedEmployee: a.employee?.name || '',
                     locationType: a.location_type || a.locationType || 'Bodega',
                     brand: a.brand || 'N/A',
                     model: a.model || 'N/A',
@@ -134,9 +134,11 @@ export default function Inventory() {
         e.preventDefault();
         try {
             const company = clients.find(c => c.name === formData.clientName);
+            const employeeUser = (company?.employees || []).find((e: any) => e.name === formData.assignedEmployee);
+
             const payload = {
                 equipment_id: formData.id,
-                company_id: company?.id,
+                company_id: company?.id || null,
                 location_type: formData.locationType,
                 brand: formData.brand,
                 model: formData.model,
@@ -145,7 +147,7 @@ export default function Inventory() {
                 ram: formData.ram,
                 processor: formData.processor,
                 status: formData.status,
-                assigned_employee: formData.assignedEmployee || '' // GUARDAR DUEÑO EN BD
+                assigned_employee_id: employeeUser?.id || null
             };
 
             if (activeAsset) {
