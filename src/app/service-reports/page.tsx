@@ -69,10 +69,20 @@ export default function ServiceReports() {
     const clientSedes = selectedClientObj?.sedes || [];
     const clientEmployees = selectedClientObj?.employees || [];
 
-    // Filter inventory based on selected client and optionally selected user
+    // Filter inventory based on selected client and strictly selected user
     const filteredInventory = inventory.filter(inv => {
-        if (formData.client && inv.clientName !== (selectedClientObj?.name || formData.client)) return false;
-        if (formData.user && inv.assignedEmployee && inv.assignedEmployee !== formData.user) return false;
+        // Si no hay usuario seleccionado, no mostrar ningún equipo
+        if (!formData.user) return false;
+
+        const itemClient = inv.clientName || inv.company?.name;
+        const itemEmployee = inv.assignedEmployee || inv.employee?.name;
+
+        // Validar que pertenezca al cliente correcto
+        if (formData.client && itemClient !== (selectedClientObj?.name || formData.client)) return false;
+        
+        // Mostrar estrictamente el equipo que está asignado a la persona seleccionada
+        if (itemEmployee !== formData.user) return false;
+
         return true;
     });
 
@@ -225,8 +235,26 @@ export default function ServiceReports() {
                         <div className="form-group">
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Usuario Final (Opcional)</label>
                             <select name="user" value={formData.user} onChange={(e) => {
-                                handleInputChange(e);
-                                setFormData(prev => ({ ...prev, assetId: '' }));
+                                const newUserName = e.target.value;
+                                
+                                // Filtrar para ver si este usuario tiene 1 solo equipo y autoseleccionarlo
+                                let newAssetId = '';
+                                const empAssets = inventory.filter(inv => {
+                                    const itemClient = inv.clientName || inv.company?.name;
+                                    const itemEmployee = inv.assignedEmployee || inv.employee?.name;
+                                    if (formData.client && itemClient !== (selectedClientObj?.name || formData.client)) return false;
+                                    return itemEmployee === newUserName;
+                                });
+
+                                if (newUserName && empAssets.length === 1) {
+                                    newAssetId = empAssets[0].id;
+                                }
+
+                                setFormData(prev => ({ 
+                                    ...prev, 
+                                    user: newUserName,
+                                    assetId: newAssetId 
+                                }));
                             }} className="form-input" disabled={!formData.client || clientEmployees.length === 0}>
                                 <option value="">Seleccione usuario...</option>
                                 {clientEmployees.map((e: any) => (
