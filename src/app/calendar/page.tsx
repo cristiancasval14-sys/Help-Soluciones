@@ -77,21 +77,26 @@ export default function CalendarPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [staffData, companyData, visitData] = await Promise.all([
-                    StaffService.getAll(),
-                    CompanyService.getAll(),
-                    VisitService.getAll()
-                ]);
-
+                const staffData = await StaffService.getAll();
                 setStaff(staffData.map((s: any) => ({
                     id: s.id,
                     firstName: s.first_name,
                     lastName: s.last_name,
                     role: s.role
                 })));
+            } catch (err) {
+                console.error("Error loading staff:", err);
+            }
 
+            try {
+                const companyData = await CompanyService.getAll();
                 setCompanies(companyData as any[]);
+            } catch (err) {
+                console.error("Error loading companies:", err);
+            }
 
+            try {
+                const visitData = await VisitService.getAll();
                 setVisits(visitData.map((v: any) => ({
                     id: v.id,
                     date: v.date,
@@ -109,7 +114,7 @@ export default function CalendarPage() {
                     isAllDay: v.is_all_day
                 })));
             } catch (err) {
-                console.error("Error loading calendar data:", err);
+                console.error("Error loading visits:", err);
             }
         };
 
