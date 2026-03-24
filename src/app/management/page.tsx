@@ -11,7 +11,8 @@ import {
     User,
     ClipboardList,
     AlertCircle,
-    CheckCircle
+    CheckCircle,
+    PlayCircle
 } from 'lucide-react';
 import { TicketService, StaffService } from '@/lib/services';
 import Link from 'next/link';
@@ -253,16 +254,18 @@ export default function AdministrativeManagement() {
                         </h2>
                         <div className="status-selector" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '1.5rem' }}>
                             {[
-                                { label: 'Pendiente', color: 'var(--text-muted)' },
-                                { label: 'En Proceso', color: 'var(--warning)' },
-                                { label: 'Terminado', color: 'var(--success)' }
+                                { label: 'Pendiente', color: 'var(--warning)', bg: 'rgba(245, 158, 11, 0.05)', icon: <Clock size={24} /> },
+                                { label: 'En Proceso', color: 'var(--info)', bg: 'rgba(59, 130, 246, 0.05)', icon: <PlayCircle size={24} /> },
+                                { label: 'Terminado', color: 'var(--success)', bg: 'rgba(16, 185, 129, 0.05)', icon: <CheckCircle size={24} /> }
                             ].map(st => (
                                 <button
                                     key={st.label}
-                                    className="status-btn glass"
+                                    className="status-btn"
                                     onClick={() => handleStatusUpdate(st.label, (document.getElementById('prog-notes') as HTMLTextAreaElement).value)}
+                                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '1rem', borderRadius: '12px', border: `1px solid ${st.color}`, background: st.bg, color: st.color, transition: '0.2s' }}
                                 >
-                                    {st.label}
+                                    {st.icon}
+                                    <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>{st.label}</span>
                                 </button>
                             ))}
                         </div>

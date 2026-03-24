@@ -18,7 +18,8 @@ import {
     Save,
     X,
     MessageSquare,
-    ClipboardCheck
+    ClipboardCheck,
+    PlayCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -288,17 +289,36 @@ export default function TicketsList() {
                         <form onSubmit={handleUpdateStatus} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             <div className="form-group">
                                 <label style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.6rem', display: 'block' }}>Estado del Soporte</label>
-                                <select 
-                                    className="form-input" 
-                                    value={newStatus} 
-                                    onChange={e => setNewStatus(e.target.value)}
-                                    required
-                                    style={{ border: '2px solid var(--primary)' }}
-                                >
-                                    <option value="Pendiente">Pendiente por hacer</option>
-                                    <option value="En Proceso">En proceso</option>
-                                    <option value="Finalizado">Finalizado</option>
-                                </select>
+                                <input type="hidden" required value={newStatus} />
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                                    <button 
+                                        type="button"
+                                        className={`status-btn ${newStatus === 'Pendiente' ? 'active' : ''}`}
+                                        onClick={() => setNewStatus('Pendiente')}
+                                        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '1rem', borderRadius: '12px', border: newStatus === 'Pendiente' ? '2px solid var(--warning)' : '1px solid var(--surface-border)', background: newStatus === 'Pendiente' ? 'rgba(245, 158, 11, 0.05)' : 'var(--surface)', color: newStatus === 'Pendiente' ? 'var(--warning)' : 'var(--text-muted)' }}
+                                    >
+                                        <Clock size={24} />
+                                        <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>Pendiente</span>
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        className={`status-btn ${newStatus === 'En Proceso' ? 'active' : ''}`}
+                                        onClick={() => setNewStatus('En Proceso')}
+                                        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '1rem', borderRadius: '12px', border: newStatus === 'En Proceso' ? '2px solid var(--info)' : '1px solid var(--surface-border)', background: newStatus === 'En Proceso' ? 'rgba(59, 130, 246, 0.05)' : 'var(--surface)', color: newStatus === 'En Proceso' ? 'var(--info)' : 'var(--text-muted)' }}
+                                    >
+                                        <PlayCircle size={24} />
+                                        <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>En Proceso</span>
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        className={`status-btn ${newStatus === 'Finalizado' ? 'active' : ''}`}
+                                        onClick={() => setNewStatus('Finalizado')}
+                                        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '1rem', borderRadius: '12px', border: newStatus === 'Finalizado' ? '2px solid var(--success)' : '1px solid var(--surface-border)', background: newStatus === 'Finalizado' ? 'rgba(16, 185, 129, 0.05)' : 'var(--surface)', color: newStatus === 'Finalizado' ? 'var(--success)' : 'var(--text-muted)' }}
+                                    >
+                                        <CheckCircle size={24} />
+                                        <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>Finalizado</span>
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="form-group">
@@ -370,6 +390,8 @@ export default function TicketsList() {
                 .row-btn:hover { color: var(--primary); transform: translateX(3px); }
                 .assign-btn { color: var(--primary); background: rgba(99, 102, 241, 0.05); border-radius: 6px; padding: 6px; }
                 .assign-btn:hover { background: rgba(99, 102, 241, 0.15); transform: scale(1.1) !important; }
+                .status-btn { cursor: pointer; transition: all 0.2s ease; }
+                .status-btn:hover:not(.active) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
                 .status-update-btn { color: var(--secondary); background: rgba(13, 148, 136, 0.05); border-radius: 6px; padding: 6px; }
                 .status-update-btn:hover { background: rgba(13, 148, 136, 0.15); border-color: var(--secondary); transform: scale(1.1) !important; }
                 .delete-btn:hover { color: var(--error) !important; background: rgba(239, 68, 68, 0.1); border-radius: 4px; transform: none; }
