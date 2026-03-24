@@ -32,7 +32,7 @@ export const TicketService = {
                 .select('*, company:companies(*), staff:staff(*)')
                 .order('created_at', { ascending: false });
 
-            if (!error && data && data.length > 0) return data;
+            if (!error && data ) return data;
         } catch (e) { console.warn("TicketService.getAll fallback"); }
 
         // Fallback
@@ -118,7 +118,7 @@ export const CompanyService = {
             const { data, error } = await supabase
                 .from('companies')
                 .select('*, employees:company_employees(*), sedes:company_sedes(*)');
-            if (!error && data && data.length > 0) return data;
+            if (!error && data ) return data;
         } catch (e) { }
         return getLocal(KEYS.CLIENTS);
     },
@@ -186,7 +186,7 @@ export const InventoryService = {
     async getAll() {
         try {
             const { data, error } = await supabase.from('inventory').select('*, company:companies(name)');
-            if (!error && data && data.length > 0) return data;
+            if (!error && data ) return data;
         } catch (e) { }
         return getLocal(KEYS.INVENTORY);
     },
@@ -228,7 +228,7 @@ export const StaffService = {
     async getAll() {
         try {
             const { data, error } = await supabase.from('staff').select('*');
-            if (!error && data && data.length > 0) return data;
+            if (!error && data ) return data;
         } catch (e) { }
         return getLocal(KEYS.STAFF);
     },
@@ -274,7 +274,7 @@ export const KnowledgeBaseService = {
                 .select('*')
                 .order('pinned', { ascending: false })
                 .order('created_at', { ascending: false });
-            if (!error && data && data.length > 0) return data;
+            if (!error && data ) return data;
         } catch (e) { }
         return getLocal(KEYS.KNOWLEDGE);
     },
@@ -318,7 +318,7 @@ export const ServiceReportService = {
             const { data, error } = await supabase
                 .from('service_reports')
                 .select('*, company:companies(name), technician:staff(first_name, last_name)');
-            if (!error && data && data.length > 0) return data;
+            if (!error && data ) return data;
         } catch (e) { }
         return getLocal(KEYS.REPORTS);
     },
@@ -341,7 +341,7 @@ export const UserService = {
         try {
             if (supabase) {
                 const { data, error } = await supabase.from('profiles').select('*');
-                if (!error && data && data.length > 0) return data;
+                if (!error && data ) return data;
             }
         } catch (e) { }
         return getLocal(KEYS.USERS);
@@ -417,7 +417,7 @@ export const PasswordRequestService = {
     async getAll() {
         try {
             const { data, error } = await supabase.from('password_requests').select('*');
-            if (!error && data && data.length > 0) return data;
+            if (!error && data ) return data;
         } catch (e) { }
         return getLocal(KEYS.PASSWORD_REQUESTS);
     },
@@ -445,7 +445,7 @@ export const VisitService = {
     async getAll() {
         try {
             const { data, error } = await supabase.from('visits').select('*, staff:staff(*), company:companies(*), sede:company_sedes(*)');
-            if (!error && data && data.length > 0) return data;
+            if (!error && data ) return data;
         } catch (e) { }
         return getLocal(KEYS.VISITS);
     },
