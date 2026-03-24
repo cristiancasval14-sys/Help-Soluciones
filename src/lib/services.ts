@@ -164,14 +164,23 @@ export const CompanyService = {
         return { ...employee, id: `emp-${Date.now()}` };
     },
 
+    async deleteEmployee(id: string) {
+        try { await supabase.from('company_employees').delete().eq('id', id); } catch (e) { }
+    },
+
     async addSede(sede: any) {
         try {
             const { data, error } = await supabase.from('company_sedes').insert([sede]).select();
             if (!error && data) return data[0];
         } catch (e) { }
         return { ...sede, id: `sede-${Date.now()}` };
+    },
+
+    async deleteSede(id: string) {
+        try { await supabase.from('company_sedes').delete().eq('id', id); } catch (e) { }
     }
 };
+
 
 export const InventoryService = {
     async getAll() {

@@ -61,9 +61,9 @@ export default function Dashboard() {
                 let filtered = mapped;
                 if (user && user.role !== 'Administrador') {
                     if (user.role === 'Técnico') {
-                        filtered = mapped.filter(t => t.assignedTo === user.assignedTo);
+                        filtered = mapped.filter((t: any) => t.assignedTo === user.assignedTo);
                     } else if (user.role === 'Cliente') {
-                        filtered = mapped.filter(t => t.client === user.assignedTo);
+                        filtered = mapped.filter((t: any) => t.client === user.assignedTo);
                     }
                 }
                 setTickets(filtered as Ticket[]);
@@ -78,8 +78,8 @@ export default function Dashboard() {
     const getKPIs = () => {
         const openTickets = tickets.filter(t => !['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(t.status));
         const resolvedTickets = tickets.filter(t => ['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(t.status));
-        const highPriority = tickets.filter(t => 
-            (t.priority === 'Alta' || t.priority === 'Crítica') && 
+        const highPriority = tickets.filter(t =>
+            (t.priority === 'Alta' || t.priority === 'Crítica') &&
             !['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(t.status)
         );
 
@@ -104,8 +104,8 @@ export default function Dashboard() {
             <header className="dashboard-header" style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                 <div>
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '0.2rem' }}>
-                        {currentUser?.role === 'Administrador' 
-                            ? 'Visión Global de Operación' 
+                        {currentUser?.role === 'Administrador'
+                            ? 'Visión Global de Operación'
                             : (currentUser?.role === 'Cliente' ? `Resumen de Empresa: ${currentUser?.assignedTo}` : `Mis Actividades: ${currentUser?.assignedTo || currentUser?.username}`)}
                     </p>
                     <h1 style={{ fontSize: '2rem' }}>Dashboard Principal</h1>
@@ -205,8 +205,8 @@ export default function Dashboard() {
             {isDetailOpen && selectedTicket && (
                 <div className="modal-overlay fade-in" onClick={() => setIsDetailOpen(false)}>
                     <div className="modal-content glass" onClick={e => e.stopPropagation()} style={{ width: '600px', padding: '0', overflow: 'hidden' }}>
-                        <header style={{ 
-                            padding: '2rem', 
+                        <header style={{
+                            padding: '2rem',
                             background: 'linear-gradient(to right, rgba(99, 102, 241, 0.05), transparent)',
                             borderBottom: '1px solid var(--surface-border)',
                             display: 'flex',
