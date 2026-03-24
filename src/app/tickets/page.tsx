@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-import { TicketService } from '@/lib/services';
+import { TicketService, StaffService } from '@/lib/services';
 import { Ticket as DBTicket, Priority, TicketStatus, Company, Staff } from '@/lib/supabase';
 
 // Local UI Interface (extends DB interface)
@@ -39,33 +39,41 @@ export default function TicketsList() {
     // Status management state
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
     const [newStatus, setNewStatus] = useState('');
     const [techNotes, setTechNotes] = useState('');
+    const [staffList, setStaffList] = useState<Staff[]>([]);
+    const [selectedStaffId, setSelectedStaffId] = useState('');
 
     useEffect(() => {
-        const fetchTickets = async () => {
+        const fetchInitialData = async () => {
             const session = localStorage.getItem('help_session');
             const user = session ? JSON.parse(session) : null;
             setCurrentUser(user);
 
             try {
-                const data = await TicketService.getAll();
-                let filtered = data;
+                const [ticketsData, staffData] = await Promise.all([
+                    TicketService.getAll(),
+                    isAdminRole(user) ? StaffService.getAll() : Promise.resolve([])
+                ]);
                 
+                let filtered = ticketsData;
                 if (user && user.role !== 'Administrador') {
                     if (user.role === 'Técnico') {
-                        filtered = data.filter((t: any) => (t.staff?.first_name + ' ' + t.staff?.last_name) === user.assignedTo);
+                        filtered = ticketsData.filter((t: any) => (t.staff?.first_name + ' ' + t.staff?.last_name) === user.assignedTo);
                     } else if (user.role === 'Cliente') {
-                        filtered = data.filter((t: any) => t.company?.name === user.assignedTo);
+                        filtered = ticketsData.filter((t: any) => t.company?.name === user.assignedTo);
                     }
                 }
                 setTickets(filtered as Ticket[]);
+                setStaffList(staffData);
             } catch (err) {
                 console.error("Error connecting to Supabase:", err);
             }
         };
 
-        fetchTickets();
+        const isAdminRole = (user: any) => user?.role === 'Administrador';
+        fetchInitialData();
     }, []);
 
 
@@ -85,8 +93,34 @@ export default function TicketsList() {
             setTickets(updatedTickets);
             setIsStatusModalOpen(false);
             setSelectedTicket(null);
-        } catch (err) {
-            alert("Error al actualizar en Supabase");
+        } catch (err: any) {
+            alert("Error de Supabase: " + (err.message || "Fallo al actualizar estado"));
+        }
+    };
+
+    const handleAssignStaff = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedTicket || !selectedStaffId) return;
+
+        try {
+            const selectedStaff = staffList.find(s => s.id === selectedStaffId);
+            await TicketService.update(selectedTicket.id, { 
+                assigned_staff_id: selectedStaffId,
+                status: 'Asignado'
+            });
+            
+            const updatedTickets = tickets.map(t => 
+                t.id === selectedTicket.id 
+                    ? { ...t, status: 'Asignado' as any, assigned_staff_id: selectedStaffId, staff: selectedStaff } 
+                    : t
+            );
+
+            setTickets(updatedTickets);
+            setIsAssignModalOpen(false);
+            setSelectedTicket(null);
+            setSelectedStaffId('');
+        } catch (err: any) {
+            alert("Error de Supabase: " + (err.message || "Fallo al asignar técnico"));
         }
     };
 
@@ -199,6 +233,19 @@ export default function TicketsList() {
                                 </td>
                                 <td style={{ textAlign: 'right' }}>
                                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                                        {isAdmin && (
+                                            <button 
+                                                className="row-btn assign-btn" 
+                                                title="Asignar Técnico"
+                                                onClick={() => {
+                                                    setSelectedTicket(ticket);
+                                                    setSelectedStaffId(ticket.assigned_staff_id || '');
+                                                    setIsAssignModalOpen(true);
+                                                }}
+                                            >
+                                                <User size={18} />
+                                            </button>
+                                        )}
                                         {isTech && (ticket.staff?.first_name + ' ' + ticket.staff?.last_name === currentUser?.assignedTo) && (
                                             <button 
                                                 className="row-btn status-update-btn" 
@@ -274,11 +321,55 @@ export default function TicketsList() {
                 </div>
             )}
 
+            {/* Admin Technician Assignment Modal */}
+            {isAssignModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content glass" style={{ width: '450px' }}>
+                        <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                            <div>
+                                <h2 style={{ fontSize: '1.25rem' }}>Asignar Técnico</h2>
+                                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Ticket ID: {selectedTicket?.id}</p>
+                            </div>
+                            <button onClick={() => setIsAssignModalOpen(false)}><X size={24} /></button>
+                        </header>
+                        <form onSubmit={handleAssignStaff} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            <div className="form-group">
+                                <label style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.6rem', display: 'block' }}>Seleccionar Personal Técnico</label>
+                                <select 
+                                    className="form-input" 
+                                    value={selectedStaffId} 
+                                    onChange={e => setSelectedStaffId(e.target.value)}
+                                    required
+                                    style={{ border: '2px solid var(--primary)', fontSize: '1rem' }}
+                                >
+                                    <option value="">Seleccione un ingeniero o técnico...</option>
+                                    {staffList.map(s => (
+                                        <option key={s.id} value={s.id}>{s.first_name} {s.last_name} ({s.role})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="card" style={{ background: 'rgba(59, 130, 246, 0.05)', padding: '1rem', border: '1px dashed var(--primary)' }}>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                    Al asignar, el ticket cambiará automáticamente a estado <strong>Asignado</strong> y el técnico recibirá la notificación en su panel.
+                                </p>
+                            </div>
+
+                            <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1rem' }}>
+                                <CheckCircle size={20} /> Confirmar Asignación
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             <style jsx>{`
                 .search-input { width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem; border-radius: var(--radius-sm); border: 1px solid var(--surface-border); background: var(--surface); color: var(--text-main); outline: none; }
                 .ticket-row:hover { background: rgba(99, 102, 241, 0.02); }
                 .row-btn { color: var(--text-muted); padding: 4px; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; }
                 .row-btn:hover { color: var(--primary); transform: translateX(3px); }
+                .assign-btn { color: var(--primary); background: rgba(99, 102, 241, 0.05); border-radius: 6px; padding: 6px; }
+                .assign-btn:hover { background: rgba(99, 102, 241, 0.15); transform: scale(1.1) !important; }
                 .status-update-btn { color: var(--secondary); background: rgba(13, 148, 136, 0.05); border-radius: 6px; padding: 6px; }
                 .status-update-btn:hover { background: rgba(13, 148, 136, 0.15); border-color: var(--secondary); transform: scale(1.1) !important; }
                 .delete-btn:hover { color: var(--error) !important; background: rgba(239, 68, 68, 0.1); border-radius: 4px; transform: none; }
