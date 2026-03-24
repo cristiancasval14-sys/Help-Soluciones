@@ -26,7 +26,8 @@ import {
     CheckCircle2,
     AlertTriangle,
     User,
-    Users
+    Users,
+    RefreshCw
 } from 'lucide-react';
 
 import { InventoryService, CompanyService } from '@/lib/services';
@@ -192,7 +193,9 @@ export default function Inventory() {
             });
         } else {
             setActiveAsset(null);
-            setFormData({ id: '', clientName: '', assignedEmployee: '', locationType: 'Bodega', brand: '', model: '', serial: '', storage: '', ram: '', processor: '', status: 'Activo' });
+            // Auto generate ID for Bodega by default
+            const rnd = Math.floor(1000 + Math.random() * 9000);
+            setFormData({ id: `BOD-${rnd}`, clientName: '', assignedEmployee: '', locationType: 'Bodega', brand: '', model: '', serial: '', storage: '', ram: '', processor: '', status: 'Activo' });
         }
         setIsModalOpen(true);
     };
@@ -465,12 +468,39 @@ export default function Inventory() {
                         <form onSubmit={handleSave} className="asset-form">
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label>ID Interno</label>
-                                    <input type="text" className="form-input" value={formData.id} onChange={e => setFormData({ ...formData, id: e.target.value })} placeholder="EQU-000" />
+                                    <label>ID Interno (Etiqueta)</label>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <input type="text" className="form-input font-mono" value={formData.id} onChange={e => setFormData({ ...formData, id: e.target.value })} placeholder="BOD-1234" required />
+                                        <button 
+                                            type="button" 
+                                            className="btn glass" 
+                                            title="Regenerar ID" 
+                                            onClick={() => {
+                                                const pre = formData.locationType === 'Bodega' ? 'BOD' : formData.locationType === 'Cliente' ? 'CLI' : 'REP';
+                                                const rnd = Math.floor(1000 + Math.random() * 9000);
+                                                setFormData({ ...formData, id: `${pre}-${rnd}` });
+                                            }}
+                                            style={{ padding: '0 0.8rem', borderRadius: '8px' }}
+                                        >
+                                            <RefreshCw size={18} color="var(--primary)" />
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="form-group">
                                     <label>Ubicación</label>
-                                    <select className="form-input" value={formData.locationType} onChange={e => setFormData({ ...formData, locationType: e.target.value as any })}>
+                                    <select className="form-input" value={formData.locationType} onChange={e => {
+                                        const newLoc = e.target.value as any;
+                                        setFormData(prev => {
+                                            let newId = prev.id;
+                                            // Sólo reescribimos el ID automáticamente si es un equipo nuevo en creación
+                                            if (!activeAsset) {
+                                                const pre = newLoc === 'Bodega' ? 'BOD' : newLoc === 'Cliente' ? 'CLI' : 'REP';
+                                                const rnd = Math.floor(1000 + Math.random() * 9000);
+                                                newId = `${pre}-${rnd}`;
+                                            }
+                                            return { ...prev, locationType: newLoc, id: newId };
+                                        });
+                                    }}>
                                         <option value="Bodega">Bodega</option>
                                         <option value="Cliente">Cliente</option>
                                         <option value="En Reparación">En Reparación</option>
