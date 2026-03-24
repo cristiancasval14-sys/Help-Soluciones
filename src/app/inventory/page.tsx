@@ -144,7 +144,8 @@ export default function Inventory() {
                 storage: formData.storage,
                 ram: formData.ram,
                 processor: formData.processor,
-                status: formData.status
+                status: formData.status,
+                assigned_employee: formData.assignedEmployee || '' // GUARDAR DUEÑO EN BD
             };
 
             if (activeAsset) {
