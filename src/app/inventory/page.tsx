@@ -67,6 +67,7 @@ interface Asset {
 }
 
 export default function Inventory() {
+    const [isMounted, setIsMounted] = useState(false);
     const [assets, setAssets] = useState<Asset[]>([]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -101,14 +102,21 @@ export default function Inventory() {
     
     // Persist to Supabase
     useEffect(() => {
+        setIsMounted(true);
         const fetchData = async () => {
             try {
                 const data = await InventoryService.getAll();
                 const mappedAssets = data.map((a: any) => ({
                     ...a,
-                    equipment_id: a.equipment_id,
-                    clientName: a.company?.name || '',
-                    assignedEmployee: '', // This should come from a join too if needed
+                    equipment_id: a.equipment_id || 'N/A',
+                    clientName: a.company?.name || 'Inventario Base',
+                    assignedEmployee: a.assigned_employee || '',
+                    locationType: a.location_type || a.locationType || 'Bodega',
+                    brand: a.brand || 'N/A',
+                    model: a.model || 'N/A',
+                    serial: a.serial || 'N/A',
+                    licenses: Array.isArray(a.licenses) ? a.licenses : [],
+                    programs: Array.isArray(a.programs) ? a.programs : []
                 }));
                 setAssets(mappedAssets);
 
@@ -231,6 +239,8 @@ export default function Inventory() {
     );
 
     const [clients, setClients] = useState<any[]>([]);
+    
+    // We already fetch clients in the main fetchData, so this is redundant, but we keep the state.
     useEffect(() => {
         const fetchClients = async () => {
             try {
@@ -242,6 +252,8 @@ export default function Inventory() {
         };
         fetchClients();
     }, []);
+
+    if (!isMounted) return null;
 
     return (
         <div className="inventory-page fade-in">
@@ -728,7 +740,7 @@ export default function Inventory() {
         .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-muted); }
         .form-input { width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--surface-border); background: var(--surface); color: var(--text-main); font-family: inherit; font-size: 0.9rem; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; align-items: flex-start; justify-content: center; padding: 5vh 1rem; overflow-y: auto; z-index: 1000; backdrop-filter: blur(4px); }
         .modal-content { width: 550px; background: var(--surface); padding: 2.5rem; border-radius: var(--radius-lg); box-shadow: 0 20px 50px rgba(0,0,0,0.1); max-height: 90vh; overflow-y: auto; }
         .icon-btn { padding: 0.4rem; border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
         .icon-btn.edit:hover { background: rgba(0,0,0,0.05); color: var(--primary); }

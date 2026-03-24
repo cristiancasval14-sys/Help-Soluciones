@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+
 import {
     Plus,
     Search,
@@ -39,6 +41,14 @@ interface Employee {
 interface Company extends DBCompany {
     employees: Employee[];
     sedes: Sede[];
+}
+
+// Portal wrapper to render modal above all layout containers
+function ModalPortal({ children }: { children: React.ReactNode }) {
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => { setMounted(true); }, []);
+    if (!mounted) return null;
+    return ReactDOM.createPortal(children, document.body);
 }
 
 export default function ClientsPage() {
@@ -169,8 +179,13 @@ export default function ClientsPage() {
                                             try {
                                                 await CompanyService.delete(company.id);
                                                 setCompanies(companies.filter(c => c.id !== company.id));
-                                            } catch (err) {
-                                                alert("Error al eliminar");
+                                            } catch (err: any) {
+                                                const msg = err?.message || "";
+                                                if (msg.includes("violates foreign key constraint")) {
+                                                    alert("No se puede eliminar la empresa porque tiene tickets, inventario o técnicos asociados. Limpie estos registros primero.");
+                                                } else {
+                                                    alert("Error al eliminar la empresa: " + (err.message || "Consulte la consola."));
+                                                }
                                             }
                                         }
                                     }}>
@@ -255,8 +270,13 @@ export default function ClientsPage() {
                                                             await CompanyService.deleteEmployee(emp.id);
                                                             const updatedEmps = company.employees.filter(e => e.id !== emp.id);
                                                             setCompanies(companies.map(c => c.id === company.id ? { ...c, employees: updatedEmps } : c));
-                                                        } catch (err) {
-                                                            alert("Error al eliminar");
+                                                        } catch (err: any) {
+                                                            const msg = err?.message || "";
+                                                            if (msg.includes("violates foreign key constraint")) {
+                                                                alert("No se puede eliminar el empleado porque tiene registros asociados (tickets o reportes).");
+                                                            } else {
+                                                                alert("Error al eliminar: " + msg);
+                                                            }
                                                         }
                                                     }
                                                 }} style={{ color: 'var(--error)', opacity: 0.6 }}>
@@ -298,8 +318,13 @@ export default function ClientsPage() {
                                                             await CompanyService.deleteSede(sede.id);
                                                             const updatedSedes = company.sedes.filter(s => s.id !== sede.id);
                                                             setCompanies(companies.map(c => c.id === company.id ? { ...c, sedes: updatedSedes } : c));
-                                                        } catch (err) {
-                                                            alert("Error al eliminar");
+                                                        } catch (err: any) {
+                                                            const msg = err?.message || "";
+                                                            if (msg.includes("violates foreign key constraint")) {
+                                                                alert("No se puede eliminar la sede porque tiene visitas o registros asociados.");
+                                                            } else {
+                                                                alert("Error al eliminar: " + msg);
+                                                            }
                                                         }
                                                     }
                                                 }} style={{ color: 'var(--error)', opacity: 0.6 }}>

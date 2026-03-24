@@ -94,8 +94,20 @@ export const CompanyService = {
     },
 
     async delete(id: string) {
+        // First delete all dependent records across all modules
+        await supabase.from('company_employees').delete().eq('company_id', id);
+        await supabase.from('company_sedes').delete().eq('company_id', id);
+        await supabase.from('tickets').delete().eq('company_id', id);
+        await supabase.from('inventory').delete().eq('company_id', id);
+        await supabase.from('service_reports').delete().eq('company_id', id);
+        await supabase.from('visits').delete().eq('company_id', id);
+        
+        // Then delete the company
         const { error } = await supabase.from('companies').delete().eq('id', id);
-        if (error) throw error;
+        if (error) {
+            console.error("Error deleting company:", error);
+            throw error;
+        }
     },
 
     async addEmployee(employee: any) {
