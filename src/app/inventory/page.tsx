@@ -175,6 +175,36 @@ export default function Inventory() {
         }
     };
 
+    const generateConsecutiveId = (loc: string, clientName: string) => {
+        let prefix = loc === 'Bodega' ? 'BOD' : loc === 'En Reparación' ? 'REP' : 'CLI';
+        let matchingAssets = assets.filter(a => a.locationType === loc);
+        
+        if (loc === 'Cliente') {
+            if (clientName) {
+                const clientPrefix = clientName.substring(0, 3).toUpperCase();
+                prefix = `CLI-${clientPrefix}`;
+                matchingAssets = matchingAssets.filter(a => a.clientName === clientName);
+            } else {
+                return `CLI-${Math.floor(1000 + Math.random() * 9000)}`;
+            }
+        }
+
+        let maxNum = 0;
+        matchingAssets.forEach(a => {
+            const parts = (a.equipment_id || '').split('-');
+            if (parts.length > 1) {
+                const numStr = parts[parts.length - 1];
+                const num = parseInt(numStr, 10);
+                if (!isNaN(num) && num > maxNum) {
+                    maxNum = num;
+                }
+            }
+        });
+
+        const nextNum = (maxNum + 1).toString().padStart(2, '0');
+        return `${prefix}-${nextNum}`;
+    };
+
     const openModal = (asset?: Asset) => {
         if (asset) {
             setActiveAsset(asset);
@@ -193,9 +223,8 @@ export default function Inventory() {
             });
         } else {
             setActiveAsset(null);
-            // Auto generate ID for Bodega by default
-            const rnd = Math.floor(1000 + Math.random() * 9000);
-            setFormData({ id: `BOD-${rnd}`, clientName: '', assignedEmployee: '', locationType: 'Bodega', brand: '', model: '', serial: '', storage: '', ram: '', processor: '', status: 'Activo' });
+            const newId = generateConsecutiveId('Bodega', '');
+            setFormData({ id: newId, clientName: '', assignedEmployee: '', locationType: 'Bodega', brand: '', model: '', serial: '', storage: '', ram: '', processor: '', status: 'Activo' });
         }
         setIsModalOpen(true);
     };
@@ -476,9 +505,8 @@ export default function Inventory() {
                                             className="btn glass" 
                                             title="Regenerar ID" 
                                             onClick={() => {
-                                                const pre = formData.locationType === 'Bodega' ? 'BOD' : formData.locationType === 'Cliente' ? 'CLI' : 'REP';
-                                                const rnd = Math.floor(1000 + Math.random() * 9000);
-                                                setFormData({ ...formData, id: `${pre}-${rnd}` });
+                                                const newId = generateConsecutiveId(formData.locationType, formData.clientName);
+                                                setFormData({ ...formData, id: newId });
                                             }}
                                             style={{ padding: '0 0.8rem', borderRadius: '8px' }}
                                         >
@@ -492,11 +520,8 @@ export default function Inventory() {
                                         const newLoc = e.target.value as any;
                                         setFormData(prev => {
                                             let newId = prev.id;
-                                            // Sólo reescribimos el ID automáticamente si es un equipo nuevo en creación
                                             if (!activeAsset) {
-                                                const pre = newLoc === 'Bodega' ? 'BOD' : newLoc === 'Cliente' ? 'CLI' : 'REP';
-                                                const rnd = Math.floor(1000 + Math.random() * 9000);
-                                                newId = `${pre}-${rnd}`;
+                                                newId = generateConsecutiveId(newLoc, prev.clientName);
                                             }
                                             return { ...prev, locationType: newLoc, id: newId };
                                         });
@@ -513,7 +538,16 @@ export default function Inventory() {
                                     <div className="form-row">
                                         <div className="form-group">
                                             <label>Seleccionar Cliente</label>
-                                            <select className="form-input" value={formData.clientName} onChange={e => setFormData({ ...formData, clientName: e.target.value, assignedEmployee: '' })} required>
+                                            <select className="form-input" value={formData.clientName} onChange={e => {
+                                                const newClient = e.target.value;
+                                                setFormData(prev => {
+                                                    let newId = prev.id;
+                                                    if (!activeAsset && prev.locationType === 'Cliente') {
+                                                        newId = generateConsecutiveId('Cliente', newClient);
+                                                    }
+                                                    return { ...prev, clientName: newClient, assignedEmployee: '', id: newId };
+                                                });
+                                            }} required>
                                                 <option value="">Seleccione Empresa...</option>
                                                 {clients.map((c: any) => (
                                                     <option key={c.id} value={c.name}>{c.name}</option>
