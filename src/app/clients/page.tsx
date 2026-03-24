@@ -65,7 +65,7 @@ export default function ClientsPage() {
             try {
                 const data = await CompanyService.getAll();
                 let list: Company[] = data as any;
-                
+
                 // If user is a Client, filter to only show THEIR company
                 if (user && user.role === 'Cliente') {
                     const filtered = list.filter(c => c.name === user.assignedTo);
@@ -181,7 +181,7 @@ export default function ClientsPage() {
                         </div>
 
                         <h2 style={{ fontSize: '1.4rem', marginBottom: '0.4rem' }}>{company.name}</h2>
-                        
+
                         {!isClient ? (
                             <>
                                 <p style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
@@ -214,7 +214,7 @@ export default function ClientsPage() {
                                 </p>
                             </div>
                         )}
-                        
+
                         {/* Tabs */}
                         <div style={{ display: 'flex', gap: '0', borderBottom: '2px solid var(--surface-border)', margin: '1.5rem 0 1.2rem 0' }}>
                             {(['info', 'sedes'] as const).map(tab => (
@@ -317,98 +317,101 @@ export default function ClientsPage() {
 
             {isModalOpen && (
                 <div className="modal-overlay">
-                    <div className="modal-content glass" style={{ width: '520px' }}>
-                        <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                            <h2>{isClient ? 'Mi Información' : (activeCompany ? 'Editar Empresa' : 'Nueva Empresa')}</h2>
-                            <button onClick={() => setIsModalOpen(false)}><X size={24} /></button>
+                    <div className="modal-content glass">
+                        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <h2 style={{ margin: 0 }}>{isClient ? 'Mi Información' : (activeCompany ? 'Editar Empresa' : 'Nueva Empresa')}</h2>
+                            <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}><X size={24} /></button>
                         </header>
-                        <form onSubmit={handleSaveCompany} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                        <form onSubmit={handleSaveCompany} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div className="form-group">
-                                <label>Nombre Comercial</label>
-                                <input type="text" className="form-input" value={companyForm.name} 
-                                    onChange={e => setCompanyForm({ ...companyForm, name: e.target.value })} 
-                                    disabled={isClient} required />
+                                <label>Nombre Comercial *</label>
+                                <input type="text" className="form-input" value={companyForm.name}
+                                    onChange={e => setCompanyForm({ ...companyForm, name: e.target.value })}
+                                    disabled={isClient} required placeholder="Ej: Empresa XYZ S.A.S" />
                             </div>
                             <div className="form-group">
-                                <label>NIT</label>
-                                <input type="text" className="form-input" value={companyForm.nit} 
-                                    onChange={e => setCompanyForm({ ...companyForm, nit: e.target.value })} 
-                                    disabled={isClient} required />
+                                <label>NIT *</label>
+                                <input type="text" className="form-input" value={companyForm.nit}
+                                    onChange={e => setCompanyForm({ ...companyForm, nit: e.target.value })}
+                                    disabled={isClient} required placeholder="Ej: 900123456-1" />
                             </div>
                             <div className="form-group">
-                                <label>Latitud</label>
-                                <input type="text" className="form-input" value={companyForm.lat} 
-                                    onChange={e => setCompanyForm({ ...companyForm, lat: e.target.value })} />
+                                <label>Correo Corporativo *</label>
+                                <input type="email" className="form-input" value={companyForm.email}
+                                    onChange={e => setCompanyForm({ ...companyForm, email: e.target.value })} required placeholder="correo@empresa.com" />
                             </div>
-                            <div className="form-group">
-                                <label>Longitud</label>
-                                <input type="text" className="form-input" value={companyForm.lng} 
-                                    onChange={e => setCompanyForm({ ...companyForm, lng: e.target.value })} />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div className="form-group">
+                                    <label>Latitud (Opcional)</label>
+                                    <input type="text" className="form-input" value={companyForm.lat}
+                                        onChange={e => setCompanyForm({ ...companyForm, lat: e.target.value })} placeholder="Ej: 4.7110" />
+                                </div>
+                                <div className="form-group">
+                                    <label>Longitud (Opcional)</label>
+                                    <input type="text" className="form-input" value={companyForm.lng}
+                                        onChange={e => setCompanyForm({ ...companyForm, lng: e.target.value })} placeholder="Ej: -74.0721" />
+                                </div>
                             </div>
-                            <div className="form-group">
-                                <label>Correo Corporativo</label>
-                                <input type="email" className="form-input" value={companyForm.email} 
-                                    onChange={e => setCompanyForm({ ...companyForm, email: e.target.value })} required />
-                            </div>
-                            <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }}><Save size={20} /> Guardar Cambios</button>
+                            <button type="submit" className="btn btn-primary" style={{ marginTop: '0.5rem' }}><Save size={18} /> Guardar Cambios</button>
                         </form>
                     </div>
                 </div>
             )}
 
             {isEmployeeModalOpen && (
-                 <div className="modal-overlay">
-                     <div className="modal-content glass">
-                         <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                             <h2>Agregar Empleado</h2>
-                             <button onClick={() => setIsEmployeeModalOpen(false)}><X size={24} /></button>
-                         </header>
-                         <form onSubmit={handleAddEmployee} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                             <div className="form-group">
-                                 <label>Nombre</label>
-                                 <input type="text" className="form-input" value={employeeForm.name} onChange={e => setEmployeeForm({ ...employeeForm, name: e.target.value })} required />
-                             </div>
-                             <div className="form-group">
-                                 <label>Email</label>
-                                 <input type="email" className="form-input" value={employeeForm.email} onChange={e => setEmployeeForm({ ...employeeForm, email: e.target.value })} required />
-                             </div>
-                             <div className="form-group">
-                                 <label>Teléfono</label>
-                                 <input type="text" className="form-input" value={employeeForm.phone} onChange={e => setEmployeeForm({ ...employeeForm, phone: e.target.value })} />
-                             </div>
-                             <button type="submit" className="btn btn-primary"><Save size={20} /> Registrar</button>
-                         </form>
-                     </div>
-                 </div>
+                <div className="modal-overlay">
+                    <div className="modal-content glass">
+                        <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                            <h2>Agregar Empleado</h2>
+                            <button onClick={() => setIsEmployeeModalOpen(false)}><X size={24} /></button>
+                        </header>
+                        <form onSubmit={handleAddEmployee} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                            <div className="form-group">
+                                <label>Nombre</label>
+                                <input type="text" className="form-input" value={employeeForm.name} onChange={e => setEmployeeForm({ ...employeeForm, name: e.target.value })} required />
+                            </div>
+                            <div className="form-group">
+                                <label>Email</label>
+                                <input type="email" className="form-input" value={employeeForm.email} onChange={e => setEmployeeForm({ ...employeeForm, email: e.target.value })} required />
+                            </div>
+                            <div className="form-group">
+                                <label>Teléfono</label>
+                                <input type="text" className="form-input" value={employeeForm.phone} onChange={e => setEmployeeForm({ ...employeeForm, phone: e.target.value })} />
+                            </div>
+                            <button type="submit" className="btn btn-primary"><Save size={20} /> Registrar</button>
+                        </form>
+                    </div>
+                </div>
             )}
 
             {isSedeModalOpen && (
-                 <div className="modal-overlay">
-                     <div className="modal-content glass">
-                         <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                             <h2>Nueva Sede</h2>
-                             <button onClick={() => setIsSedeModalOpen(false)}><X size={24} /></button>
-                         </header>
-                         <form onSubmit={handleAddSede} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                             <div className="form-group">
-                                 <label>Nombre Sede</label>
-                                 <input type="text" className="form-input" value={sedeForm.name} onChange={e => setSedeForm({ ...sedeForm, name: e.target.value })} required />
-                             </div>
-                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                 <input type="text" className="form-input" placeholder="Latitud" value={sedeForm.lat} onChange={e => setSedeForm({ ...sedeForm, lat: e.target.value })} required />
-                                 <input type="text" className="form-input" placeholder="Longitud" value={sedeForm.lng} onChange={e => setSedeForm({ ...sedeForm, lng: e.target.value })} required />
-                             </div>
-                             <button type="submit" className="btn btn-primary"><Save size={20} /> Guardar</button>
-                         </form>
-                     </div>
-                 </div>
+                <div className="modal-overlay">
+                    <div className="modal-content glass">
+                        <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                            <h2>Nueva Sede</h2>
+                            <button onClick={() => setIsSedeModalOpen(false)}><X size={24} /></button>
+                        </header>
+                        <form onSubmit={handleAddSede} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                            <div className="form-group">
+                                <label>Nombre Sede</label>
+                                <input type="text" className="form-input" value={sedeForm.name} onChange={e => setSedeForm({ ...sedeForm, name: e.target.value })} required />
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <input type="text" className="form-input" placeholder="Latitud" value={sedeForm.lat} onChange={e => setSedeForm({ ...sedeForm, lat: e.target.value })} required />
+                                <input type="text" className="form-input" placeholder="Longitud" value={sedeForm.lng} onChange={e => setSedeForm({ ...sedeForm, lng: e.target.value })} required />
+                            </div>
+                            <button type="submit" className="btn btn-primary"><Save size={20} /> Guardar</button>
+                        </form>
+                    </div>
+                </div>
             )}
 
             <style jsx>{`
-                .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
-                .modal-content { width: 450px; background: var(--surface); padding: 2.5rem; border-radius: var(--radius-lg); box-shadow: 0 20px 50px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
-                .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-muted); }
-                .form-input { width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--surface-border); background: var(--surface); color: var(--text-main); font-family: inherit; }
+                .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 3vh 1rem; z-index: 1000; backdrop-filter: blur(4px); }
+                .modal-content { width: 100%; max-width: 500px; background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); box-shadow: 0 20px 50px rgba(0,0,0,0.2); margin: auto; }
+                .form-group label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-muted); }
+                .form-input { width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--surface-border); background: var(--surface); color: var(--text-main); font-family: inherit; font-size: 0.95rem; box-sizing: border-box; }
+                .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
                 .icon-btn { padding: 0.4rem; border-radius: 4px; color: var(--text-muted); }
                 .icon-btn:hover { color: var(--primary); background: rgba(99, 102, 241, 0.05); }
                 .client-card { border: 1px solid var(--surface-border); }
