@@ -278,38 +278,109 @@ export const ServiceReportService = {
 
 export const UserService = {
     async getAll() {
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*');
-        if (error) throw error;
-        return data;
+        // 1. Try Supabase
+        try {
+            if (supabase) {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('*');
+                if (!error && data && data.length > 0) return data;
+            }
+        } catch (e) {
+            console.warn("Supabase profiles getAll failed, using fallback.", e);
+        }
+
+        // 2. Fallback to LocalStorage
+        if (typeof window !== 'undefined') {
+            const users = localStorage.getItem('help_soluciones_users');
+            if (users) return JSON.parse(users);
+        }
+        return [];
     },
 
     async create(user: any) {
-        const { data, error } = await supabase
-            .from('profiles')
-            .insert([user])
-            .select();
-        if (error) throw error;
-        return data[0];
+        // 1. Try Supabase
+        try {
+            if (supabase) {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .insert([user])
+                    .select();
+                if (!error && data) return data[0];
+            }
+        } catch (e) {
+            console.error("Supabase create user failed.", e);
+        }
+
+        // 2. Always update LocalStorage to maintain UI state
+        if (typeof window !== 'undefined') {
+            const usersJson = localStorage.getItem('help_soluciones_users');
+            const users = usersJson ? JSON.parse(usersJson) : [];
+            const newUser = { ...user, id: `local-${Date.now()}` };
+            users.push(newUser);
+            localStorage.setItem('help_soluciones_users', JSON.stringify(users));
+            console.info("Saved user to localStorage fallback.");
+            return newUser;
+        }
+
+        throw new Error("Unable to create user in any storage provider.");
     },
 
     async update(id: string, updates: any) {
-        const { data, error } = await supabase
-            .from('profiles')
-            .update(updates)
-            .eq('id', id)
-            .select();
-        if (error) throw error;
-        return data[0];
+        // 1. Try Supabase
+        try {
+            if (supabase) {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .update(updates)
+                    .eq('id', id)
+                    .select();
+                if (!error && data) return data[0];
+            }
+        } catch (e) {
+            console.error("Supabase update user failed.", e);
+        }
+
+        // 2. Fallback to LocalStorage
+        if (typeof window !== 'undefined') {
+            const usersJson = localStorage.getItem('help_soluciones_users');
+            if (usersJson) {
+                const users = JSON.parse(usersJson);
+                const idx = users.findIndex((u: any) => u.id === id);
+                if (idx !== -1) {
+                    users[idx] = { ...users[idx], ...updates };
+                    localStorage.setItem('help_soluciones_users', JSON.stringify(users));
+                    return users[idx];
+                }
+            }
+        }
+
+        throw new Error("Unable to update user in any storage provider.");
     },
 
     async delete(id: string) {
-        const { error } = await supabase
-            .from('profiles')
-            .delete()
-            .eq('id', id);
-        if (error) throw error;
+        // 1. Try Supabase
+        try {
+            if (supabase) {
+                const { error } = await supabase
+                    .from('profiles')
+                    .delete()
+                    .eq('id', id);
+                if (!error) return;
+            }
+        } catch (e) {
+            console.error("Supabase delete user failed.", e);
+        }
+
+        // 2. Fallback to LocalStorage
+        if (typeof window !== 'undefined') {
+            const usersJson = localStorage.getItem('help_soluciones_users');
+            if (usersJson) {
+                const users = JSON.parse(usersJson);
+                const filtered = users.filter((u: any) => u.id !== id);
+                localStorage.setItem('help_soluciones_users', JSON.stringify(filtered));
+            }
+        }
     },
 
     async login(username: string, password: string) {
