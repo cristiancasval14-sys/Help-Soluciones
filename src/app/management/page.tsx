@@ -93,8 +93,8 @@ export default function AdministrativeManagement() {
                 progressNotes: t.tech_notes
             })));
             setSelectedTicket(null);
-        } catch (err) {
-            alert("Error al actualizar ticket en Supabase");
+        } catch (err: any) {
+            alert("Error de Supabase: " + (err.message || "Fallo al actualizar estado o asignar técnico"));
         }
     };
 
@@ -102,7 +102,7 @@ export default function AdministrativeManagement() {
         if (!selectedTicket) return;
         try {
             await updateTicket(selectedTicket.id, {
-                staff_id: staffId,
+                assigned_staff_id: staffId,
                 status: 'Asignado'
             });
             setIsAssignModalOpen(false);
