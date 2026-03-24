@@ -132,17 +132,13 @@ export default function NewTicket() {
             const newTicket = {
                 id: 'TIC-' + Math.floor(Math.random() * 100000).toString().padStart(5, '0'),
                 company_id: selectedClient,
-                sede_id: selectedSede || null,
                 requester_name: formData.requester,
-                contact_info: formData.contact,
-                service_type: formData.serviceType,
-                modality: modality,
-                any_desk_id: modality === 'Remoto' ? formData.anydesk : null,
-                description: formData.description,
+                type: formData.serviceType,
                 priority: (formData.priority === 'Low' ? 'Baja' : formData.priority === 'Medium' ? 'Media' : formData.priority === 'High' ? 'Alta' : 'Crítica') as Priority,
                 status: 'Nuevo' as TicketStatus,
                 date: new Date().toISOString().split('T')[0],
-                equipment_short_id: selectedAsset?.equipment_id || null
+                // Como Supabase aún no tiene columnas para estos campos en la tabla tickets, los guardamos en tech_notes para no perderlos
+                tech_notes: `📞 Contacto: ${formData.contact}\n📍 Modalidad: ${modality}${modality === 'Remoto' ? ' (AnyDesk: ' + formData.anydesk + ')' : ''}\n💻 Equipo: ${selectedAsset?.equipment_id || 'N/A'}\n📝 Descripción:\n${formData.description}`
             };
 
             await TicketService.create(newTicket as any);
