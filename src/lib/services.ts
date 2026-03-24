@@ -325,7 +325,7 @@ export const PasswordRequestService = {
 
 export const VisitService = {
     async getAll() {
-        const { data, error } = await supabase.from('visits').select('*, staff:staff(*), company:companies(*), sede:company_sedes(*)');
+        const { data, error } = await supabase.from('visits').select('*, company:companies(*), sede:company_sedes(*)');
         if (error) throw error;
         return data || [];
     },

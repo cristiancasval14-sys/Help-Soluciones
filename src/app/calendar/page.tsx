@@ -76,44 +76,49 @@ export default function CalendarPage() {
     // Load data
     useEffect(() => {
         const fetchData = async () => {
+            let loadedStaff: Staff[] = [];
             try {
                 const staffData = await StaffService.getAll();
-                setStaff(staffData.map((s: any) => ({
+                loadedStaff = staffData.map((s: any) => ({
                     id: s.id,
                     firstName: s.first_name,
                     lastName: s.last_name,
                     role: s.role
-                })));
-            } catch (err) {
+                }));
+                setStaff(loadedStaff);
+            } catch (err: any) {
                 console.error("Error loading staff:", err);
             }
 
             try {
                 const companyData = await CompanyService.getAll();
                 setCompanies(companyData as any[]);
-            } catch (err) {
+            } catch (err: any) {
                 console.error("Error loading companies:", err);
             }
 
             try {
                 const visitData = await VisitService.getAll();
-                setVisits(visitData.map((v: any) => ({
-                    id: v.id,
-                    date: v.date,
-                    time: v.time,
-                    technicianId: v.technician_id,
-                    technicianName: v.staff ? `${v.staff.first_name} ${v.staff.last_name}` : 'No asignado',
-                    companyId: v.company_id,
-                    companyName: v.company?.name || '',
-                    sedeId: v.sede_id,
-                    sedeName: v.sede?.name || 'Sede Principal',
-                    description: v.description,
-                    status: v.status,
-                    lat: v.lat,
-                    lng: v.lng,
-                    isAllDay: v.is_all_day
-                })));
-            } catch (err) {
+                setVisits(visitData.map((v: any) => {
+                    const tech = loadedStaff.find(s => s.id === v.technician_id);
+                    return {
+                        id: v.id,
+                        date: v.date,
+                        time: v.time,
+                        technicianId: v.technician_id,
+                        technicianName: tech ? `${tech.firstName} ${tech.lastName}` : 'No asignado',
+                        companyId: v.company_id,
+                        companyName: v.company?.name || '',
+                        sedeId: v.sede_id,
+                        sedeName: v.sede?.name || 'Sede Principal',
+                        description: v.description,
+                        status: v.status,
+                        lat: v.lat,
+                        lng: v.lng,
+                        isAllDay: v.is_all_day
+                    };
+                }));
+            } catch (err: any) {
                 console.error("Error loading visits:", err);
             }
         };
@@ -194,26 +199,29 @@ export default function CalendarPage() {
 
             // Refresh visits (could be optimized)
             const visitData = await VisitService.getAll();
-            setVisits(visitData.map((v: any) => ({
-                id: v.id,
-                date: v.date,
-                time: v.time,
-                technicianId: v.technician_id,
-                technicianName: v.staff ? `${v.staff.first_name} ${v.staff.last_name}` : 'No asignado',
-                companyId: v.company_id,
-                companyName: v.company?.name || '',
-                sedeId: v.sede_id,
-                sedeName: v.sede?.name || 'Sede Principal',
-                description: v.description,
-                status: v.status,
-                lat: v.lat,
-                lng: v.lng,
-                isAllDay: v.is_all_day
-            })));
+            setVisits(visitData.map((v: any) => {
+                const tInfo = staff.find(s => s.id === v.technician_id);
+                return {
+                    id: v.id,
+                    date: v.date,
+                    time: v.time,
+                    technicianId: v.technician_id,
+                    technicianName: tInfo ? `${tInfo.firstName} ${tInfo.lastName}` : 'No asignado',
+                    companyId: v.company_id,
+                    companyName: v.company?.name || '',
+                    sedeId: v.sede_id,
+                    sedeName: v.sede?.name || 'Sede Principal',
+                    description: v.description,
+                    status: v.status,
+                    lat: v.lat,
+                    lng: v.lng,
+                    isAllDay: v.is_all_day
+                };
+            }));
 
             setIsModalOpen(false);
-        } catch (err) {
-            alert("Error al guardar visita en Supabase");
+        } catch (err: any) {
+            alert("Error al guardar visita: " + (err.message || 'Error desconocido'));
         }
     };
 
