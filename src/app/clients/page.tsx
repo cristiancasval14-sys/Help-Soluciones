@@ -316,55 +316,48 @@ export default function ClientsPage() {
             </div>
 
             {isModalOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '5vh 1rem 5vh', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
-                    <div style={{ width: '100%', maxWidth: '500px', background: 'var(--surface)', padding: '2rem', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.25)', border: '1px solid var(--surface-border)' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '5vh 1rem', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
+                    <div style={{ width: '100%', maxWidth: '500px', background: '#ffffff', padding: '2rem', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.25)', border: '1px solid #e2e8f0' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                            <h2 style={{ margin: 0, fontSize: '1.3rem' }}>{isClient ? 'Mi Información' : (activeCompany ? 'Editar Empresa' : 'Nueva Empresa')}</h2>
-                            <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px' }}><X size={22} /></button>
+                            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#1e293b', fontFamily: 'Outfit, sans-serif' }}>{isClient ? 'Mi Información' : (activeCompany ? 'Editar Empresa' : 'Nueva Empresa')}</h2>
+                            <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={22} /></button>
                         </div>
-                        <form onSubmit={handleSaveCompany} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-                            {[
-                                { label: 'Nombre Comercial *', key: 'name', type: 'text', placeholder: 'Ej: Empresa XYZ S.A.S', required: true, disabled: isClient },
-                                { label: 'NIT *', key: 'nit', type: 'text', placeholder: 'Ej: 900123456-1', required: true, disabled: isClient },
-                                { label: 'Correo Corporativo *', key: 'email', type: 'email', placeholder: 'correo@empresa.com', required: true, disabled: false },
-                            ].map(field => (
-                                <div key={field.key}>
-                                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.4rem', color: 'var(--text-muted)' }}>{field.label}</label>
-                                    <input
-                                        type={field.type}
-                                        value={(companyForm as any)[field.key]}
-                                        onChange={e => setCompanyForm({ ...companyForm, [field.key]: e.target.value })}
-                                        disabled={field.disabled}
-                                        required={field.required}
-                                        placeholder={field.placeholder}
-                                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--surface-border)', background: 'var(--surface-alt, #f8f9fa)', color: 'var(--text-main)', fontFamily: 'inherit', fontSize: '0.95rem', boxSizing: 'border-box' }}
-                                    />
-                                </div>
-                            ))}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                {[
-                                    { label: 'Latitud (Opcional)', key: 'lat', placeholder: 'Ej: 4.7110' },
-                                    { label: 'Longitud (Opcional)', key: 'lng', placeholder: 'Ej: -74.0721' },
-                                ].map(field => (
-                                    <div key={field.key}>
-                                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.4rem', color: 'var(--text-muted)' }}>{field.label}</label>
-                                        <input
-                                            type="text"
-                                            value={(companyForm as any)[field.key]}
-                                            onChange={e => setCompanyForm({ ...companyForm, [field.key]: e.target.value })}
-                                            placeholder={field.placeholder}
-                                            style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--surface-border)', background: 'var(--surface-alt, #f8f9fa)', color: 'var(--text-main)', fontFamily: 'inherit', fontSize: '0.95rem', boxSizing: 'border-box' }}
-                                        />
-                                    </div>
-                                ))}
+                        <form onSubmit={handleSaveCompany}>
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.4rem', color: '#64748b' }}>Nombre Comercial *</label>
+                                <input type="text" value={companyForm.name} onChange={e => setCompanyForm({ ...companyForm, name: e.target.value })} disabled={isClient} required placeholder="Ej: Empresa XYZ S.A.S"
+                                    style={{ display: 'block', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#1e293b', fontFamily: 'inherit', fontSize: '0.95rem', boxSizing: 'border-box' }} />
                             </div>
-                            <button type="submit" className="btn btn-primary" style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.4rem', color: '#64748b' }}>NIT *</label>
+                                <input type="text" value={companyForm.nit} onChange={e => setCompanyForm({ ...companyForm, nit: e.target.value })} disabled={isClient} required placeholder="Ej: 900123456-1"
+                                    style={{ display: 'block', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#1e293b', fontFamily: 'inherit', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                            </div>
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.4rem', color: '#64748b' }}>Correo Corporativo *</label>
+                                <input type="email" value={companyForm.email} onChange={e => setCompanyForm({ ...companyForm, email: e.target.value })} required placeholder="correo@empresa.com"
+                                    style={{ display: 'block', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#1e293b', fontFamily: 'inherit', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.4rem', color: '#64748b' }}>Latitud</label>
+                                    <input type="text" value={companyForm.lat} onChange={e => setCompanyForm({ ...companyForm, lat: e.target.value })} placeholder="Ej: 4.7110"
+                                        style={{ display: 'block', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#1e293b', fontFamily: 'inherit', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.4rem', color: '#64748b' }}>Longitud</label>
+                                    <input type="text" value={companyForm.lng} onChange={e => setCompanyForm({ ...companyForm, lng: e.target.value })} placeholder="Ej: -74.0721"
+                                        style={{ display: 'block', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#1e293b', fontFamily: 'inherit', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                                </div>
+                            </div>
+                            <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
                                 <Save size={18} /> Guardar Cambios
                             </button>
                         </form>
                     </div>
                 </div>
             )}
+
 
             {isEmployeeModalOpen && (
                 <div className="modal-overlay">
