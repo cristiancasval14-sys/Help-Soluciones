@@ -90,8 +90,14 @@ export default function NewTicket() {
     const clientEmployees = selectedCompanyObj?.employees || [];
     
     const filteredInventory = inventory.filter(item => {
-        if (selectedClient && item.clientName !== selectedClientName) return false;
-        if (formData.requester && item.assignedEmployee && item.assignedEmployee !== formData.requester) return false;
+        const itemClient = item.company?.name || item.clientName;
+        const itemEmployee = item.assigned_employee || item.assignedEmployee;
+        
+        if (selectedClient && itemClient !== selectedClientName) return false;
+        
+        // Si hay un empleado seleccionado, mostrar solo sus equipos o los que no tienen dueño
+        if (formData.requester && itemEmployee && itemEmployee !== formData.requester) return false;
+        
         return true;
     });
 
@@ -237,6 +243,14 @@ export default function NewTicket() {
                                             requester: empName,
                                             contact: emp?.phone || prev.contact
                                         }));
+
+                                        // Auto-seleccionar el equipo si el empleado tiene uno asignado
+                                        const empAssets = inventory.filter(item => (item.assigned_employee || item.assignedEmployee) === empName);
+                                        if (empAssets.length === 1) {
+                                            setSelectedAsset(empAssets[0]);
+                                        } else {
+                                            setSelectedAsset(null); // Limpiar si tiene varios o ninguno
+                                        }
                                     }}
                                     required
                                 >
