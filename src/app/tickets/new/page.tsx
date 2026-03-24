@@ -95,8 +95,10 @@ export default function NewTicket() {
         
         if (selectedClient && itemClient !== selectedClientName) return false;
         
-        // Si hay un empleado seleccionado, mostrar solo sus equipos o los que no tienen dueño
-        if (formData.requester && itemEmployee && itemEmployee !== formData.requester) return false;
+        // Si hay un empleado seleccionado, mostrar ESTRICTAMENTE SUS equipos
+        if (formData.requester && itemEmployee !== formData.requester) {
+            return false;
+        }
         
         return true;
     });
