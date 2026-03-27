@@ -14,7 +14,8 @@ import {
     Calendar,
     Briefcase,
     Activity,
-    FileText
+    FileText,
+    Phone
 } from 'lucide-react';
 import { TicketService } from '@/lib/services';
 import { useRouter } from 'next/navigation';
@@ -28,6 +29,7 @@ interface Ticket {
     status: string;
     date: string;
     assignedTo?: string;
+    techPhone?: string;
     techNotes?: string;
     description?: string;
 }
@@ -56,6 +58,7 @@ export default function Dashboard() {
                     status: t.status,
                     date: t.date || t.created_at?.split('T')[0],
                     assignedTo: t.staff ? `${t.staff.first_name} ${t.staff.last_name}` : undefined,
+                    techPhone: t.staff?.phone || undefined,
                     techNotes: t.tech_notes,
                     description: t.description
                 }));
@@ -279,6 +282,11 @@ export default function Dashboard() {
                                     <div>
                                         <p style={{ fontWeight: 700 }}>{selectedTicket.assignedTo || 'No asignado todavía'}</p>
                                         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{selectedTicket.assignedTo ? 'Soporte Nivel 1' : 'Pendiente de gestión'}</p>
+                                        {selectedTicket.techPhone && (
+                                            <p style={{ fontSize: '0.8rem', color: 'var(--text-main)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
+                                                <Phone size={12} color="var(--primary)"/> {selectedTicket.techPhone}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
