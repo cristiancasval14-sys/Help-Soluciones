@@ -16,7 +16,8 @@ import {
     MoreVertical,
     FileCheck,
     AlertTriangle,
-    Shield
+    Shield,
+    Phone
 } from 'lucide-react';
 import { StaffService } from '@/lib/services';
 
@@ -25,6 +26,7 @@ interface Staff {
     firstName: string;
     lastName: string;
     role: 'Técnico' | 'Tecnólogo' | 'Ingeniero';
+    phone: string;
     photo: string;
     vehicle: 'Carro' | 'Moto' | 'Ninguno';
     plate: string;
@@ -40,7 +42,7 @@ export default function StaffPage() {
     const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [formData, setFormData] = useState<Omit<Staff, 'id'>>({
-        firstName: '', lastName: '', role: 'Técnico', photo: '', vehicle: 'Ninguno',
+        firstName: '', lastName: '', role: 'Técnico', phone: '', photo: '', vehicle: 'Ninguno',
         plate: '', vehicleBrand: '', vehicleModel: '', soatExpiry: '', tecnoExpiry: ''
     });
     
@@ -54,6 +56,7 @@ export default function StaffPage() {
                     firstName: s.first_name,
                     lastName: s.last_name,
                     role: s.role,
+                    phone: s.phone || '',
                     photo: s.photo,
                     vehicle: s.vehicle,
                     plate: s.plate,
@@ -78,7 +81,7 @@ export default function StaffPage() {
         } else {
             setEditingStaff(null);
             setFormData({
-                firstName: '', lastName: '', role: 'Técnico', photo: '', vehicle: 'Ninguno',
+                firstName: '', lastName: '', role: 'Técnico', phone: '', photo: '', vehicle: 'Ninguno',
                 plate: '', vehicleBrand: '', vehicleModel: '', soatExpiry: '', tecnoExpiry: ''
             });
         }
@@ -92,6 +95,7 @@ export default function StaffPage() {
                 first_name: formData.firstName,
                 last_name: formData.lastName,
                 role: formData.role,
+                phone: formData.phone,
                 photo: formData.photo,
                 vehicle: formData.vehicle,
                 plate: formData.plate,
@@ -111,6 +115,7 @@ export default function StaffPage() {
                     firstName: newStaff.first_name,
                     lastName: newStaff.last_name,
                     role: newStaff.role,
+                    phone: newStaff.phone || '',
                     photo: newStaff.photo,
                     vehicle: newStaff.vehicle,
                     plate: newStaff.plate,
@@ -204,6 +209,11 @@ export default function StaffPage() {
                             </div>
 
                             <h3 style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{person.firstName} {person.lastName}</h3>
+                            {person.phone && (
+                                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <Phone size={14} /> {person.phone}
+                                </p>
+                            )}
 
                             {/* Vehicle Info */}
                             <div className="vehicle-info" style={{ marginTop: '1.2rem', padding: '1rem', background: 'rgba(0,0,0,0.02)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--surface-border)' }}>
@@ -282,14 +292,21 @@ export default function StaffPage() {
                                 </div>
                             </div>
 
-                            <div className="form-group">
-                                <label>Cargo</label>
-                                <select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value as any })} className="form-input">
-                                    <option value="Técnico">Técnico</option>
-                                    <option value="Tecnólogo">Tecnólogo</option>
-                                    <option value="Ingeniero">Ingeniero</option>
-                                </select>
+                            <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div className="form-group">
+                                    <label>Cargo</label>
+                                    <select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value as any })} className="form-input">
+                                        <option value="Técnico">Técnico</option>
+                                        <option value="Tecnólogo">Tecnólogo</option>
+                                        <option value="Ingeniero">Ingeniero</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>Teléfono de Contacto</label>
+                                    <input type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder="Ej: 300 123 4567" className="form-input" />
+                                </div>
                             </div>
+
 
                             <div className="form-group">
                                 <label>Foto (URL)</label>
