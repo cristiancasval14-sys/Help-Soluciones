@@ -71,7 +71,9 @@ export default function NewTicket() {
 
                 // Auto-select client if user is 'Cliente'
                 if (user && user.role === 'Cliente') {
-                    const myCompany = clientList.find((c: any) => c.name === user.assignedTo);
+                    const myCompany = clientList.find((c: any) => 
+                        c.name?.trim().toLowerCase() === user.assignedTo?.trim().toLowerCase()
+                    );
                     if (myCompany) {
                         setSelectedClient(myCompany.id);
                     }
@@ -84,10 +86,17 @@ export default function NewTicket() {
         fetchData();
     }, []);
 
+    const isClientRole = currentUser?.role === 'Cliente';
+    const assignedCompany = isClientRole ? currentUser?.assignedTo : null;
+
     const selectedCompanyObj = clients.find(c => c.id === selectedClient);
-    const selectedClientName = selectedCompanyObj?.name || '';
+    const selectedClientName = selectedCompanyObj?.name || assignedCompany || '';
     const clientSedes = selectedCompanyObj?.sedes || [];
-    const clientEmployees = selectedCompanyObj?.employees || [];
+    
+    // 1. Obtener empleados creados en el módulo de Clientes
+    let clientEmployees = selectedCompanyObj?.employees ? [...selectedCompanyObj.employees] : [];
+
+
     
     const filteredInventory = inventory.filter(item => {
         // 1. Si NO se ha seleccionado un usuario, NO mostrar NINGÚN equipo
@@ -177,8 +186,6 @@ export default function NewTicket() {
             setLoading(false);
         }
     };
-
-    const isClientRole = currentUser?.role === 'Cliente';
 
     if (success) {
         return (
@@ -281,7 +288,7 @@ export default function NewTicket() {
                                     }}
                                     required
                                 >
-                                    <option value="">Seleccione empleado...</option>
+                                    <option value="">Seleccione usuario...</option>
                                     {clientEmployees.map((emp: any) => (
                                         <option key={emp.id} value={emp.name}>
                                             {emp.name}
@@ -298,6 +305,7 @@ export default function NewTicket() {
                                         onChange={handleInputChange}
                                         className="form-input"
                                         placeholder="Nombre del solicitante"
+                                        autoComplete="off"
                                         required
                                         style={{ paddingLeft: '2.5rem' }}
                                     />

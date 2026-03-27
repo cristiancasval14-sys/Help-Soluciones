@@ -21,7 +21,7 @@ import {
     Calendar,
     Clock
 } from 'lucide-react';
-import { UserService, PasswordRequestService } from '@/lib/services';
+import { UserService, PasswordRequestService, CompanyService } from '@/lib/services';
 
 import { MODULES } from '@/lib/navigation';
 
@@ -46,6 +46,7 @@ interface PasswordRequest {
 export default function AccessControl() {
     const [credentials, setCredentials] = useState<Credential[]>([]);
     const [passwordRequests, setPasswordRequests] = useState<PasswordRequest[]>([]);
+    const [companies, setCompanies] = useState<any[]>([]);
     const [showRequests, setShowRequests] = useState(false);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,9 +75,10 @@ export default function AccessControl() {
 
         const fetchData = async () => {
             try {
-                const [users, requests] = await Promise.all([
+                const [users, requests, companiesData] = await Promise.all([
                     UserService.getAll(),
-                    PasswordRequestService.getAll()
+                    PasswordRequestService.getAll(),
+                    CompanyService.getAll()
                 ]);
 
                 setCredentials(users.map((u: any) => ({
@@ -96,6 +98,7 @@ export default function AccessControl() {
                     date: r.created_at?.split('T')[0],
                     status: r.status
                 })));
+                setCompanies(companiesData);
             } catch (err) {
                 console.error("Error loading access data:", err);
             }
@@ -343,14 +346,35 @@ export default function AccessControl() {
                              <div className="form-group">
                                 <label>Tipo de Asignación</label>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <button type="button" onClick={() => setFormData({ ...formData, type: 'Personal' })} className={`toggle-btn ${formData.type === 'Personal' ? 'active' : ''}`}><UserIcon size={16} /> Personal</button>
-                                    <button type="button" onClick={() => setFormData({ ...formData, type: 'Empresa' })} className={`toggle-btn ${formData.type === 'Empresa' ? 'active' : ''}`}><Building2 size={16} /> Empresa</button>
+                                    <button type="button" onClick={() => setFormData({ ...formData, type: 'Personal', assignedTo: '' })} className={`toggle-btn ${formData.type === 'Personal' ? 'active' : ''}`}><UserIcon size={16} /> Personal</button>
+                                    <button type="button" onClick={() => setFormData({ ...formData, type: 'Empresa', assignedTo: '' })} className={`toggle-btn ${formData.type === 'Empresa' ? 'active' : ''}`}><Building2 size={16} /> Empresa</button>
                                 </div>
                             </div>
 
                             <div className="form-group">
                                 <label>Asignado a</label>
-                                <input type="text" className="form-input" value={formData.assignedTo} onChange={e => setFormData({ ...formData, assignedTo: e.target.value })} required />
+                                {formData.type === 'Empresa' ? (
+                                    <select 
+                                        className="form-input" 
+                                        value={formData.assignedTo} 
+                                        onChange={e => setFormData({ ...formData, assignedTo: e.target.value })} 
+                                        required
+                                    >
+                                        <option value="">Seleccione Empresa...</option>
+                                        {companies.map(c => (
+                                            <option key={c.id} value={c.name}>{c.name}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <input 
+                                        type="text" 
+                                        className="form-input" 
+                                        value={formData.assignedTo} 
+                                        onChange={e => setFormData({ ...formData, assignedTo: e.target.value })} 
+                                        required 
+                                        placeholder="Nombre de la persona" 
+                                    />
+                                )}
                             </div>
 
                             <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

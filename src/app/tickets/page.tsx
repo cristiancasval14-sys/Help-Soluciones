@@ -64,7 +64,7 @@ export default function TicketsList() {
                     if (user.role === 'Técnico') {
                         filtered = ticketsData.filter((t: any) => (t.staff?.first_name + ' ' + t.staff?.last_name) === user.assignedTo);
                     } else if (user.role === 'Cliente') {
-                        filtered = ticketsData.filter((t: any) => t.company?.name === user.assignedTo);
+                        filtered = ticketsData.filter((t: any) => t.company?.name?.trim().toLowerCase() === user.assignedTo?.trim().toLowerCase());
                     }
                 }
                 setTickets(filtered as Ticket[]);

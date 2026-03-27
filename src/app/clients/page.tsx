@@ -78,7 +78,7 @@ export default function ClientsPage() {
 
                 // If user is a Client, filter to only show THEIR company
                 if (user && user.role === 'Cliente') {
-                    const filtered = list.filter(c => c.name === user.assignedTo);
+                    const filtered = list.filter(c => c.name?.trim().toLowerCase() === user.assignedTo?.trim().toLowerCase());
                     setCompanies(filtered);
                     if (filtered.length > 0) setExpandedCompany(filtered[0].id);
                 } else {

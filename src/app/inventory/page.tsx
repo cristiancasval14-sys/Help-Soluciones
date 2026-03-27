@@ -15,6 +15,7 @@ import {
     Save,
     Trash2,
     ChevronRight,
+    Edit2,
     MoreVertical,
     Building2,
     Box,
@@ -70,6 +71,7 @@ interface Asset {
 export default function Inventory() {
     const [isMounted, setIsMounted] = useState(false);
     const [assets, setAssets] = useState<Asset[]>([]);
+    const [currentUser, setCurrentUser] = useState<any>(null);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeAsset, setActiveAsset] = useState<Asset | null>(null);
@@ -105,6 +107,10 @@ export default function Inventory() {
     useEffect(() => {
         setIsMounted(true);
         const fetchData = async () => {
+            const session = localStorage.getItem('help_session');
+            const user = session ? JSON.parse(session) : null;
+            setCurrentUser(user);
+
             try {
                 const data = await InventoryService.getAll();
                 const mappedAssets = data.map((a: any) => ({
@@ -119,7 +125,14 @@ export default function Inventory() {
                     licenses: Array.isArray(a.licenses) ? a.licenses : [],
                     programs: Array.isArray(a.programs) ? a.programs : []
                 }));
-                setAssets(mappedAssets);
+
+                let finalAssets = mappedAssets;
+                if (user && user.role === 'Cliente') {
+                    finalAssets = mappedAssets.filter((a: any) => 
+                        a.clientName?.trim().toLowerCase() === user.assignedTo?.trim().toLowerCase()
+                    );
+                }
+                setAssets(finalAssets);
 
                 const companies = await CompanyService.getAll();
                 setClients(companies as any);
@@ -298,12 +311,14 @@ export default function Inventory() {
         <div className="inventory-page fade-in">
             <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <h1 style={{ fontSize: '2rem' }}>Inventario Tecnológico</h1>
+                    <h1 style={{ fontSize: '2rem' }}>{currentUser?.role === 'Cliente' ? 'Mis Equipos' : 'Inventario Tecnológico'}</h1>
                     <p style={{ color: 'var(--text-muted)' }}>Gestión de activos (CMDB), licencias y software</p>
                 </div>
-                <button className="btn btn-primary" onClick={() => openModal()}>
-                    <Plus size={20} /> Nuevo Equipo
-                </button>
+                {currentUser?.role !== 'Cliente' && (
+                    <button className="btn btn-primary" onClick={() => openModal()}>
+                        <Plus size={20} /> Nuevo Equipo
+                    </button>
+                )}
             </header>
 
             <div className="toolbar glass" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', marginBottom: '2rem', display: 'flex', gap: '1rem' }}>
@@ -481,10 +496,12 @@ export default function Inventory() {
                             </div>
                         )}
 
-                        <div style={{ borderTop: '1px solid var(--surface-border)', marginTop: '1.2rem', paddingTop: '1rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                            <button className="icon-btn edit" onClick={() => openModal(asset)}><Edit2Icon size={16} /></button>
-                            <button className="icon-btn delete" onClick={() => handleDelete(asset.id)}><Trash2 size={16} /></button>
-                        </div>
+                        {currentUser?.role !== 'Cliente' && (
+                            <div style={{ borderTop: '1px solid var(--surface-border)', marginTop: '1.2rem', paddingTop: '1rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                                <button className="icon-btn edit" onClick={() => openModal(asset)}><Edit2 size={16} /></button>
+                                <button className="icon-btn delete" onClick={() => handleDelete(asset.id)}><Trash2 size={16} /></button>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>

@@ -65,7 +65,7 @@ export default function Dashboard() {
                     if (user.role === 'Técnico') {
                         filtered = mapped.filter((t: any) => t.assignedTo === user.assignedTo);
                     } else if (user.role === 'Cliente') {
-                        filtered = mapped.filter((t: any) => t.client === user.assignedTo);
+                        filtered = mapped.filter((t: any) => t.client?.trim().toLowerCase() === user.assignedTo?.trim().toLowerCase());
                     }
                 }
                 setTickets(filtered as Ticket[]);
