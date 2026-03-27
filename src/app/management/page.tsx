@@ -12,7 +12,8 @@ import {
     ClipboardList,
     AlertCircle,
     CheckCircle,
-    PlayCircle
+    PlayCircle,
+    Trash2
 } from 'lucide-react';
 import { TicketService, StaffService } from '@/lib/services';
 import Link from 'next/link';
@@ -42,8 +43,15 @@ export default function AdministrativeManagement() {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
     const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState<any>(null);
 
     useEffect(() => {
+        const fetchSession = () => {
+            const session = localStorage.getItem('help_session');
+            if (session) setCurrentUser(JSON.parse(session));
+        };
+        fetchSession();
+
         const fetchData = async () => {
             try {
                 const [ticketData, staffData] = await Promise.all([
@@ -96,6 +104,17 @@ export default function AdministrativeManagement() {
             setSelectedTicket(null);
         } catch (err: any) {
             alert("Error de Supabase: " + (err.message || "Fallo al actualizar estado o asignar técnico"));
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (confirm(`¿Estás seguro de que deseas eliminar permanentemente el ticket ${id}?`)) {
+            try {
+                await TicketService.delete(id);
+                setTickets(tickets.filter(t => t.id !== id));
+            } catch (err) {
+                alert("Error al eliminar de Supabase. Es probable que no tengas el borrado en cascada (ON DELETE CASCADE) activo para reportes de servicio atados a este ticket.");
+            }
         }
     };
 
@@ -191,6 +210,15 @@ export default function AdministrativeManagement() {
                                     </td>
                                     <td style={{ textAlign: 'right', paddingRight: '1.2rem' }}>
                                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                                            {currentUser?.role === 'Administrador' && (
+                                                <button
+                                                    className="action-btn delete"
+                                                    title="Eliminar Ticket"
+                                                    onClick={() => handleDelete(ticket.id)}
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            )}
                                             <button
                                                 className="action-btn assign"
                                                 title="Asignar Técnico"
@@ -296,6 +324,7 @@ export default function AdministrativeManagement() {
                 .action-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
                 .action-btn.assign:hover { color: var(--primary); border-color: var(--primary); }
                 .action-btn.update:hover { color: var(--warning); border-color: var(--warning); }
+                .action-btn.delete:hover { color: var(--error); border-color: var(--error); background: rgba(239, 68, 68, 0.05); }
                 .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
                 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000; }
