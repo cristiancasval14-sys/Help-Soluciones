@@ -281,12 +281,12 @@ export default function Dashboard() {
                                     </div>
                                     <div>
                                         <p style={{ fontWeight: 700 }}>{selectedTicket.assignedTo || 'No asignado todavía'}</p>
-                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{selectedTicket.assignedTo ? 'Soporte Nivel 1' : 'Pendiente de gestión'}</p>
                                         {selectedTicket.techPhone && (
-                                            <p style={{ fontSize: '0.8rem', color: 'var(--text-main)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
+                                            <p style={{ fontSize: '0.8rem', color: 'var(--text-main)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
                                                 <Phone size={12} color="var(--primary)"/> {selectedTicket.techPhone}
                                             </p>
                                         )}
+                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>{selectedTicket.assignedTo ? 'Soporte Nivel 1' : 'Pendiente de gestión'}</p>
                                     </div>
                                 </div>
                             </div>
