@@ -32,6 +32,7 @@ interface Ticket {
     techPhone?: string;
     techNotes?: string;
     description?: string;
+    imageUrl?: string;
 }
 
 export default function Dashboard() {
@@ -60,7 +61,8 @@ export default function Dashboard() {
                     assignedTo: t.staff ? `${t.staff.first_name} ${t.staff.last_name}` : undefined,
                     techPhone: t.staff?.phone || undefined,
                     techNotes: t.tech_notes,
-                    description: t.description
+                    description: t.description,
+                    imageUrl: t.image_url
                 }));
 
                 let filtered = mapped;
@@ -305,6 +307,13 @@ export default function Dashboard() {
                             {!selectedTicket.techNotes && (
                                 <div style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--surface-border)', textAlign: 'center' }}>
                                     <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No hay notas técnicas registradas aún para este ticket.</p>
+                                </div>
+                            )}
+
+                            {selectedTicket.imageUrl && (
+                                <div style={{ border: '1px solid var(--surface-border)', borderRadius: '12px', overflow: 'hidden' }}>
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.8rem 1.5rem', background: 'var(--surface-alt)', borderBottom: '1px solid var(--surface-border)', margin: 0 }}>EVIDENCIA ADJUNTA</p>
+                                    <img src={selectedTicket.imageUrl} alt="Evidencia del ticket" style={{ width: '100%', display: 'block', maxHeight: '500px', objectFit: 'contain', background: '#000' }} />
                                 </div>
                             )}
                         </div>

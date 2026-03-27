@@ -22,10 +22,10 @@ import {
     Box,
     Navigation,
     MapPinned,
-    Building2,
     Users,
     ChevronDown,
-    Lock
+    Lock,
+    Image as ImageIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -50,7 +50,8 @@ export default function NewTicket() {
         serviceType: 'Incidente',
         description: '',
         anydesk: '',
-        priority: 'Medium'
+        priority: 'Medium',
+        imageUrl: ''
     });
 
     useEffect(() => {
@@ -132,6 +133,39 @@ export default function NewTicket() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // Consume memory lightly
+
+                    setFormData(prev => ({ ...prev, imageUrl: dataUrl }));
+                };
+                img.src = event.target?.result as string;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -172,7 +206,8 @@ export default function NewTicket() {
                 status: 'Nuevo' as TicketStatus,
                 date: new Date().toISOString().split('T')[0],
                 // Como Supabase aún no tiene columnas para estos campos en la tabla tickets, los guardamos en tech_notes para no perderlos
-                tech_notes: `📞 Contacto: ${formData.contact}\n📍 Modalidad: ${modality}${modality === 'Remoto' ? ' (AnyDesk: ' + formData.anydesk + ')' : ''}\n💻 Equipo: ${selectedAsset?.equipment_id || 'N/A'}\n📝 Descripción:\n${formData.description}`
+                tech_notes: `📞 Contacto: ${formData.contact}\n📍 Modalidad: ${modality}${modality === 'Remoto' ? ' (AnyDesk: ' + formData.anydesk + ')' : ''}\n💻 Equipo: ${selectedAsset?.equipment_id || 'N/A'}\n📝 Descripción:\n${formData.description}`,
+                image_url: formData.imageUrl || null
             };
 
             await TicketService.create(newTicket as any);
@@ -361,6 +396,18 @@ export default function NewTicket() {
                     <div className="form-group" style={{ marginBottom: '1.5rem' }}>
                         <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Descripción del Problema</label>
                         <textarea name="description" value={formData.description} onChange={handleInputChange} className="form-input" rows={4} placeholder="Describa el problema detalladamente..." required style={{ resize: 'none' }}></textarea>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>
+                            <ImageIcon size={18} color="var(--primary)" /> Adjuntar Imagen (Opcional)
+                        </label>
+                        <div style={{ border: '1px dashed var(--surface-border)', padding: '1rem', borderRadius: '8px', textAlign: 'center', background: 'var(--surface-alt)' }}>
+                            <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'block', width: '100%', fontSize: '0.85rem' }} />
+                            {formData.imageUrl && (
+                                <img src={formData.imageUrl} alt="Vista previa" style={{ marginTop: '1rem', maxHeight: '150px', borderRadius: '8px', border: '1px solid var(--surface-border)' }} />
+                            )}
+                        </div>
                     </div>
                 </div>
 
