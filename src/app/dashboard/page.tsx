@@ -40,6 +40,7 @@ export default function Dashboard() {
     const [currentUser, setCurrentUser] = useState<any>(null);
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [isImageFullscreen, setIsImageFullscreen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -312,8 +313,13 @@ export default function Dashboard() {
 
                             {selectedTicket.imageUrl && (
                                 <div style={{ border: '1px solid var(--surface-border)', borderRadius: '12px', overflow: 'hidden' }}>
-                                    <p style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.8rem 1.5rem', background: 'var(--surface-alt)', borderBottom: '1px solid var(--surface-border)', margin: 0 }}>EVIDENCIA ADJUNTA</p>
-                                    <img src={selectedTicket.imageUrl} alt="Evidencia del ticket" style={{ width: '100%', display: 'block', maxHeight: '500px', objectFit: 'contain', background: '#000' }} />
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.8rem 1.5rem', background: 'var(--surface-alt)', borderBottom: '1px solid var(--surface-border)' }}>
+                                        <p style={{ fontSize: '0.75rem', fontWeight: 700, margin: 0 }}>EVIDENCIA ADJUNTA</p>
+                                        <button onClick={() => setIsImageFullscreen(true)} className="btn glass" style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            Ampliar Imagen
+                                        </button>
+                                    </div>
+                                    <img src={selectedTicket.imageUrl} alt="Evidencia del ticket" style={{ width: '100%', display: 'block', maxHeight: '400px', objectFit: 'contain', background: 'var(--surface-alt)', cursor: 'zoom-in' }} onClick={() => setIsImageFullscreen(true)} title="Haga clic para ampliar" />
                                 </div>
                             )}
                         </div>
@@ -322,6 +328,15 @@ export default function Dashboard() {
                             <button className="btn glass" onClick={() => setIsDetailOpen(false)}>Cerrar Detalle</button>
                         </footer>
                     </div>
+                </div>
+            )}
+
+            {isImageFullscreen && selectedTicket?.imageUrl && (
+                <div className="modal-overlay" style={{ zIndex: 3000, background: 'rgba(0,0,0,0.85)' }} onClick={() => setIsImageFullscreen(false)}>
+                    <button style={{ position: 'absolute', top: '20px', right: '30px', color: '#fff', background: 'rgba(255,255,255,0.1)', padding: '10px', borderRadius: '50%', cursor: 'pointer', border: 'none' }} onClick={() => setIsImageFullscreen(false)}>
+                        <X size={28} />
+                    </button>
+                    <img src={selectedTicket.imageUrl} alt="Evidencia ampliada" style={{ maxWidth: '95vw', maxHeight: '95vh', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }} onClick={e => e.stopPropagation()} />
                 </div>
             )}
 
