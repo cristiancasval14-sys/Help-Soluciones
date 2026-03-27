@@ -344,6 +344,7 @@ export default function NewTicket() {
                             <select className="form-input" value={modality} onChange={(e) => setModality(e.target.value)}>
                                 <option value="Remoto">Remoto</option>
                                 <option value="Presencial">Presencial</option>
+                                <option value="Cotización">Cotización de Insumos / Servicios</option>
                             </select>
                         </div>
                     </div>
