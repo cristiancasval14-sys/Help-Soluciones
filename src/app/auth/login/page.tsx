@@ -165,7 +165,7 @@ export default function Login() {
                     </form>
 
                     <footer className="login-footer">
-                        <p>© 2026 Help Soluciones e Ingeniería S.A.S.</p>
+                        <p>© 2026 Help Soluciones Informaticas S.A.S</p>
                     </footer>
                 </div>
             </div>
