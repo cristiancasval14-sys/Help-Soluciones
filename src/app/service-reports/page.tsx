@@ -73,7 +73,32 @@ export default function ServiceReports() {
                  setStaff(staffList as any[]);
                  setClients(clientList as any[]);
                  setInventory(invList as any[]);
-                 setReports(reportsList as any[]);
+
+                 // Enrich reports with joined data from already-loaded arrays
+                 const enriched = (reportsList as any[]).map(r => {
+                     const company = (clientList as any[]).find(c => c.id === r.company_id);
+                     const invItem = (invList as any[]).find(i => i.id === r.inventory_id);
+                     let employee: any = null;
+                     let sede: any = null;
+                     if (company) {
+                         employee = (company.employees || []).find((e: any) => e.id === r.employee_id);
+                         sede = (company.sedes || []).find((s: any) => s.id === r.sede_id);
+                     }
+                     return {
+                         ...r,
+                         company: company ? { id: company.id, name: company.name } : r.company,
+                         employee: employee ? { id: employee.id, name: employee.name } : r.employee,
+                         sede: sede ? { id: sede.id, name: sede.name } : r.sede,
+                         inventory: invItem ? {
+                             id: invItem.id,
+                             equipment_id: invItem.equipment_id,
+                             brand: invItem.brand,
+                             model: invItem.model,
+                             serial_number: invItem.serial_number
+                         } : r.inventory,
+                     };
+                 });
+                 setReports(enriched);
 
                  // Pre-fill from URL params
                  const tId = searchParams.get('ticketId');
@@ -650,7 +675,7 @@ export default function ServiceReports() {
                                 </div>
                                 <div className="detail-stat">
                                     <span className="stat-label">Cliente</span>
-                                    <span className="stat-value">{selectedReport.company?.name || 'No especificado'}</span>
+                                    <span className="stat-value">{selectedReport.company?.name || selectedReport.client_name || 'No especificado'}</span>
                                 </div>
                                 <div className="detail-stat">
                                     <span className="stat-label">Estado</span>
@@ -665,14 +690,20 @@ export default function ServiceReports() {
                                 <div>
                                     <h3 className="section-title"><User size={18} /> Detalles del Usuario</h3>
                                     <div className="info-box">
-                                        <div className="info-row"><strong>Usuario Final:</strong> {selectedReport.employee?.name || 'General'}</div>
-                                        <div className="info-row"><strong>Sede:</strong> {selectedReport.sede?.name || 'Principal'}</div>
+                                        <div className="info-row"><strong>Usuario Final:</strong> {selectedReport.employee?.name || selectedReport.employee_name || 'General'}</div>
+                                        <div className="info-row"><strong>Sede:</strong> {selectedReport.sede?.name || selectedReport.sede_name || 'Principal'}</div>
                                         <div className="info-row"><strong>Modalidad:</strong> {selectedReport.modality}</div>
                                     </div>
 
                                     <h3 className="section-title" style={{ marginTop: '2rem' }}><Laptop size={18} /> Información de Hardware</h3>
                                     <div className="info-box">
-                                        <div className="info-row"><strong>ID Equipo:</strong> {selectedReport.inventory_id || 'N/A'}</div>
+                                        <div className="info-row">
+                                            <strong>Equipo:</strong>{' '}
+                                            {selectedReport.inventory
+                                                ? `${selectedReport.inventory.equipment_id} — ${selectedReport.inventory.brand} ${selectedReport.inventory.model}`
+                                                : selectedReport.inventory_id || 'N/A'
+                                            }
+                                        </div>
                                         <div className="info-row">
                                             <strong>Mantenimiento:</strong> 
                                             {selectedReport.maintenance_performed ? <span style={{ color: 'var(--success)', marginLeft: '10px' }}>✓ Realizado</span> : <span style={{ color: 'var(--text-muted)', marginLeft: '10px' }}>No realizado</span>}

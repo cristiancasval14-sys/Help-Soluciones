@@ -229,7 +229,14 @@ export const ServiceReportService = {
     async getAll() {
         const { data, error } = await supabase
             .from('service_reports')
-            .select('*');
+            .select(`
+                *,
+                company:companies(id, name),
+                employee:company_employees(id, name),
+                sede:company_sedes(id, name),
+                inventory:inventory(id, equipment_id, brand, model, serial_number)
+            `)
+            .order('created_at', { ascending: false });
         if (error) throw error;
         return data || [];
     },
