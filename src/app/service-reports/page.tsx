@@ -17,7 +17,8 @@ import {
     MapPin,
     Cpu,
     Laptop,
-    Database
+    Database,
+    Trash2
 } from 'lucide-react';
 import { StaffService, CompanyService, InventoryService, ServiceReportService } from '@/lib/services';
 import { useSearchParams } from 'next/navigation';
@@ -162,6 +163,17 @@ export default function ServiceReports() {
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+    };
+
+    const handleDeleteReport = async (id: string, reportId: string) => {
+        if (!confirm(`¿Estas seguro de eliminar el reporte ${reportId}? Esta accion no se puede deshacer.`)) return;
+        try {
+            await ServiceReportService.delete(id);
+            setReports(prev => prev.filter(r => r.id !== id));
+        } catch (err) {
+            console.error('Error eliminando reporte:', err);
+            alert('Error al eliminar el reporte. Intente nuevamente.');
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -578,16 +590,25 @@ export default function ServiceReports() {
                                                 </span>
                                             </td>
                                             <td style={{ padding: '1rem' }}>
-                                                <button 
-                                                    className="btn-icon" 
-                                                    title="Ver detalles"
-                                                    onClick={() => {
-                                                        setSelectedReport(report);
-                                                        setShowDetailModal(true);
-                                                    }}
-                                                >
-                                                    <MonitorCheck size={18} />
-                                                </button>
+                                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                                    <button 
+                                                        className="btn-icon" 
+                                                        title="Ver detalles"
+                                                        onClick={() => {
+                                                            setSelectedReport(report);
+                                                            setShowDetailModal(true);
+                                                        }}
+                                                    >
+                                                        <MonitorCheck size={18} />
+                                                    </button>
+                                                    <button 
+                                                        className="btn-icon btn-icon-danger" 
+                                                        title="Eliminar reporte"
+                                                        onClick={() => handleDeleteReport(report.id, report.report_id)}
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
@@ -695,8 +716,9 @@ export default function ServiceReports() {
                 .badge-success { background: #dcfce7; color: #15803d; }
                 .badge-warning { background: #fef3c7; color: #b45309; }
                 .badge-error { background: #fee2e2; color: #b91c1c; }
-                .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
-                .btn-icon:hover { color: var(--primary); transform: scale(1.1); }
+                .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-muted); transition: 0.2s; padding: 6px; border-radius: 8px; }
+                .btn-icon:hover { color: var(--primary); transform: scale(1.1); background: rgba(99,102,241,0.08); }
+                .btn-icon-danger:hover { color: #ef4444 !important; background: rgba(239,68,68,0.08) !important; transform: scale(1.1); }
                 .detail-stat { display: flex; flex-direction: column; gap: 4px; border-left: 3px solid var(--primary-glow); padding-left: 12px; }
                 .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; }
                 .stat-value { font-size: 1rem; font-weight: 800; color: var(--text-main); }

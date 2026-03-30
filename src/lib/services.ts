@@ -238,6 +238,11 @@ export const ServiceReportService = {
         const { data, error } = await supabase.from('service_reports').insert([sanitize(report)]).select();
         if (error) throw error;
         return data ? data[0] : null;
+    },
+
+    async delete(id: string) {
+        const { error } = await supabase.from('service_reports').delete().eq('id', id);
+        if (error) throw error;
     }
 };
 
