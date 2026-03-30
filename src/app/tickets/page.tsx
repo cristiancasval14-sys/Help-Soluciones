@@ -322,9 +322,21 @@ export default function TicketsList() {
                                                     </Link>
                                                 );
                                             } else if (isTech && (ticket.staff?.first_name + ' ' + ticket.staff?.last_name).toLowerCase() === currentUser?.assignedTo?.toLowerCase()) {
+                                                const techFullName = `${ticket.staff?.first_name} ${ticket.staff?.last_name}`;
+                                                const params = new URLSearchParams({
+                                                    ticketId: ticket.id,
+                                                    companyId: ticket.company_id || '',
+                                                    clientId: ticket.company?.name || '',
+                                                    requester: ticket.requester_name || '',
+                                                    techName: techFullName,
+                                                    description: ticket.description || '',
+                                                    priority: ticket.priority || '',
+                                                    category: ticket.category || '',
+                                                    techNotes: ticket.tech_notes || '',
+                                                });
                                                 return (
                                                     <Link 
-                                                        href={`/service-reports?ticketId=${ticket.id}&companyId=${ticket.company_id}&clientId=${ticket.company?.name}&requester=${ticket.requester_name}&techName=${ticket.staff?.first_name} ${ticket.staff?.last_name}`}
+                                                        href={`/service-reports?${params.toString()}`}
                                                         className="row-btn report-arrow-btn create"
                                                         title="Crear Reporte de Servicio (PDF)"
                                                     >

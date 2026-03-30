@@ -54,6 +54,8 @@ export default function ServiceReports() {
     const [clients, setClients] = useState<any[]>([]);
     const [inventory, setInventory] = useState<any[]>([]);
 
+    const [ticketContext, setTicketContext] = useState<any>(null);
+
     useEffect(() => {
         const fetchData = async () => {
              const session = localStorage.getItem('help_session');
@@ -77,15 +79,43 @@ export default function ServiceReports() {
                  const cName = searchParams.get('clientId');
                  const uName = searchParams.get('requester');
                  const techName = searchParams.get('techName');
+                 const description = searchParams.get('description');
+                 const priority = searchParams.get('priority');
+                 const category = searchParams.get('category');
+                 const techNotes = searchParams.get('techNotes');
                  
                  if (tId || cName || uName || techName) {
+                    // Build activities text from ticket info
+                    let activitiesText = '';
+                    if (description) {
+                        activitiesText = `Descripción del ticket: ${description}`;
+                    }
+                    if (techNotes) {
+                        activitiesText += activitiesText ? `\n\nNotas del técnico: ${techNotes}` : `Notas del técnico: ${techNotes}`;
+                    }
+
                     setFormData(prev => ({
                         ...prev,
                         ticketId: tId || '',
                         client: cName || '',
                         user: uName || '',
-                        technician: techName || ''
+                        technician: techName || '',
+                        activities: activitiesText,
                     }));
+
+                    // Store ticket context for the info banner
+                    if (tId) {
+                        setTicketContext({
+                            id: tId,
+                            client: cName,
+                            requester: uName,
+                            technician: techName,
+                            description,
+                            priority,
+                            category,
+                            techNotes,
+                        });
+                    }
                  }
 
                  // View specific report from URL
@@ -223,6 +253,57 @@ export default function ServiceReports() {
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Registro y control de actividades, mantenimientos y cambios físicos.</p>
                 </div>
             </header>
+
+            {/* Ticket context banner */}
+            {ticketContext && (
+                <div style={{
+                    background: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(16,185,129,0.08) 100%)',
+                    border: '1px solid rgba(59,130,246,0.25)',
+                    borderRadius: '16px',
+                    padding: '1.25rem 1.5rem',
+                    marginBottom: '2rem',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '1rem',
+                    alignItems: 'center'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)', fontWeight: 700 }}>
+                        <FileText size={18} />
+                        <span>Ticket #{ticketContext.id.slice(0, 8).toUpperCase()}</span>
+                    </div>
+                    <div style={{ height: '20px', width: '1px', background: 'var(--surface-border)' }} />
+                    {ticketContext.client && (
+                        <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                            🏢 <strong>{ticketContext.client}</strong>
+                        </span>
+                    )}
+                    {ticketContext.requester && (
+                        <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                            👤 <strong>{ticketContext.requester}</strong>
+                        </span>
+                    )}
+                    {ticketContext.priority && (
+                        <span style={{
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            padding: '2px 10px',
+                            borderRadius: '99px',
+                            background: ticketContext.priority === 'Crítica' ? 'rgba(239,68,68,0.12)' : ticketContext.priority === 'Alta' ? 'rgba(245,158,11,0.12)' : 'rgba(59,130,246,0.12)',
+                            color: ticketContext.priority === 'Crítica' ? '#ef4444' : ticketContext.priority === 'Alta' ? '#f59e0b' : 'var(--primary)',
+                        }}>
+                            {ticketContext.priority}
+                        </span>
+                    )}
+                    {ticketContext.category && (
+                        <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>📂 {ticketContext.category}</span>
+                    )}
+                    {ticketContext.description && (
+                        <p style={{ width: '100%', fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, paddingTop: '0.5rem', borderTop: '1px solid rgba(59,130,246,0.15)' }}>
+                            <strong>Descripción:</strong> {ticketContext.description}
+                        </p>
+                    )}
+                </div>
+            )}
 
             <form onSubmit={handleSubmit} className="form-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '2rem' }}>
 

@@ -50,6 +50,8 @@ export interface Ticket {
   date: string;
   assigned_staff_id?: string;
   tech_notes?: string;
+  description?: string;
+  category?: string;
   created_at?: string;
   // Join fields (readonly)
   company?: Company;
