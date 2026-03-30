@@ -91,7 +91,7 @@ export default function Login() {
                             <img src="/logo.png" alt="Help Soluciones" className="logo-img" />
                         </div>
                         <h1 className="title-gradient">Help Soluciones</h1>
-                        <p className="subtitle">Gestión Integral de Infraestructura IT</p>
+                        <p className="subtitle">Soporte Mesa de Ayuda</p>
                     </header>
 
                     {error && (
