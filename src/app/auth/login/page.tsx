@@ -6,14 +6,10 @@ import {
     ShieldCheck,
     Mail,
     Lock,
-    HelpCircle,
     Eye,
     EyeOff,
     Send,
-    AlertCircle,
-    Server,
-    Shield,
-    Cpu
+    AlertCircle
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { UserService, PasswordRequestService } from '@/lib/services';
@@ -92,8 +88,7 @@ export default function Login() {
                     
                     <header className="login-header">
                         <div className="logo-container">
-                            <div className="logo-ring"></div>
-                            <Server className="logo-icon" size={32} />
+                            <img src="/logo.png" alt="Help Soluciones" className="logo-img" />
                         </div>
                         <h1 className="title-gradient">Help Soluciones</h1>
                         <p className="subtitle">Gestión Integral de Infraestructura IT</p>
@@ -123,7 +118,7 @@ export default function Login() {
                         </div>
 
                         <div className="form-group">
-                            <label>Contraseña Maestra</label>
+                            <label>Contraseña</label>
                             <div className="input-wrapper">
                                 <Lock className="input-icon" size={18} />
                                 <input
@@ -148,7 +143,7 @@ export default function Login() {
                                     className="forgot-link"
                                     onClick={() => setShowResetModal(true)} 
                                 >
-                                    ¿Problemas de acceso?
+                                    ¿Olvidaste tu contraseña?
                                 </button>
                             </div>
                         </div>
@@ -158,7 +153,7 @@ export default function Login() {
                                 <div className="loader"></div>
                             ) : (
                                 <>
-                                    <span>Iniciar Sesión Segura</span>
+                                    <span>Iniciar Sesión</span>
                                     <LogIn size={20} />
                                 </>
                             )}
@@ -166,10 +161,6 @@ export default function Login() {
                     </form>
 
                     <footer className="login-footer">
-                        <div className="security-badges">
-                            <div className="badge"><Shield size={12} /> SSL Encrypted</div>
-                            <div className="badge"><Cpu size={12} /> Enterprise Ready</div>
-                        </div>
                         <p>© 2026 Help Soluciones e Ingeniería S.A.S.</p>
                     </footer>
                 </div>
@@ -299,31 +290,16 @@ export default function Login() {
                 }
 
                 .logo-container {
-                    width: 80px;
-                    height: 80px;
                     margin: 0 auto 1.5rem;
-                    position: relative;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                 }
 
-                .logo-ring {
-                    position: absolute;
-                    inset: 0;
-                    border: 2px dashed rgba(59, 130, 246, 0.4);
-                    border-radius: 50%;
-                    animation: rotate 15s linear infinite;
-                }
-
-                @keyframes rotate {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-
-                .logo-icon {
-                    color: #3b82f6;
-                    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
+                .logo-img {
+                    height: 72px;
+                    width: auto;
+                    object-fit: contain;
                 }
 
                 .title-gradient {
@@ -511,26 +487,6 @@ export default function Login() {
                     padding-top: 2rem;
                     border-top: 1px solid #f1f5f9;
                     text-align: center;
-                }
-
-                .security-badges {
-                    display: flex;
-                    justify-content: center;
-                    gap: 1.5rem;
-                    margin-bottom: 1.5rem;
-                }
-
-                .badge {
-                    font-size: 0.7rem;
-                    font-weight: 600;
-                    color: #64748b;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    background: #f1f5f9;
-                    padding: 4px 10px;
-                    border-radius: 99px;
-                    border: 1px solid #e2e8f0;
                 }
 
                 .login-footer p {
