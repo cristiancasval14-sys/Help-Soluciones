@@ -56,13 +56,19 @@ export default function TicketsList() {
             setCurrentUser(user);
 
             try {
-                const [ticketsData, staffData, reportsData] = await Promise.all([
+                const [ticketsData, staffData] = await Promise.all([
                     TicketService.getAll(),
-                    isAdminRole(user) ? StaffService.getAll() : Promise.resolve([]),
-                    ServiceReportService.getAll()
+                    isAdminRole(user) ? StaffService.getAll() : Promise.resolve([])
                 ]);
                 
-                setServiceReports(reportsData as any[]);
+                // Fetch reports separately to not break the page if it fails
+                try {
+                    const reportsData = await ServiceReportService.getAll();
+                    setServiceReports(reportsData as any[]);
+                } catch (reportErr) {
+                    console.error("Warning: Could not load service reports:", reportErr);
+                    setServiceReports([]);
+                }
                 
                 let filtered = ticketsData;
                 if (user && user.role !== 'Administrador') {
