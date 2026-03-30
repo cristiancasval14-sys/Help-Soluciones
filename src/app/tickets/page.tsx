@@ -19,11 +19,12 @@ import {
     X,
     MessageSquare,
     ClipboardCheck,
-    PlayCircle
+    PlayCircle,
+    FileText
 } from 'lucide-react';
 import Link from 'next/link';
 
-import { TicketService, StaffService } from '@/lib/services';
+import { TicketService, StaffService, ServiceReportService } from '@/lib/services';
 import { Ticket as DBTicket, Priority, TicketStatus, Company, Staff } from '@/lib/supabase';
 
 // Local UI Interface (extends DB interface)
@@ -36,6 +37,7 @@ interface Ticket extends DBTicket {
 export default function TicketsList() {
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [currentUser, setCurrentUser] = useState<any>(null);
+    const [serviceReports, setServiceReports] = useState<any[]>([]);
 
     // Status management state
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
@@ -54,10 +56,13 @@ export default function TicketsList() {
             setCurrentUser(user);
 
             try {
-                const [ticketsData, staffData] = await Promise.all([
+                const [ticketsData, staffData, reportsData] = await Promise.all([
                     TicketService.getAll(),
-                    isAdminRole(user) ? StaffService.getAll() : Promise.resolve([])
+                    isAdminRole(user) ? StaffService.getAll() : Promise.resolve([]),
+                    ServiceReportService.getAll()
                 ]);
+                
+                setServiceReports(reportsData as any[]);
                 
                 let filtered = ticketsData;
                 if (user && user.role !== 'Administrador') {
@@ -264,8 +269,37 @@ export default function TicketsList() {
                                         <Calendar size={14} /> {ticket.date}
                                     </div>
                                 </td>
-                                <td style={{ textAlign: 'right' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                                <td>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', alignItems: 'center' }}>
+                                        {/* Dynamic Report Action: View or Create */}
+                                        {(() => {
+                                            const existingReport = serviceReports.find(r => r.ticket_id === ticket.id);
+                                            if (existingReport) {
+                                                return (
+                                                    <Link 
+                                                        href={`/service-reports?view=${existingReport.id}`}
+                                                        className="row-btn view-report-btn" 
+                                                        title="Ver Reporte Técnico"
+                                                        style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none', color: 'var(--success)', fontSize: '0.75rem', fontWeight: 800 }}
+                                                    >
+                                                        <FileText size={18} /> <span>VER</span>
+                                                    </Link>
+                                                );
+                                            } else if (isTech && (ticket.staff?.first_name + ' ' + ticket.staff?.last_name).toLowerCase() === currentUser?.assignedTo?.toLowerCase()) {
+                                                return (
+                                                    <Link 
+                                                        href={`/service-reports?ticketId=${ticket.id}&companyId=${ticket.company_id}&clientId=${ticket.company?.name}&requester=${ticket.requester_name}&techName=${ticket.staff?.first_name} ${ticket.staff?.last_name}`}
+                                                        className="row-btn report-btn" 
+                                                        title="Crear Reporte Técnico"
+                                                        style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none', color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 800 }}
+                                                    >
+                                                        <Plus size={18} /> <span>PDF</span>
+                                                    </Link>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
+
                                         {isAdmin && (
                                             <button 
                                                 className="row-btn assign-btn" 
@@ -279,7 +313,8 @@ export default function TicketsList() {
                                                 <User size={18} />
                                             </button>
                                         )}
-                                        {isTech && (ticket.staff?.first_name + ' ' + ticket.staff?.last_name === currentUser?.assignedTo) && (
+
+                                        {isTech && (ticket.staff?.first_name + ' ' + ticket.staff?.last_name).toLowerCase() === currentUser?.assignedTo?.toLowerCase() && (
                                             <button 
                                                 className="row-btn status-update-btn" 
                                                 title="Actualizar Estado"
@@ -290,10 +325,12 @@ export default function TicketsList() {
                                                     setIsStatusModalOpen(true);
                                                 }}
                                             >
-                                                <ClipboardCheck size={18} />
+                                                <ClipboardCheck size={20} />
                                             </button>
                                         )}
-                                        <button className="row-btn" title="Detalles"><ChevronRight size={20} /></button>
+
+                                        <button className="row-btn" title="Detalles" style={{ opacity: 0.5 }}><ChevronRight size={20} /></button>
+                                        
                                         {isAdmin && (
                                             <button className="row-btn delete-btn" onClick={() => handleDelete(ticket.id)} title="Eliminar">
                                                 <Trash2 size={18} />
@@ -427,6 +464,10 @@ export default function TicketsList() {
                 .status-btn:hover:not(.active) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
                 .status-update-btn { color: var(--secondary); background: rgba(13, 148, 136, 0.05); border-radius: 6px; padding: 6px; }
                 .status-update-btn:hover { background: rgba(13, 148, 136, 0.15); border-color: var(--secondary); transform: scale(1.1) !important; }
+                .report-btn { color: var(--primary); background: rgba(99, 102, 241, 0.05); border-radius: 6px; padding: 6px; }
+                .report-btn:hover { background: rgba(99, 102, 241, 0.15); transform: scale(1.1) !important; }
+                .view-report-btn { background: rgba(16, 185, 129, 0.05); border-radius: 6px; padding: 6px; }
+                .view-report-btn:hover { background: rgba(16, 185, 129, 0.15); transform: scale(1.1) !important; }
                 .delete-btn:hover { color: var(--error) !important; background: rgba(239, 68, 68, 0.1); border-radius: 4px; transform: none; }
                 .priority-tag { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 4px; border: 1px solid transparent; }
                 .p-baja { color: var(--success); background: rgba(16, 185, 129, 0.1); }

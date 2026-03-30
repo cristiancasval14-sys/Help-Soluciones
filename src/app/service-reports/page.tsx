@@ -16,13 +16,20 @@ import {
     Settings,
     MapPin,
     Cpu,
-    Laptop
+    Laptop,
+    Database
 } from 'lucide-react';
 import { StaffService, CompanyService, InventoryService, ServiceReportService } from '@/lib/services';
+import { useSearchParams } from 'next/navigation';
 
 export default function ServiceReports() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [reports, setReports] = useState<any[]>([]);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [selectedReport, setSelectedReport] = useState<any>(null);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const searchParams = useSearchParams();
 
     const [formData, setFormData] = useState({
         date: new Date().toISOString().split('T')[0],
@@ -49,21 +56,53 @@ export default function ServiceReports() {
 
     useEffect(() => {
         const fetchData = async () => {
+             const session = localStorage.getItem('help_session');
+             const user = session ? JSON.parse(session) : null;
+             setIsAdmin(user?.role === 'Administrador');
+
              try {
-                 const [staffList, clientList, invList] = await Promise.all([
+                 const [staffList, clientList, invList, reportsList] = await Promise.all([
                      StaffService.getAll(),
                      CompanyService.getAll(),
-                     InventoryService.getAll()
+                     InventoryService.getAll(),
+                     ServiceReportService.getAll()
                  ]);
                  setStaff(staffList as any[]);
                  setClients(clientList as any[]);
                  setInventory(invList as any[]);
+                 setReports(reportsList as any[]);
+
+                 // Pre-fill from URL params
+                 const tId = searchParams.get('ticketId');
+                 const cName = searchParams.get('clientId');
+                 const uName = searchParams.get('requester');
+                 const techName = searchParams.get('techName');
+                 
+                 if (tId || cName || uName || techName) {
+                    setFormData(prev => ({
+                        ...prev,
+                        ticketId: tId || '',
+                        client: cName || '',
+                        user: uName || '',
+                        technician: techName || ''
+                    }));
+                 }
+
+                 // View specific report from URL
+                 const viewId = searchParams.get('view');
+                 if (viewId && reportsList.length > 0) {
+                     const reportToView = (reportsList as any[]).find(r => r.id === viewId);
+                     if (reportToView) {
+                         setSelectedReport(reportToView);
+                         setShowDetailModal(true);
+                     }
+                 }
              } catch (err) {
                  console.error("Error loading service report data:", err);
              }
         };
         fetchData();
-    }, []);
+    }, [searchParams]);
 
     const selectedClientObj = clients.find(c => c.name === formData.client || c.id === formData.client);
     const clientSedes = selectedClientObj?.sedes || [];
@@ -116,6 +155,7 @@ export default function ServiceReports() {
                 sede_id: selectedSede?.id,
                 employee_id: selectedEmp?.id,
                 inventory_id: formData.assetId || null,
+                ticket_id: formData.ticketId || null,
                 activities: formData.activities,
                 maintenance_performed: formData.maintenancePerformed,
                 parts_changed: formData.partsChanged,
@@ -265,7 +305,14 @@ export default function ServiceReports() {
                     </div>
 
                     {/* Fila 2 */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                        <div className="form-group">
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Ticket Relacionado</label>
+                            <div style={{ position: 'relative' }}>
+                                <FileText size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                                <input type="text" name="ticketId" value={formData.ticketId} onChange={handleInputChange} className="form-input" placeholder="Opcional..." style={{ paddingLeft: '2.5rem', fontWeight: 700, color: 'var(--primary)' }} />
+                            </div>
+                        </div>
                         <div className="form-group">
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Fecha</label>
                             <div style={{ position: 'relative' }}>
@@ -282,10 +329,10 @@ export default function ServiceReports() {
                         </div>
                         <div className="form-group">
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Modalidad</label>
-                            <select name="modality" value={formData.modality} onChange={handleInputChange} className="form-input" style={{ fontWeight: 600, color: 'var(--primary)' }}>
-                                <option value="Soporte Remoto">🎧 Soporte Remoto</option>
-                                <option value="Visita Técnica Programada">📅 Visita Técnica Programada</option>
-                                <option value="Presencial Emergencia">🚨 Presencial (Emergencia)</option>
+                            <select name="modality" value={formData.modality} onChange={handleInputChange} className="form-input" style={{ fontWeight: 600, color: 'var(--primary)', padding: '0.8rem 0.5rem' }}>
+                                <option value="Soporte Remoto">🎧 Remoto</option>
+                                <option value="Visita Técnica Programada">📅 Visita</option>
+                                <option value="Presencial Emergencia">🚨 Emergencia</option>
                             </select>
                         </div>
                     </div>
@@ -411,10 +458,171 @@ export default function ServiceReports() {
                 </div>
             </form>
 
+            {isAdmin && (
+                <div className="reports-summary fade-in" style={{ marginTop: '4rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2rem' }}>
+                        <Database size={24} color="var(--primary)" />
+                        <h2 style={{ fontSize: '1.5rem' }}>Resumen de Reportes Técnicos (Administrador)</h2>
+                    </div>
+
+                    <div className="table-container glass" style={{ padding: '0.5rem', borderRadius: 'var(--radius-md)', overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <thead>
+                                <tr style={{ borderBottom: '2px solid var(--surface-border)' }}>
+                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>ID Reporte</th>
+                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Ticket</th>
+                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Fecha</th>
+                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Cliente</th>
+                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Técnico</th>
+                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Estado</th>
+                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {reports.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={7} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No hay reportes registrados aún.</td>
+                                    </tr>
+                                ) : (
+                                    reports.map(report => (
+                                        <tr key={report.id} style={{ borderBottom: '1px solid var(--surface-border)', transition: '0.2s' }} className="report-row">
+                                            <td style={{ padding: '1rem', fontWeight: 700, color: 'var(--primary)' }}>{report.report_id}</td>
+                                            <td style={{ padding: '1rem', fontWeight: 600 }}>{report.ticket_id || '---'}</td>
+                                            <td style={{ padding: '1rem', fontSize: '0.9rem' }}>{report.date}</td>
+                                            <td style={{ padding: '1rem', fontSize: '0.9rem' }}>{report.company?.name || '---'}</td>
+                                            <td style={{ padding: '1rem', fontSize: '0.9rem' }}>{report.technician_name}</td>
+                                            <td style={{ padding: '1rem' }}>
+                                                <span className={`badge-res badge-${report.is_resolved === 'Si' ? 'success' : report.is_resolved === 'Parcial' ? 'warning' : 'error'}`}>
+                                                    {report.is_resolved === 'Si' ? 'Resuelto' : report.is_resolved === 'Parcial' ? 'Seguimiento' : 'No Resuelto'}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '1rem' }}>
+                                                <button 
+                                                    className="btn-icon" 
+                                                    title="Ver detalles"
+                                                    onClick={() => {
+                                                        setSelectedReport(report);
+                                                        setShowDetailModal(true);
+                                                    }}
+                                                >
+                                                    <MonitorCheck size={18} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* Detailed Report Modal */}
+            {showDetailModal && selectedReport && (
+                <div className="modal-overlay fade-in" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
+                    <div className="modal-card glass" style={{ width: '800px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: 'var(--radius-lg)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+                        {/* Header */}
+                        <div style={{ background: 'var(--primary)', color: 'white', padding: '1.5rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '12px' }}>
+                                    <FileText size={24} />
+                                </div>
+                                <div>
+                                    <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>Reporte: {selectedReport.report_id}</h2>
+                                    <p style={{ fontSize: '0.85rem', opacity: 0.9, margin: 0 }}>Ticket: {selectedReport.ticket_id || 'Servicio directo'}</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setShowDetailModal(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}><AlertCircle size={24} style={{ transform: 'rotate(45deg)' }} /></button>
+                        </div>
+
+                        <div style={{ padding: '2.5rem' }}>
+                            {/* Stats Bar */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
+                                <div className="detail-stat">
+                                    <span className="stat-label">Fecha del Servicio</span>
+                                    <span className="stat-value">{selectedReport.date}</span>
+                                </div>
+                                <div className="detail-stat">
+                                    <span className="stat-label">Técnico</span>
+                                    <span className="stat-value">{selectedReport.technician_name}</span>
+                                </div>
+                                <div className="detail-stat">
+                                    <span className="stat-label">Cliente</span>
+                                    <span className="stat-value">{selectedReport.company?.name || 'No especificado'}</span>
+                                </div>
+                                <div className="detail-stat">
+                                    <span className="stat-label">Estado</span>
+                                    <span className={`stat-value badge-${selectedReport.is_resolved === 'Si' ? 'success' : selectedReport.is_resolved === 'Parcial' ? 'warning' : 'error'}`} style={{ display: 'inline-block', width: 'fit-content', borderRadius: '4px', padding: '2px 8px' }}>
+                                        {selectedReport.is_resolved === 'Si' ? 'RESUELTO' : selectedReport.is_resolved === 'Parcial' ? 'SEGUIMIENTO' : 'NO RESUELTO'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Main Content Sections */}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
+                                <div>
+                                    <h3 className="section-title"><User size={18} /> Detalles del Usuario</h3>
+                                    <div className="info-box">
+                                        <div className="info-row"><strong>Usuario Final:</strong> {selectedReport.employee?.name || 'General'}</div>
+                                        <div className="info-row"><strong>Sede:</strong> {selectedReport.sede?.name || 'Principal'}</div>
+                                        <div className="info-row"><strong>Modalidad:</strong> {selectedReport.modality}</div>
+                                    </div>
+
+                                    <h3 className="section-title" style={{ marginTop: '2rem' }}><Laptop size={18} /> Información de Hardware</h3>
+                                    <div className="info-box">
+                                        <div className="info-row"><strong>ID Equipo:</strong> {selectedReport.inventory_id || 'N/A'}</div>
+                                        <div className="info-row">
+                                            <strong>Mantenimiento:</strong> 
+                                            {selectedReport.maintenance_performed ? <span style={{ color: 'var(--success)', marginLeft: '10px' }}>✓ Realizado</span> : <span style={{ color: 'var(--text-muted)', marginLeft: '10px' }}>No realizado</span>}
+                                        </div>
+                                        {selectedReport.parts_changed && (
+                                            <div className="info-row" style={{ color: 'var(--warning)', fontWeight: 600 }}>
+                                                <strong>Cambio de piezas:</strong> {selectedReport.parts_details}
+                                            </div>
+                                        )}
+                                        {selectedReport.capacity_upgraded && (
+                                            <div className="info-row" style={{ color: 'var(--success)', fontWeight: 600 }}>
+                                                <strong>Upgrade:</strong> {selectedReport.upgrade_details}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="section-title"><Clock size={18} /> Actividades Realizadas</h3>
+                                    <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0', minHeight: '100px', whiteSpace: 'pre-wrap', lineHeight: '1.6', fontSize: '0.95rem', color: '#334155' }}>
+                                        {selectedReport.activities}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--surface-border)', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                                <button className="btn glass" onClick={() => setShowDetailModal(false)}>Cerrar Vista</button>
+                                <button className="btn btn-primary" onClick={() => window.print()}><Save size={18} /> Imprimir Reporte</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <style jsx>{`
                 .form-input { width: 100%; padding: 0.8rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--surface-border); background: var(--surface); color: var(--text-main); font-family: inherit; font-size: 0.95rem; outline: none; }
                 .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
                 .fade-in { animation: fadeIn 0.3s ease-out; }
+                .report-row:hover { background: rgba(99, 102, 241, 0.03); }
+                .badge-res { font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 99px; }
+                .badge-success { background: #dcfce7; color: #15803d; }
+                .badge-warning { background: #fef3c7; color: #b45309; }
+                .badge-error { background: #fee2e2; color: #b91c1c; }
+                .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
+                .btn-icon:hover { color: var(--primary); transform: scale(1.1); }
+                .detail-stat { display: flex; flex-direction: column; gap: 4px; border-left: 3px solid var(--primary-glow); padding-left: 12px; }
+                .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; }
+                .stat-value { font-size: 1rem; font-weight: 800; color: var(--text-main); }
+                .section-title { font-size: 1rem; font-weight: 800; display: flex; alignItems: center; gap: 8px; margin-bottom: 1.25rem; color: var(--primary); border-bottom: 2px solid var(--primary-glow); padding-bottom: 8px; }
+                .info-box { background: white; border-radius: 12px; border: 1px solid var(--surface-border); overflow: hidden; }
+                .info-row { padding: 0.75rem 1rem; border-bottom: 1px solid var(--surface-border); font-size: 0.9rem; }
+                .info-row:last-child { border-bottom: none; }
                 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
             `}</style>
         </div>

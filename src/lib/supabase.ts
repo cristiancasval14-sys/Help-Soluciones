@@ -56,6 +56,29 @@ export interface Ticket {
   staff?: Staff;
 }
 
+export interface ServiceReport {
+  id: string;
+  report_id: string;
+  date: string;
+  time: string;
+  modality: string;
+  technician_name: string;
+  technician_id?: string;
+  company_id?: string;
+  sede_id?: string;
+  employee_id?: string;
+  inventory_id?: string;
+  ticket_id?: string;
+  activities: string;
+  maintenance_performed: boolean;
+  parts_changed: boolean;
+  parts_details?: string;
+  capacity_upgraded: boolean;
+  upgrade_details?: string;
+  is_resolved: string;
+  created_at?: string;
+}
+
 // --- SLA Logic ---
 
 export const SLA_POLICIES: Record<string, { response: number; resolution: number }> = {

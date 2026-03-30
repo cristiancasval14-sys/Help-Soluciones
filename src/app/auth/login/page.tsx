@@ -1,20 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     LogIn,
     ShieldCheck,
     Mail,
     Lock,
-    ChevronRight,
     HelpCircle,
     Eye,
     EyeOff,
     Send,
-    X,
-    AlertCircle
+    AlertCircle,
+    Server,
+    Shield,
+    Cpu
 } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UserService, PasswordRequestService } from '@/lib/services';
 
@@ -40,7 +40,6 @@ export default function Login() {
         try {
             const validUser = await UserService.login(username, password);
             if (validUser) {
-                // Map DB snake_case to UI/Legacy camelCase if needed elsewhere
                 const sessionUser = {
                     id: validUser.id,
                     username: validUser.username,
@@ -54,11 +53,11 @@ export default function Login() {
                 router.push('/dashboard');
             } else {
                 setLoading(false);
-                setError('Credenciales incorrectas. Verifique su usuario y contraseña.');
+                setError('Acceso denegado. Verifique sus credenciales.');
             }
         } catch (err) {
             setLoading(false);
-            setError('Error de conexión con el servidor.');
+            setError('Fallo en la comunicación con el servidor de seguridad.');
         }
     };
 
@@ -75,146 +74,146 @@ export default function Login() {
                 setResetUsername('');
             }, 2500);
         } catch (err) {
-            alert("Error al enviar solicitud");
+            alert("Error al procesar la solicitud de recuperación.");
         }
     };
 
     return (
-        <div className="login-container fade-in" style={{
-            minHeight: '100vh', width: '100vw',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(13, 148, 136, 0.05) 0%, transparent 40%)'
-        }}>
-            <div className="login-card glass" style={{ width: '420px', padding: '3rem', borderRadius: 'var(--radius-lg)' }}>
-                <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
-                        <img
-                            src="/logo.png"
-                            alt="Logo Empresa"
-                            style={{ height: '70px', width: 'auto', objectFit: 'contain' }}
-                            onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                            }}
-                        />
-                    </div>
-                    <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Help Soluciones</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Plataforma Centralizada de Soporte</p>
-                </header>
+        <div className="login-wrapper">
+            {/* Animated Background Elements */}
+            <div className="bg-blob blob-1"></div>
+            <div className="bg-blob blob-2"></div>
+            <div className="bg-blob blob-3"></div>
+            <div className="grid-overlay"></div>
 
-                {error && (
-                    <div style={{ background: 'rgba(220, 38, 38, 0.1)', color: 'var(--error)', padding: '0.8rem', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1.5rem', textAlign: 'center', border: '1px solid rgba(220, 38, 38, 0.2)' }}>
-                        {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'block' }}>Nombre de Usuario</label>
-                        <div style={{ position: 'relative' }}>
-                            <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                            <input
-                                type="text"
-                                className="form-input"
-                                placeholder="Ej: admin"
-                                value={username}
-                                onChange={e => setUsername(e.target.value)}
-                                required
-                                style={{ padding: '0.8rem 1rem 0.8rem 2.8rem', width: '100%', borderRadius: 'var(--radius-sm)', border: '1px solid var(--surface-border)', background: 'var(--surface)', color: 'var(--text-main)' }}
-                            />
+            <div className="login-content fade-in">
+                <div className="login-card glass">
+                    <div className="card-accent"></div>
+                    
+                    <header className="login-header">
+                        <div className="logo-container">
+                            <div className="logo-ring"></div>
+                            <Server className="logo-icon" size={32} />
                         </div>
-                    </div>
+                        <h1 className="title-gradient">Help Soluciones</h1>
+                        <p className="subtitle">Gestión Integral de Infraestructura IT</p>
+                    </header>
 
-                    <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'block' }}>Contraseña</label>
-                        <div style={{ position: 'relative' }}>
-                            <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                            <input
-                                type={showPassword ? 'text' : 'password'}
-                                className="form-input"
-                                placeholder="••••••••"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                required
-                                style={{ padding: '0.8rem 3rem 0.8rem 2.8rem', width: '100%', borderRadius: 'var(--radius-sm)', border: '1px solid var(--surface-border)', background: 'var(--surface)', color: 'var(--text-main)' }}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}
-                            >
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
+                    {error && (
+                        <div className="error-alert">
+                            <AlertCircle size={18} />
+                            <span>{error}</span>
                         </div>
-                        <p style={{ textAlign: 'right', marginTop: '0.5rem' }}>
-                            <button 
-                                type="button"
-                                onClick={() => setShowResetModal(true)} 
-                                style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
-                            >
-                                ¿Olvidaste tu contraseña?
-                            </button>
-                        </p>
-                    </div>
+                    )}
 
-                    <button className="btn btn-primary" style={{ padding: '1rem', width: '100%', fontSize: '1rem', marginTop: '1rem' }} disabled={loading}>
-                        {loading ? 'Validando...' : (
-                            <>
-                                <LogIn size={20} /> Entrar al Sistema
-                            </>
-                        )}
-                    </button>
-                </form>
+                    <form onSubmit={handleLogin} className="login-form">
+                        <div className="form-group">
+                            <label>Nombre de Usuario</label>
+                            <div className="input-wrapper">
+                                <Mail className="input-icon" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="ej. administrador_it"
+                                    value={username}
+                                    onChange={e => setUsername(e.target.value)}
+                                    required
+                                    autoComplete="username"
+                                />
+                            </div>
+                        </div>
 
-                <footer style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--surface-border)', textAlign: 'center' }}>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Soporte técnico externo para clientes corporativos</p>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem' }}>
-                        <Link href="#" style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                            <HelpCircle size={14} /> Centro de Ayuda
-                        </Link>
-                    </div>
-                </footer>
+                        <div className="form-group">
+                            <label>Contraseña Maestra</label>
+                            <div className="input-wrapper">
+                                <Lock className="input-icon" size={18} />
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="••••••••••••"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    required
+                                    autoComplete="current-password"
+                                />
+                                <button
+                                    type="button"
+                                    className="password-toggle"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
+                            <div className="form-footer">
+                                <button 
+                                    type="button"
+                                    className="forgot-link"
+                                    onClick={() => setShowResetModal(true)} 
+                                >
+                                    ¿Problemas de acceso?
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" className="login-btn" disabled={loading}>
+                            {loading ? (
+                                <div className="loader"></div>
+                            ) : (
+                                <>
+                                    <span>Iniciar Sesión Segura</span>
+                                    <LogIn size={20} />
+                                </>
+                            )}
+                        </button>
+                    </form>
+
+                    <footer className="login-footer">
+                        <div className="security-badges">
+                            <div className="badge"><Shield size={12} /> SSL Encrypted</div>
+                            <div className="badge"><Cpu size={12} /> Enterprise Ready</div>
+                        </div>
+                        <p>© 2026 Help Soluciones e Ingeniería S.A.S.</p>
+                    </footer>
+                </div>
             </div>
 
-            {/* Password Reset Modal */}
+            {/* Premium Reset Modal */}
             {showResetModal && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, backdropFilter: 'blur(4px)' }}>
-                    <div className="modal-content glass" style={{ width: '400px', padding: '2.5rem', borderRadius: 'var(--radius-lg)', textAlign: 'center' }}>
+                <div className="modal-overlay">
+                    <div className="modal-card glass scale-up">
                         {!resetSent ? (
                             <>
-                                <div style={{ background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
-                                    <HelpCircle size={32} />
+                                <div className="modal-icon-container">
+                                    <ShieldCheck size={32} />
                                 </div>
-                                <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Recuperar Acceso</h2>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '2rem' }}>
-                                    Ingrese su nombre de usuario para notificar al administrador. Se generará un reporte de restablecimiento.
-                                </p>
-                                <form onSubmit={handleRequestReset} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                    <input
-                                        type="text"
-                                        className="form-input"
-                                        placeholder="Tu nombre de usuario"
-                                        value={resetUsername}
-                                        onChange={e => setResetUsername(e.target.value)}
-                                        required
-                                        style={{ padding: '0.8rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--surface-border)', background: 'var(--surface)', color: 'var(--text-main)', width: '100%' }}
-                                    />
-                                    <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
-                                        <button type="button" onClick={() => setShowResetModal(false)} className="btn glass" style={{ flex: 1 }}>Cancelar</button>
-                                        <button type="submit" className="btn btn-primary" style={{ flex: 2 }}>
-                                            <Send size={18} /> Enviar Reporte
+                                <h2>Recuperar Credenciales</h2>
+                                <p>Por favor ingrese su identidad de usuario asignada. Un administrador revisará la solicitud de restablecimiento.</p>
+                                <form onSubmit={handleRequestReset}>
+                                    <div className="input-wrapper" style={{ marginBottom: '1.5rem' }}>
+                                        <Mail className="input-icon" size={18} />
+                                        <input
+                                            type="text"
+                                            placeholder="Nombre de usuario"
+                                            value={resetUsername}
+                                            onChange={e => setResetUsername(e.target.value)}
+                                            required
+                                            style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
+                                        />
+                                    </div>
+                                    <div className="modal-actions">
+                                        <button type="button" onClick={() => setShowResetModal(false)} className="btn-cancel">Descartar</button>
+                                        <button type="submit" className="btn-submit">
+                                            <Send size={18} /> 
+                                            <span>Notificar Admin</span>
                                         </button>
                                     </div>
                                 </form>
                             </>
                         ) : (
-                            <div className="fade-in">
-                                <div style={{ background: 'var(--success)', color: 'white', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
-                                    <ShieldCheck size={32} />
+                            <div className="success-message fade-in">
+                                <div className="success-icon">
+                                    <ShieldCheck size={40} />
                                 </div>
-                                <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Reporte Enviado</h2>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                                    Se ha notificado al administrador de soporte. Por favor, espere a que su contraseña sea restablecida.
-                                </p>
+                                <h2>Solicitud Enviada</h2>
+                                <p>Se ha generado una alarma de seguridad para el administrador. Se le contactará a la brevedad.</p>
                             </div>
                         )}
                     </div>
@@ -222,9 +221,426 @@ export default function Login() {
             )}
 
             <style jsx>{`
-                .form-input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px var(--primary-glow); outline: none; }
-                .fade-in { animation: fadeIn 0.3s ease-out; }
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .login-wrapper {
+                    min-height: 100vh;
+                    width: 100vw;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: #0c0e14;
+                    position: relative;
+                    overflow: hidden;
+                    font-family: 'Inter', -apple-system, sans-serif;
+                }
+
+                /* Background Animation Blobs */
+                .bg-blob {
+                    position: absolute;
+                    width: 600px;
+                    height: 600px;
+                    border-radius: 50%;
+                    filter: blur(120px);
+                    z-index: 1;
+                    opacity: 0.15;
+                    animation: float 20s infinite alternate;
+                }
+                .blob-1 { background: #3b82f6; top: -100px; left: -100px; }
+                .blob-2 { background: #0d9488; bottom: -100px; right: -100px; animation-delay: -5s; }
+                .blob-3 { background: #6366f1; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.1; }
+
+                @keyframes float {
+                    0% { transform: translate(0, 0) scale(1); }
+                    100% { transform: translate(50px, 100px) scale(1.1); }
+                }
+
+                .grid-overlay {
+                    position: absolute;
+                    inset: 0;
+                    background-image: 
+                        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+                    background-size: 50px 50px;
+                    z-index: 2;
+                    pointer-events: none;
+                }
+
+                .login-content {
+                    position: relative;
+                    z-index: 10;
+                    width: 100%;
+                    max-width: 480px;
+                    padding: 20px;
+                }
+
+                .login-card {
+                    background: rgba(23, 25, 35, 0.8);
+                    backdrop-filter: blur(25px) saturate(180%);
+                    -webkit-backdrop-filter: blur(25px) saturate(180%);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 24px;
+                    padding: 3.5rem 2.5rem;
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .card-accent {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 4px;
+                    background: linear-gradient(90deg, #3b82f6, #0d9488);
+                }
+
+                .login-header {
+                    text-align: center;
+                    margin-bottom: 3rem;
+                }
+
+                .logo-container {
+                    width: 80px;
+                    height: 80px;
+                    margin: 0 auto 1.5rem;
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .logo-ring {
+                    position: absolute;
+                    inset: 0;
+                    border: 2px dashed rgba(59, 130, 246, 0.5);
+                    border-radius: 50%;
+                    animation: rotate 15s linear infinite;
+                }
+
+                @keyframes rotate {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+
+                .logo-icon {
+                    color: #3b82f6;
+                    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+                }
+
+                .title-gradient {
+                    font-size: 2.25rem;
+                    font-weight: 800;
+                    letter-spacing: -0.025em;
+                    margin-bottom: 0.5rem;
+                    background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                }
+
+                .subtitle {
+                    color: #94a3b8;
+                    font-size: 0.95rem;
+                    font-weight: 500;
+                }
+
+                .error-alert {
+                    background: rgba(239, 68, 68, 0.1);
+                    border: 1px solid rgba(239, 68, 68, 0.2);
+                    color: #ef4444;
+                    padding: 1rem;
+                    border-radius: 12px;
+                    font-size: 0.875rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    margin-bottom: 2rem;
+                    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+                }
+
+                @keyframes shake {
+                    10%, 90% { transform: translate3d(-1px, 0, 0); }
+                    20%, 80% { transform: translate3d(2px, 0, 0); }
+                    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+                    40%, 60% { transform: translate3d(4px, 0, 0); }
+                }
+
+                .login-form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1.5rem;
+                }
+
+                .form-group label {
+                    display: block;
+                    font-size: 0.8rem;
+                    font-weight: 700;
+                    color: #64748b;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    margin-bottom: 0.75rem;
+                    padding-left: 4px;
+                }
+
+                .input-wrapper {
+                    position: relative;
+                    transition: all 0.3s ease;
+                }
+
+                .input-icon {
+                    position: absolute;
+                    left: 16px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #64748b;
+                    transition: color 0.3s ease;
+                }
+
+                .input-wrapper input {
+                    width: 100%;
+                    background: rgba(15, 17, 26, 0.5);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 14px;
+                    padding: 1rem 1rem 1rem 3.5rem;
+                    color: #fff;
+                    font-size: 1rem;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+
+                .input-wrapper input:focus {
+                    outline: none;
+                    background: rgba(15, 17, 26, 0.8);
+                    border-color: #3b82f6;
+                    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+                }
+
+                .input-wrapper input:focus + .input-icon {
+                    color: #3b82f6;
+                }
+
+                .password-toggle {
+                    position: absolute;
+                    right: 16px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: none;
+                    border: none;
+                    color: #64748b;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    padding: 4px;
+                    transition: color 0.3s ease;
+                }
+
+                .password-toggle:hover {
+                    color: #fff;
+                }
+
+                .form-footer {
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 0.5rem;
+                }
+
+                .forgot-link {
+                    background: none;
+                    border: none;
+                    color: #94a3b8;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: color 0.2s ease;
+                }
+
+                .forgot-link:hover {
+                    color: #3b82f6;
+                    text-decoration: underline;
+                }
+
+                .login-btn {
+                    margin-top: 1rem;
+                    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                    border: none;
+                    border-radius: 14px;
+                    padding: 1.1rem;
+                    color: #fff;
+                    font-size: 1rem;
+                    font-weight: 700;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.75rem;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+                }
+
+                .login-btn:hover:not(:disabled) {
+                    transform: translateY(-2px);
+                    box-shadow: 0 15px 30px -10px rgba(37, 99, 235, 0.6);
+                    background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+                }
+
+                .login-btn:active:not(:disabled) {
+                    transform: translateY(0);
+                }
+
+                .login-btn:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                }
+
+                .loader {
+                    width: 20px;
+                    height: 20px;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    border-top-color: #fff;
+                    animation: spin 0.8s linear infinite;
+                }
+
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+
+                .login-footer {
+                    margin-top: 3rem;
+                    padding-top: 2rem;
+                    border-top: 1px solid rgba(255, 255, 255, 0.05);
+                    text-align: center;
+                }
+
+                .security-badges {
+                    display: flex;
+                    justify-content: center;
+                    gap: 1.5rem;
+                    margin-bottom: 1.5rem;
+                }
+
+                .badge {
+                    font-size: 0.7rem;
+                    font-weight: 600;
+                    color: #64748b;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    background: rgba(255, 255, 255, 0.03);
+                    padding: 4px 10px;
+                    border-radius: 99px;
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                }
+
+                .login-footer p {
+                    font-size: 0.75rem;
+                    color: #475569;
+                    letter-spacing: 0.02em;
+                }
+
+                /* Modals Styling */
+                .modal-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(0, 0, 0, 0.7);
+                    backdrop-filter: blur(10px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    padding: 20px;
+                }
+
+                .modal-card {
+                    background: #1e293b;
+                    max-width: 440px;
+                    width: 100%;
+                    padding: 3rem;
+                    border-radius: 28px;
+                    text-align: center;
+                }
+
+                .modal-icon-container {
+                    width: 70px;
+                    height: 70px;
+                    background: rgba(59, 130, 246, 0.1);
+                    color: #3b82f6;
+                    border-radius: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 1.5rem;
+                }
+
+                .modal-card h2 {
+                    font-size: 1.5rem;
+                    color: #fff;
+                    margin-bottom: 1rem;
+                }
+
+                .modal-card p {
+                    color: #94a3b8;
+                    font-size: 0.9rem;
+                    line-height: 1.6;
+                    margin-bottom: 2rem;
+                }
+
+                .modal-actions {
+                    display: flex;
+                    gap: 12px;
+                }
+
+                .btn-cancel {
+                    flex: 1;
+                    padding: 0.8rem;
+                    border-radius: 12px;
+                    border: 1px solid rgba(255,255,255,0.1);
+                    background: transparent;
+                    color: #fff;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }
+
+                .btn-cancel:hover { background: rgba(255,255,255,0.05); }
+
+                .btn-submit {
+                    flex: 2;
+                    padding: 0.8rem;
+                    border-radius: 12px;
+                    background: #3b82f6;
+                    color: #fff;
+                    border: none;
+                    font-weight: 600;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                }
+
+                .success-icon {
+                    color: #10b981;
+                    margin-bottom: 1.5rem;
+                }
+
+                .success-message h2 { color: #fff; }
+
+                /* Utility Classes */
+                .fade-in { animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+                .scale-up { animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                @keyframes scaleUp {
+                    from { opacity: 0; transform: scale(0.9); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+
+                @media (max-width: 480px) {
+                    .login-card { padding: 2.5rem 1.5rem; }
+                    .title-gradient { font-size: 1.75rem; }
+                }
             `}</style>
         </div>
     );
