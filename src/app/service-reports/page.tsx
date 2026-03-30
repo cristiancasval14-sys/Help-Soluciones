@@ -86,15 +86,21 @@ export default function ServiceReports() {
                      }
                      return {
                          ...r,
-                         company: company ? { id: company.id, name: company.name } : r.company,
-                         employee: employee ? { id: employee.id, name: employee.name } : r.employee,
-                         sede: sede ? { id: sede.id, name: sede.name } : r.sede,
+                         company: company
+                             ? { id: company.id, name: company.name }
+                             : (r.company_name ? { name: r.company_name } : null),
+                         employee: employee
+                             ? { id: employee.id, name: employee.name }
+                             : (r.employee_name ? { name: r.employee_name } : null),
+                         sede: sede
+                             ? { id: sede.id, name: sede.name }
+                             : (r.sede_name ? { name: r.sede_name } : null),
                          inventory: invItem ? {
                              id: invItem.id,
                              equipment_id: invItem.equipment_id,
                              brand: invItem.brand,
                              model: invItem.model,
-                         } : r.inventory,
+                         } : null,
                      };
                  });
                  setReports(enriched);
@@ -218,8 +224,11 @@ export default function ServiceReports() {
                 technician_name: formData.technician,
                 technician_id: selectedStaff?.id,
                 company_id: selectedComp?.id,
+                company_name: selectedComp?.name || formData.client || null,
                 sede_id: selectedSede?.id,
+                sede_name: selectedSede?.name || formData.sede || null,
                 employee_id: selectedEmp?.id,
+                employee_name: selectedEmp?.name || formData.user || null,
                 inventory_id: formData.assetId || null,
                 ticket_id: formData.ticketId || null,
                 activities: formData.activities,
