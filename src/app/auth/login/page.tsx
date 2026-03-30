@@ -103,9 +103,11 @@ export default function Login() {
 
                     <form onSubmit={handleLogin} className="login-form">
                         <div className="form-group">
-                            <label>Nombre de Usuario</label>
+                            <label className="field-label">
+                                <Mail size={15} className="label-icon" />
+                                Nombre de Usuario
+                            </label>
                             <div className="input-wrapper">
-                                <Mail className="input-icon" size={18} />
                                 <input
                                     type="text"
                                     placeholder="ej. administrador_it"
@@ -118,9 +120,11 @@ export default function Login() {
                         </div>
 
                         <div className="form-group">
-                            <label>Contraseña</label>
+                            <label className="field-label">
+                                <Lock size={15} className="label-icon" />
+                                Contraseña
+                            </label>
                             <div className="input-wrapper">
-                                <Lock className="input-icon" size={18} />
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     placeholder="••••••••••••"
@@ -345,8 +349,10 @@ export default function Login() {
                     gap: 1.5rem;
                 }
 
-                .form-group label {
-                    display: block;
+                .field-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.4rem;
                     font-size: 0.8rem;
                     font-weight: 700;
                     color: #475569;
@@ -356,18 +362,14 @@ export default function Login() {
                     padding-left: 4px;
                 }
 
+                .label-icon {
+                    color: #3b82f6;
+                    flex-shrink: 0;
+                }
+
                 .input-wrapper {
                     position: relative;
                     transition: all 0.3s ease;
-                }
-
-                .input-icon {
-                    position: absolute;
-                    left: 16px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    color: #94a3b8;
-                    transition: color 0.3s ease;
                 }
 
                 .input-wrapper input {
@@ -375,7 +377,7 @@ export default function Login() {
                     background: #f8fafc;
                     border: 1.5px solid #e2e8f0;
                     border-radius: 14px;
-                    padding: 1rem 1rem 1rem 3.5rem;
+                    padding: 1rem 1rem 1rem 1rem;
                     color: #0f172a;
                     font-size: 1rem;
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -390,10 +392,6 @@ export default function Login() {
                     background: #fff;
                     border-color: #3b82f6;
                     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-                }
-
-                .input-wrapper input:focus + .input-icon {
-                    color: #3b82f6;
                 }
 
                 .password-toggle {
