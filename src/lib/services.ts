@@ -229,9 +229,24 @@ export const ServiceReportService = {
     async getAll() {
         const { data, error } = await supabase
             .from('service_reports')
-            .select('*')
+            .select(`
+                *,
+                company:companies(id, name),
+                employee:company_employees(id, name),
+                sede:company_sedes(id, name),
+                inventory:inventory(id, equipment_id, brand, model)
+            `)
             .order('created_at', { ascending: false });
-        if (error) throw error;
+        if (error) {
+            // Fallback: if joins fail, just get raw data
+            console.warn('ServiceReportService join failed, falling back to select(*)', error);
+            const { data: raw, error: rawError } = await supabase
+                .from('service_reports')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (rawError) throw rawError;
+            return raw || [];
+        }
         return data || [];
     },
 
