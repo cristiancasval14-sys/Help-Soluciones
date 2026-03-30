@@ -277,34 +277,7 @@ export default function TicketsList() {
                                 </td>
                                 <td>
                                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', alignItems: 'center' }}>
-                                        {/* Dynamic Report Action: View or Create */}
-                                        {(() => {
-                                            const existingReport = serviceReports.find(r => r.ticket_id === ticket.id);
-                                            if (existingReport) {
-                                                return (
-                                                    <Link 
-                                                        href={`/service-reports?view=${existingReport.id}`}
-                                                        className="row-btn view-report-btn" 
-                                                        title="Ver Reporte Técnico"
-                                                        style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none', color: 'var(--success)', fontSize: '0.75rem', fontWeight: 800 }}
-                                                    >
-                                                        <FileText size={18} /> <span>VER</span>
-                                                    </Link>
-                                                );
-                                            } else if (isTech && (ticket.staff?.first_name + ' ' + ticket.staff?.last_name).toLowerCase() === currentUser?.assignedTo?.toLowerCase()) {
-                                                return (
-                                                    <Link 
-                                                        href={`/service-reports?ticketId=${ticket.id}&companyId=${ticket.company_id}&clientId=${ticket.company?.name}&requester=${ticket.requester_name}&techName=${ticket.staff?.first_name} ${ticket.staff?.last_name}`}
-                                                        className="row-btn report-btn" 
-                                                        title="Crear Reporte Técnico"
-                                                        style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none', color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 800 }}
-                                                    >
-                                                        <Plus size={18} /> <span>PDF</span>
-                                                    </Link>
-                                                );
-                                            }
-                                            return null;
-                                        })()}
+                                        {/* Dynamic Report Action: View or Create moved to icons below */}
 
                                         {isAdmin && (
                                             <button 
@@ -335,7 +308,32 @@ export default function TicketsList() {
                                             </button>
                                         )}
 
-                                        <button className="row-btn" title="Detalles" style={{ opacity: 0.5 }}><ChevronRight size={20} /></button>
+                                        {/* Botón de Reporte / PDF en el ícono de flecha */}
+                                        {(() => {
+                                            const existingReport = serviceReports.find(r => r.ticket_id === ticket.id);
+                                            if (existingReport) {
+                                                return (
+                                                    <Link 
+                                                        href={`/service-reports?view=${existingReport.id}`}
+                                                        className="row-btn report-arrow-btn view"
+                                                        title="Ver Reporte Técnico (PDF)"
+                                                    >
+                                                        <ChevronRight size={20} style={{ color: 'var(--success)' }} />
+                                                    </Link>
+                                                );
+                                            } else if (isTech && (ticket.staff?.first_name + ' ' + ticket.staff?.last_name).toLowerCase() === currentUser?.assignedTo?.toLowerCase()) {
+                                                return (
+                                                    <Link 
+                                                        href={`/service-reports?ticketId=${ticket.id}&companyId=${ticket.company_id}&clientId=${ticket.company?.name}&requester=${ticket.requester_name}&techName=${ticket.staff?.first_name} ${ticket.staff?.last_name}`}
+                                                        className="row-btn report-arrow-btn create"
+                                                        title="Crear Reporte de Servicio (PDF)"
+                                                    >
+                                                        <ChevronRight size={20} />
+                                                    </Link>
+                                                );
+                                            }
+                                            return <button className="row-btn" title="Detalles" style={{ opacity: 0.5 }}><ChevronRight size={20} /></button>;
+                                        })()}
                                         
                                         {isAdmin && (
                                             <button className="row-btn delete-btn" onClick={() => handleDelete(ticket.id)} title="Eliminar">
@@ -470,10 +468,11 @@ export default function TicketsList() {
                 .status-btn:hover:not(.active) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
                 .status-update-btn { color: var(--secondary); background: rgba(13, 148, 136, 0.05); border-radius: 6px; padding: 6px; }
                 .status-update-btn:hover { background: rgba(13, 148, 136, 0.15); border-color: var(--secondary); transform: scale(1.1) !important; }
-                .report-btn { color: var(--primary); background: rgba(99, 102, 241, 0.05); border-radius: 6px; padding: 6px; }
-                .report-btn:hover { background: rgba(99, 102, 241, 0.15); transform: scale(1.1) !important; }
-                .view-report-btn { background: rgba(16, 185, 129, 0.05); border-radius: 6px; padding: 6px; }
-                .view-report-btn:hover { background: rgba(16, 185, 129, 0.15); transform: scale(1.1) !important; }
+                .report-arrow-btn { border-radius: 6px; padding: 4px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-muted); transition: 0.2s; }
+                .report-arrow-btn.view { color: var(--success) !important; background: rgba(16, 185, 129, 0.05); }
+                .report-arrow-btn.view:hover { background: rgba(16, 185, 129, 0.15); transform: translateX(3px); }
+                .report-arrow-btn.create { color: var(--primary); }
+                .report-arrow-btn.create:hover { color: var(--primary); transform: translateX(3px); }
                 .delete-btn:hover { color: var(--error) !important; background: rgba(239, 68, 68, 0.1); border-radius: 4px; transform: none; }
                 .priority-tag { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 4px; border: 1px solid transparent; }
                 .p-baja { color: var(--success); background: rgba(16, 185, 129, 0.1); }
