@@ -331,14 +331,26 @@ export default function StaffPage() {
                                                 }
                                             }}
                                         />
-                                        <button
-                                            type="button"
-                                            className="btn glass"
-                                            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.85rem' }}
-                                            onClick={() => document.getElementById('photo-upload')?.click()}
-                                        >
-                                            <Camera size={18} /> Seleccionar Imagen
-                                        </button>
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <button
+                                                type="button"
+                                                className="btn glass"
+                                                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.85rem' }}
+                                                onClick={() => document.getElementById('photo-upload')?.click()}
+                                            >
+                                                <Camera size={16} /> Seleccionar
+                                            </button>
+                                            {formData.photo && (
+                                                <button
+                                                    type="button"
+                                                    className="btn glass"
+                                                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.85rem', color: '#dc2626' }}
+                                                    onClick={() => setFormData({ ...formData, photo: '' })}
+                                                >
+                                                    <Trash2 size={16} /> Borrar
+                                                </button>
+                                            )}
+                                        </div>
                                         <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '4px' }}>Soporta JPG, PNG. Máximo 2MB recomendado.</p>
                                     </div>
                                 </div>
