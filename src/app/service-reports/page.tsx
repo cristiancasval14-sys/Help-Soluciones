@@ -119,6 +119,16 @@ export default function ServiceReports() {
                  const techNotes = searchParams.get('techNotes');
                  
                  if (tId || cName || uName || techName) {
+                    // Extract equipment ID from tech notes if present
+                    let extractedAssetId = '';
+                    if (techNotes && techNotes.includes('💻 Equipo:')) {
+                       const equipmentIdStr = techNotes.split('💻 Equipo:')[1]?.split('\n')[0]?.trim();
+                       if (equipmentIdStr) {
+                          const foundAsset = invList.find((i: any) => i.equipment_id === equipmentIdStr);
+                          if (foundAsset) extractedAssetId = foundAsset.id;
+                       }
+                    }
+
                     // Build activities text from ticket info
                     let activitiesText = '';
                     if (description) {
@@ -136,6 +146,7 @@ export default function ServiceReports() {
                         technician: techName || '',
                         activities: activitiesText,
                         activitySummary: '',
+                        assetId: extractedAssetId || prev.assetId // Auto-select the equipment!
                     }));
 
                     // Store ticket context for the info banner
@@ -715,7 +726,7 @@ export default function ServiceReports() {
                 </div>
             </form>
 
-            {isAdmin && (
+            {!searchParams.get('ticketId') && isAdmin && (
                 <div className="reports-summary fade-in" style={{ marginTop: '4rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2rem' }}>
                         <Database size={24} color="var(--primary)" />
