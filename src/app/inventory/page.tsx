@@ -80,6 +80,7 @@ export default function Inventory() {
     const [expandedAsset, setExpandedAsset] = useState<string | null>(null);
     const [assetTab, setAssetTab] = useState<'specs' | 'licenses' | 'programs'>('specs');
     const [searchTerm, setSearchTerm] = useState('');
+    const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
     const [formData, setFormData] = useState({
         id: '', // UI field for equipment_id
@@ -307,203 +308,335 @@ export default function Inventory() {
 
     if (!isMounted) return null;
 
+    // Agrupar assets filtrados por empresa
+    const groupedAssets = filteredAssets.reduce((acc, asset) => {
+        const key = asset.clientName || 'Inventario Base';
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(asset);
+        return acc;
+    }, {} as Record<string, Asset[]>);
+
+    // Ordenar: primero las empresas con más equipos
+    const sortedGroupKeys = Object.keys(groupedAssets).sort((a, b) =>
+        groupedAssets[b].length - groupedAssets[a].length
+    );
+
     return (
         <div className="inventory-page fade-in">
-            <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                    <h1 style={{ fontSize: '2rem' }}>{currentUser?.role === 'Cliente' ? 'Mis Equipos' : 'Inventario Tecnológico'}</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Gestión de activos (CMDB), licencias y software</p>
+                    <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.3rem' }}>
+                        {currentUser?.role === 'Cliente' ? 'Mis Equipos' : 'Inventario Tecnológico'}
+                    </h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+                        Gestión de activos (CMDB), licencias y software ·{' '}
+                        <strong style={{ color: 'var(--primary)' }}>{filteredAssets.length}</strong> equipo{filteredAssets.length !== 1 ? 's' : ''} en{' '}
+                        <strong style={{ color: 'var(--primary)' }}>{sortedGroupKeys.length}</strong> empresa{sortedGroupKeys.length !== 1 ? 's' : ''}
+                    </p>
                 </div>
                 {currentUser?.role !== 'Cliente' && (
-                    <button className="btn btn-primary" onClick={() => openModal()}>
+                    <button className="btn btn-primary" onClick={() => openModal()} style={{ flexShrink: 0 }}>
                         <Plus size={20} /> Nuevo Equipo
                     </button>
                 )}
             </header>
 
-            <div className="toolbar glass" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', marginBottom: '2rem', display: 'flex', gap: '1rem' }}>
-                <div style={{ flex: 1, position: 'relative' }}>
-                    <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                    <input type="text" placeholder="Buscar por serial, ID, marca o cliente..." className="search-input" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+            {/* Summary Stats Bar */}
+            {currentUser?.role !== 'Cliente' && (
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                    {[
+                        { label: 'Total Equipos', value: assets.length, icon: <Monitor size={16}/>, color: 'var(--primary)', bg: 'rgba(99,102,241,0.1)' },
+                        { label: 'En Clientes', value: assets.filter(a => a.locationType === 'Cliente').length, icon: <Building2 size={16}/>, color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+                        { label: 'En Bodega', value: assets.filter(a => a.locationType === 'Bodega').length, icon: <Box size={16}/>, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+                        { label: 'En Reparación', value: assets.filter(a => a.locationType === 'En Reparación').length, icon: <Wrench size={16}/>, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+                    ].map(stat => (
+                        <div key={stat.label} className="glass" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.8rem 1.2rem', borderRadius: '12px', flex: '1', minWidth: '140px' }}>
+                            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                {stat.icon}
+                            </div>
+                            <div>
+                                <p style={{ fontSize: '1.4rem', fontWeight: 800, lineHeight: 1, color: stat.color }}>{stat.value}</p>
+                                <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, marginTop: '2px' }}>{stat.label}</p>
+                            </div>
+                        </div>
+                    ))}
                 </div>
+            )}
+
+            {/* Search toolbar */}
+            <div className="glass" style={{ padding: '1rem 1.2rem', borderRadius: '12px', marginBottom: '2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                    <Search size={17} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <input type="text" placeholder="Buscar por serial, ID, marca o empresa..." className="search-input" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                </div>
+                {searchTerm && (
+                    <button onClick={() => setSearchTerm('')} style={{ padding: '0.5rem', color: 'var(--text-muted)', borderRadius: '8px', transition: '0.2s' }}>
+                        <X size={18} />
+                    </button>
+                )}
             </div>
 
-            <div className="asset-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '2rem' }}>
-                {filteredAssets.map(asset => (
-                    <div key={asset.id} className="card glass asset-card">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                            <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <Monitor size={22} />
+            {/* Grouped by Company */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+                {sortedGroupKeys.length === 0 && (
+                    <div className="glass" style={{ padding: '3rem', borderRadius: '16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        <Monitor size={48} style={{ opacity: 0.3, marginBottom: '1rem' }} />
+                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>No se encontraron equipos</p>
+                        <p style={{ fontSize: '0.9rem', marginTop: '0.4rem' }}>Intenta con otros términos de búsqueda</p>
+                    </div>
+                )}
+                {sortedGroupKeys.map(companyName => {
+                    const companyAssets = groupedAssets[companyName];
+                    const isBase = companyName === 'Inventario Base';
+                    const repCount = companyAssets.filter(a => a.locationType === 'En Reparación').length;
+                    const licCount = companyAssets.reduce((sum, a) => sum + a.licenses.length, 0);
+                    const isCollapsed = collapsedGroups[companyName];
+
+                    return (
+                        <div key={companyName} className="company-group fade-in">
+                            {/* Company Header */}
+                            <div
+                                className="company-header glass"
+                                onClick={() => setCollapsedGroups(prev => ({ ...prev, [companyName]: !prev[companyName] }))}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.4rem',
+                                    borderRadius: '14px', marginBottom: isCollapsed ? 0 : '1.2rem',
+                                    cursor: 'pointer', userSelect: 'none',
+                                    border: `1px solid ${isBase ? 'rgba(59,130,246,0.3)' : 'rgba(99,102,241,0.25)'}`,
+                                    background: isBase ? 'rgba(59,130,246,0.05)' : 'rgba(99,102,241,0.05)',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                {/* Icon */}
+                                <div style={{
+                                    width: '44px', height: '44px', borderRadius: '12px', flexShrink: 0,
+                                    background: isBase ? 'rgba(59,130,246,0.15)' : 'rgba(99,102,241,0.15)',
+                                    color: isBase ? '#3b82f6' : 'var(--primary)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                }}>
+                                    {isBase ? <Box size={22} /> : <Building2 size={22} />}
+                                </div>
+
+                                {/* Name & info */}
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <p style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.15rem', color: isBase ? '#3b82f6' : 'var(--primary)' }}>
+                                        {companyName}
+                                    </p>
+                                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <Monitor size={12} /> {companyAssets.length} equipo{companyAssets.length !== 1 ? 's' : ''}
+                                        </span>
+                                        {licCount > 0 && (
+                                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                🔑 {licCount} licencia{licCount !== 1 ? 's' : ''}
+                                            </span>
+                                        )}
+                                        {repCount > 0 && (
+                                            <span style={{ fontSize: '0.75rem', color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}>
+                                                <Wrench size={12} /> {repCount} en reparación
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Employee chips */}
+                                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', maxWidth: '260px' }}>
+                                    {Array.from(new Set(companyAssets.map(a => a.assignedEmployee).filter(Boolean))).slice(0, 3).map(emp => (
+                                        <span key={emp} style={{ fontSize: '0.68rem', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', background: 'rgba(99,102,241,0.12)', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                            <User size={10} /> {emp}
+                                        </span>
+                                    ))}
+                                    {Array.from(new Set(companyAssets.map(a => a.assignedEmployee).filter(Boolean))).length > 3 && (
+                                        <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', background: 'rgba(0,0,0,0.06)', color: 'var(--text-muted)' }}>
+                                            +{Array.from(new Set(companyAssets.map(a => a.assignedEmployee).filter(Boolean))).length - 3}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Collapse chevron */}
+                                <ChevronRight size={20} style={{ color: 'var(--text-muted)', transform: isCollapsed ? 'rotate(0deg)' : 'rotate(90deg)', transition: 'transform 0.25s ease', flexShrink: 0 }} />
                             </div>
-                            <div style={{ textAlign: 'right' }}>
-                                <span className={`location-tag ${asset.locationType.toLowerCase().replace(' ', '-')}`}>
-                                    {asset.locationType === 'Bodega' && <Box size={14} />}
-                                    {asset.locationType === 'Cliente' && <Building2 size={14} />}
-                                    {asset.locationType === 'En Reparación' && <Wrench size={14} />}
-                                    {asset.locationType}
-                                </span>
-                                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>{asset.equipment_id}</p>
-                            </div>
-                        </div>
 
-                        <h3 style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{asset.brand} {asset.model}</h3>
-                        <p style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 600, marginBottom: '0.3rem' }}>{asset.locationType === 'Cliente' ? asset.clientName : 'Sede Principal'}</p>
-                        {asset.assignedEmployee && (
-                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '0.3rem' }}>
-                                <User size={13} /> Asignado a: <strong>{asset.assignedEmployee}</strong>
-                            </p>
-                        )}
-
-                        {/* Quick Stats */}
-                        <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '1rem' }}>
-                            <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', background: 'rgba(37,99,235,0.1)', color: 'var(--primary)' }}>
-                                🔑 {asset.licenses.length} Lic.
-                            </span>
-                            <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', background: 'rgba(13,148,136,0.1)', color: 'var(--secondary)' }}>
-                                📦 {asset.programs.length} Prog.
-                            </span>
-                        </div>
-
-                        {/* Tabs */}
-                        <div style={{ display: 'flex', gap: '0', borderBottom: '2px solid var(--surface-border)', marginBottom: '1rem' }}>
-                            {(['specs', 'licenses', 'programs'] as const).map(tab => (
-                                <button key={tab} onClick={() => { setExpandedAsset(asset.id); setAssetTab(tab); }}
-                                    style={{
-                                        padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 600, border: 'none', background: 'none', cursor: 'pointer',
-                                        color: (expandedAsset === asset.id && assetTab === tab) ? 'var(--primary)' : 'var(--text-muted)',
-                                        borderBottom: (expandedAsset === asset.id && assetTab === tab) ? '2px solid var(--primary)' : '2px solid transparent',
-                                        marginBottom: '-2px', transition: '0.2s'
-                                    }}>
-                                    {tab === 'specs' && '⚙️ Hardware'}
-                                    {tab === 'licenses' && '🔑 Licencias'}
-                                    {tab === 'programs' && '📦 Programas'}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Specs Tab */}
-                        {(expandedAsset !== asset.id || assetTab === 'specs') && (
-                            <div className="specs-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <div className="spec-item">
-                                    <p className="spec-label"><Cpu size={14} /> Procesador</p>
-                                    <p className="spec-value">{asset.processor || 'N/A'}</p>
-                                </div>
-                                <div className="spec-item">
-                                    <p className="spec-label"><Layers size={14} /> Memoria RAM</p>
-                                    <p className="spec-value">{asset.ram || 'N/A'}</p>
-                                </div>
-                                <div className="spec-item">
-                                    <p className="spec-label"><HardDriveIcon size={14} /> Almacenamiento</p>
-                                    <p className="spec-value">{asset.storage || 'N/A'}</p>
-                                </div>
-                                <div className="spec-item">
-                                    <p className="spec-label">Serial Number</p>
-                                    <p className="spec-value font-mono">{asset.serial}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Licenses Tab */}
-                        {expandedAsset === asset.id && assetTab === 'licenses' && (
-                            <div className="fade-in">
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.8rem' }}>
-                                    <button className="btn glass" style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }} onClick={() => { setActiveAsset(asset); setIsLicenseModalOpen(true); }}>
-                                        <Key size={14} /> Agregar Licencia
-                                    </button>
-                                </div>
-                                {asset.licenses.length === 0 ? (
-                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '1rem' }}>Sin licencias registradas</p>
-                                ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                                        {asset.licenses.map(lic => {
-                                            const expired = isLicenseExpired(lic.expiryDate);
-                                            const expiring = isLicenseExpiringSoon(lic.expiryDate);
-                                            return (
-                                                <div key={lic.id} style={{
-                                                    padding: '0.8rem', borderRadius: '8px', border: `1px solid ${expired ? 'var(--error)' : expiring ? 'var(--warning)' : 'var(--surface-border)'}`,
-                                                    background: expired ? 'rgba(239,68,68,0.05)' : expiring ? 'rgba(245,158,11,0.05)' : 'rgba(0,0,0,0.02)'
-                                                }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                        <div>
-                                                            <p style={{ fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                                <Key size={14} color="var(--primary)" /> {lic.name}
-                                                            </p>
-                                                            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'monospace', marginTop: '2px' }}>{lic.licenseKey}</p>
-                                                            <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                                                                <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '1px 6px', borderRadius: '4px', background: 'rgba(37,99,235,0.1)', color: 'var(--primary)' }}>{lic.type}</span>
-                                                                <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '1px 6px', borderRadius: '4px', background: 'rgba(0,0,0,0.05)' }}>{lic.seats} plaza(s)</span>
-                                                                <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '1px 6px', borderRadius: '4px', background: expired ? 'rgba(239,68,68,0.1)' : expiring ? 'rgba(245,158,11,0.1)' : 'rgba(5,150,105,0.1)', color: expired ? 'var(--error)' : expiring ? 'var(--warning)' : 'var(--success)' }}>
-                                                                    {expired ? '⚠️ Vencida' : expiring ? '⏳ Por vencer' : '✅ Vigente'}
-                                                                </span>
-                                                            </div>
-                                                            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px' }}>Vence: {lic.expiryDate}</p>
-                                                        </div>
-                                                        <button onClick={async () => {
-                                                            const updated = asset.licenses.filter(l => l.id !== lic.id);
-                                                            try {
-                                                                await InventoryService.update(asset.id, { licenses: updated });
-                                                                setAssets(assets.map(a => a.id === asset.id ? { ...a, licenses: updated } : a));
-                                                            } catch (err) {
-                                                                alert("Error al eliminar licencia");
-                                                            }
-                                                        }} style={{ color: 'var(--error)', padding: '4px' }}>
-                                                            <Trash2 size={14} />
-                                                        </button>
+                            {/* Assets Grid */}
+                            {!isCollapsed && (
+                                <div className="asset-grid fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '1.2rem', paddingLeft: '0.5rem' }}>
+                                    {companyAssets.map(asset => (
+                                        <div key={asset.id} className="card glass asset-card" style={{ borderRadius: '14px', padding: '1.4rem' }}>
+                                            {/* Card Header */}
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                    <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                        <Monitor size={20} />
+                                                    </div>
+                                                    <div>
+                                                        <p style={{ fontWeight: 700, fontSize: '0.95rem', lineHeight: 1.3 }}>{asset.brand} {asset.model}</p>
+                                                        <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'monospace', marginTop: '1px' }}>{asset.equipment_id}</p>
                                                     </div>
                                                 </div>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Programs Tab */}
-                        {expandedAsset === asset.id && assetTab === 'programs' && (
-                            <div className="fade-in">
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.8rem' }}>
-                                    <button className="btn glass" style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }} onClick={() => { setActiveAsset(asset); setIsProgramModalOpen(true); }}>
-                                        <AppWindow size={14} /> Agregar Programa
-                                    </button>
-                                </div>
-                                {asset.programs.length === 0 ? (
-                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '1rem' }}>Sin programas registrados</p>
-                                ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                        {asset.programs.map(prog => (
-                                            <div key={prog.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.6rem 0.8rem', borderRadius: '6px', background: 'rgba(13,148,136,0.05)', border: '1px solid rgba(13,148,136,0.1)' }}>
-                                                <div>
-                                                    <p style={{ fontWeight: 600, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                        <AppWindow size={14} color="var(--secondary)" /> {prog.name}
-                                                    </p>
-                                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>v{prog.version} · {prog.publisher}</p>
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                                                    <span className={`location-tag ${asset.locationType.toLowerCase().replace(' ', '-')}`}>
+                                                        {asset.locationType === 'Bodega' && <Box size={12} />}
+                                                        {asset.locationType === 'Cliente' && <Building2 size={12} />}
+                                                        {asset.locationType === 'En Reparación' && <Wrench size={12} />}
+                                                        {asset.locationType}
+                                                    </span>
+                                                    <span style={{
+                                                        fontSize: '0.65rem', fontWeight: 700, padding: '2px 7px', borderRadius: '20px',
+                                                        background: asset.status === 'Activo' ? 'rgba(16,185,129,0.12)' : asset.status === 'Mantenimiento' ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)',
+                                                        color: asset.status === 'Activo' ? '#10b981' : asset.status === 'Mantenimiento' ? '#f59e0b' : '#ef4444'
+                                                    }}>
+                                                        {asset.status === 'Activo' ? '● Activo' : asset.status === 'Mantenimiento' ? '● Mantenim.' : '● Baja'}
+                                                    </span>
                                                 </div>
-                                                <button onClick={async () => {
-                                                    const updated = asset.programs.filter(p => p.id !== prog.id);
-                                                    try {
-                                                        await InventoryService.update(asset.id, { programs: updated });
-                                                        setAssets(assets.map(a => a.id === asset.id ? { ...a, programs: updated } : a));
-                                                    } catch (err) {
-                                                        alert("Error al eliminar programa");
-                                                    }
-                                                }} style={{ color: 'var(--error)', padding: '4px' }}>
-                                                    <Trash2 size={14} />
-                                                </button>
                                             </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
 
-                        {currentUser?.role !== 'Cliente' && (
-                            <div style={{ borderTop: '1px solid var(--surface-border)', marginTop: '1.2rem', paddingTop: '1rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                                <button className="icon-btn edit" onClick={() => openModal(asset)}><Edit2 size={16} /></button>
-                                <button className="icon-btn delete" onClick={() => handleDelete(asset.id)}><Trash2 size={16} /></button>
-                            </div>
-                        )}
-                    </div>
-                ))}
+                                            {/* Assigned Employee */}
+                                            {asset.assignedEmployee && (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.8rem', padding: '0.4rem 0.7rem', borderRadius: '8px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.12)' }}>
+                                                    <User size={12} color="var(--primary)" />
+                                                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Asignado a:</span>
+                                                    <strong style={{ fontSize: '0.78rem', color: 'var(--primary)' }}>{asset.assignedEmployee}</strong>
+                                                </div>
+                                            )}
+
+                                            {/* Quick stats */}
+                                            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                                                <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '2px 7px', borderRadius: '4px', background: 'rgba(37,99,235,0.1)', color: 'var(--primary)' }}>
+                                                    🔑 {asset.licenses.length} Lic.
+                                                </span>
+                                                <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '2px 7px', borderRadius: '4px', background: 'rgba(13,148,136,0.1)', color: 'var(--secondary)' }}>
+                                                    📦 {asset.programs.length} Prog.
+                                                </span>
+                                            </div>
+
+                                            {/* Tabs */}
+                                            <div style={{ display: 'flex', gap: '0', borderBottom: '2px solid var(--surface-border)', marginBottom: '1rem' }}>
+                                                {(['specs', 'licenses', 'programs'] as const).map(tab => (
+                                                    <button key={tab} onClick={() => { setExpandedAsset(asset.id); setAssetTab(tab); }}
+                                                        style={{
+                                                            padding: '0.45rem 0.7rem', fontSize: '0.72rem', fontWeight: 600, border: 'none', background: 'none', cursor: 'pointer',
+                                                            color: (expandedAsset === asset.id && assetTab === tab) ? 'var(--primary)' : 'var(--text-muted)',
+                                                            borderBottom: (expandedAsset === asset.id && assetTab === tab) ? '2px solid var(--primary)' : '2px solid transparent',
+                                                            marginBottom: '-2px', transition: '0.2s'
+                                                        }}>
+                                                        {tab === 'specs' && '⚙️ Hardware'}
+                                                        {tab === 'licenses' && '🔑 Licencias'}
+                                                        {tab === 'programs' && '📦 Programas'}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            {/* Specs Tab */}
+                                            {(expandedAsset !== asset.id || assetTab === 'specs') && (
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.7rem' }}>
+                                                    <div>
+                                                        <p className="spec-label"><Cpu size={13} /> Procesador</p>
+                                                        <p className="spec-value" style={{ fontSize: '0.8rem' }}>{asset.processor || 'N/A'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="spec-label"><Layers size={13} /> RAM</p>
+                                                        <p className="spec-value" style={{ fontSize: '0.8rem' }}>{asset.ram || 'N/A'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="spec-label"><HardDriveIcon size={13} /> Disco</p>
+                                                        <p className="spec-value" style={{ fontSize: '0.8rem' }}>{asset.storage || 'N/A'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="spec-label">Serial</p>
+                                                        <p className="spec-value font-mono" style={{ fontSize: '0.75rem' }}>{asset.serial}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Licenses Tab */}
+                                            {expandedAsset === asset.id && assetTab === 'licenses' && (
+                                                <div className="fade-in">
+                                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.6rem' }}>
+                                                        <button className="btn glass" style={{ padding: '0.35rem 0.7rem', fontSize: '0.72rem' }} onClick={() => { setActiveAsset(asset); setIsLicenseModalOpen(true); }}>
+                                                            <Key size={13} /> Agregar Licencia
+                                                        </button>
+                                                    </div>
+                                                    {asset.licenses.length === 0 ? (
+                                                        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '0.8rem' }}>Sin licencias registradas</p>
+                                                    ) : (
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                            {asset.licenses.map(lic => {
+                                                                const expired = isLicenseExpired(lic.expiryDate);
+                                                                const expiring = isLicenseExpiringSoon(lic.expiryDate);
+                                                                return (
+                                                                    <div key={lic.id} style={{ padding: '0.7rem', borderRadius: '8px', border: `1px solid ${expired ? 'var(--error)' : expiring ? 'var(--warning)' : 'var(--surface-border)'}`, background: expired ? 'rgba(239,68,68,0.05)' : expiring ? 'rgba(245,158,11,0.05)' : 'rgba(0,0,0,0.02)' }}>
+                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                            <div>
+                                                                                <p style={{ fontWeight: 700, fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                                                    <Key size={13} color="var(--primary)" /> {lic.name}
+                                                                                </p>
+                                                                                <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'monospace', marginTop: '2px' }}>{lic.licenseKey}</p>
+                                                                                <div style={{ display: 'flex', gap: '5px', marginTop: '4px', flexWrap: 'wrap' }}>
+                                                                                    <span style={{ fontSize: '0.62rem', fontWeight: 700, padding: '1px 5px', borderRadius: '4px', background: 'rgba(37,99,235,0.1)', color: 'var(--primary)' }}>{lic.type}</span>
+                                                                                    <span style={{ fontSize: '0.62rem', fontWeight: 700, padding: '1px 5px', borderRadius: '4px', background: expired ? 'rgba(239,68,68,0.1)' : expiring ? 'rgba(245,158,11,0.1)' : 'rgba(5,150,105,0.1)', color: expired ? 'var(--error)' : expiring ? 'var(--warning)' : 'var(--success)' }}>
+                                                                                        {expired ? '⚠️ Vencida' : expiring ? '⏳ Por vencer' : '✅ Vigente'}
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
+                                                                            <button onClick={async () => {
+                                                                                const updated = asset.licenses.filter(l => l.id !== lic.id);
+                                                                                try { await InventoryService.update(asset.id, { licenses: updated }); setAssets(assets.map(a => a.id === asset.id ? { ...a, licenses: updated } : a)); }
+                                                                                catch (err) { alert("Error al eliminar licencia"); }
+                                                                            }} style={{ color: 'var(--error)', padding: '3px' }}><Trash2 size={13} /></button>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* Programs Tab */}
+                                            {expandedAsset === asset.id && assetTab === 'programs' && (
+                                                <div className="fade-in">
+                                                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.6rem' }}>
+                                                        <button className="btn glass" style={{ padding: '0.35rem 0.7rem', fontSize: '0.72rem' }} onClick={() => { setActiveAsset(asset); setIsProgramModalOpen(true); }}>
+                                                            <AppWindow size={13} /> Agregar Programa
+                                                        </button>
+                                                    </div>
+                                                    {asset.programs.length === 0 ? (
+                                                        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '0.8rem' }}>Sin programas registrados</p>
+                                                    ) : (
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                                            {asset.programs.map(prog => (
+                                                                <div key={prog.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.7rem', borderRadius: '6px', background: 'rgba(13,148,136,0.05)', border: '1px solid rgba(13,148,136,0.1)' }}>
+                                                                    <div>
+                                                                        <p style={{ fontWeight: 600, fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                                            <AppWindow size={13} color="var(--secondary)" /> {prog.name}
+                                                                        </p>
+                                                                        <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>v{prog.version} · {prog.publisher}</p>
+                                                                    </div>
+                                                                    <button onClick={async () => {
+                                                                        const updated = asset.programs.filter(p => p.id !== prog.id);
+                                                                        try { await InventoryService.update(asset.id, { programs: updated }); setAssets(assets.map(a => a.id === asset.id ? { ...a, programs: updated } : a)); }
+                                                                        catch (err) { alert("Error al eliminar programa"); }
+                                                                    }} style={{ color: 'var(--error)', padding: '3px' }}><Trash2 size={13} /></button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {currentUser?.role !== 'Cliente' && (
+                                                <div style={{ borderTop: '1px solid var(--surface-border)', marginTop: '1rem', paddingTop: '0.8rem', display: 'flex', justifyContent: 'flex-end', gap: '0.6rem' }}>
+                                                    <button className="icon-btn edit" onClick={() => openModal(asset)}><Edit2 size={15} /></button>
+                                                    <button className="icon-btn delete" onClick={() => handleDelete(asset.id)}><Trash2 size={15} /></button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Asset Modal */}
