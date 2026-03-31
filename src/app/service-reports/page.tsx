@@ -792,26 +792,26 @@ export default function ServiceReports() {
                              <button className="icon-btn" onClick={() => setShowDetailModal(false)} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px', cursor: 'pointer' }}><X size={24} /></button>
                         </div>
 
-                        <div id="printable-report" style={{ padding: '3.5rem' }}>
-                            {/* Header: Report & Ticket IDs */}
-                            <header style={{ marginBottom: '3.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                         <div id="printable-report" style={{ padding: '3.5rem' }}>
+                            {/* Header: Logo and IDs */}
+                            <header style={{ marginBottom: '3.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
-                                    <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#94a3b8', margin: 0 }}>Reporte: {selectedReport.report_id}</h1>
-                                    <p style={{ fontSize: '1rem', color: '#cbd5e1', margin: '4px 0 0 0', fontWeight: 600 }}>Ticket: {selectedReport.ticket_id || 'Servicio Directo'}</p>
+                                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#94a3b8', margin: 0, letterSpacing: '-0.02em' }}>Reporte: {selectedReport.report_id}</h1>
+                                    <p style={{ fontSize: '1.1rem', color: '#cbd5e1', margin: '4px 0 0 0', fontWeight: 600 }}>Ticket: {selectedReport.ticket_id || 'Servicio Directo'}</p>
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
-                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '50px', opacity: 0.8 }} />
+                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '70px', objectFit: 'contain' }} />
                                 </div>
                             </header>
 
                             {/* Summary Stats Row */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0', marginBottom: '4rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '2.5rem' }}>
-                                <div style={{ borderLeft: '3px solid #3b82f6', paddingLeft: '1.2rem' }}>
-                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>FECHA DEL SERVICIO</p>
-                                    <p style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.date}</p>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0', marginBottom: '3.5rem' }}>
+                                <div style={{ borderLeft: '3px solid #3b82f6', paddingLeft: '1.2rem', minHeight: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '8px', letterSpacing: '0.05em' }}>FECHA DEL SERVICIO</p>
+                                    <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.date}</p>
                                 </div>
-                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: '#f1f5f9', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                                <div style={{ borderLeft: '3px solid #3b82f6', paddingLeft: '1.2rem', minHeight: '60px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: '#f1f5f9', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
                                         {selectedReport.technician_photo ? (
                                             <img src={selectedReport.technician_photo} alt="Tech" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                         ) : (
@@ -821,50 +821,50 @@ export default function ServiceReports() {
                                         )}
                                     </div>
                                     <div>
-                                        <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>TÉCNICO</p>
-                                        <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', lineHeight: 1.2 }}>{selectedReport.technician_name}</p>
+                                        <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>TÉCNICO</p>
+                                        <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e293b', lineHeight: 1.1 }}>{selectedReport.technician_name}</p>
                                     </div>
                                 </div>
-                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem' }}>
-                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>CLIENTE</p>
-                                    <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.company?.name || selectedReport.company_name || 'Particular'}</p>
+                                <div style={{ borderLeft: '3px solid #3b82f6', paddingLeft: '1.2rem', minHeight: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '8px', letterSpacing: '0.05em' }}>CLIENTE</p>
+                                    <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e293b', textTransform: 'uppercase' }}>{selectedReport.company?.name || selectedReport.company_name || 'Particular'}</p>
                                 </div>
-                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem' }}>
-                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>ESTADO</p>
-                                    <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.is_resolved === 'Si' ? '✅ RESUELTO' : '⚠️ SEGUIMIENTO'}</p>
+                                <div style={{ borderLeft: '3px solid #3b82f6', paddingLeft: '1.2rem', minHeight: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '8px', letterSpacing: '0.05em' }}>ESTADO</p>
+                                    <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.is_resolved === 'Si' ? 'RESUELTO' : 'SEGUIMIENTO'}</p>
                                 </div>
                             </div>
 
                             {/* Dual Column Layout */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.3fr) minmax(0, 1fr)', gap: '3.5rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '3rem' }}>
                                 {/* Left Column: User & Hardware */}
                                 <div>
-                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
-                                        <User size={18} /> Detalles del Usuario
+                                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', borderBottom: '2px solid #3b82f615', paddingBottom: '10px' }}>
+                                        <User size={20} /> Detalles del Usuario
                                     </h3>
-                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', marginBottom: '3rem', background: '#f8fafc' }}>
-                                        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Usuario Final: </span>
-                                            <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.employee?.name || selectedReport.employee_name || 'N/A'}</span>
+                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', marginBottom: '3rem', background: 'white' }}>
+                                        <div style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569' }}>Usuario Final: </span>
+                                            <span style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.employee?.name || selectedReport.employee_name || 'N/A'}</span>
                                         </div>
-                                        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Sede: </span>
-                                            <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.sede?.name || selectedReport.sede_name || 'Principal'}</span>
+                                        <div style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569' }}>Sede: </span>
+                                            <span style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.sede?.name || selectedReport.sede_name || 'Principal'}</span>
                                         </div>
-                                        <div style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Modalidad: </span>
-                                            <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.modality}</span>
+                                        <div style={{ padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569' }}>Modalidad: </span>
+                                            <span style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.modality}</span>
                                         </div>
                                     </div>
 
-                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
-                                        <Laptop size={18} /> Información de Hardware
+                                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', borderBottom: '2px solid #3b82f615', paddingBottom: '10px' }}>
+                                        <Laptop size={20} /> Información de Hardware
                                     </h3>
-                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', background: '#f8fafc' }}>
+                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', background: 'white' }}>
                                         <div style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0' }}>
-                                            <p style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Equipo Asignado</span>
-                                                <span style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: 700 }}>
+                                            <p style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569' }}>Equipo: </span>
+                                                <span style={{ fontSize: '1rem', color: '#1e293b', fontWeight: 700 }}>
                                                     {selectedReport.inventory
                                                         ? `${selectedReport.inventory.equipment_id} — ${selectedReport.inventory.brand} ${selectedReport.inventory.model}`
                                                         : selectedReport.inventory_id || 'General / Soporte Periférico'
@@ -874,8 +874,8 @@ export default function ServiceReports() {
                                         </div>
                                         <div style={{ padding: '1.25rem' }}>
                                             <p style={{ margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Mantenimiento: </span>
-                                                <span style={{ fontSize: '0.9rem', color: '#10b981', fontWeight: 700 }}>{selectedReport.maintenance_performed ? '✓ REALIZADO' : 'NO APLICA'}</span>
+                                                <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569' }}>Mantenimiento: </span>
+                                                <span style={{ fontSize: '1.1rem', color: '#10b981', fontWeight: 800 }}>✓ Realizado</span>
                                             </p>
                                         </div>
                                     </div>
