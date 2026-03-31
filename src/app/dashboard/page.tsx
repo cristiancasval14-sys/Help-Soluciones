@@ -278,6 +278,33 @@ export default function Dashboard() {
                                 </div>
                             </div>
 
+                            {/* Section: Technician Encargado (High Prominence) */}
+                            <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                                    <User size={14} /> TÉCNICO ENCARGADO
+                                </label>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'var(--surface)', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--surface-border)', boxShadow: 'var(--shadow-sm)' }}>
+                                    <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'var(--primary-glow)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, overflow: 'hidden', border: '2px solid var(--primary-glow)' }}>
+                                        {selectedTicket.techImage ? (
+                                            <img src={selectedTicket.techImage} alt="Tech Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : (
+                                            selectedTicket.assignedTo ? selectedTicket.assignedTo.charAt(0) : <User size={28} />
+                                        )}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <p style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '4px' }}>{selectedTicket.assignedTo || 'Pendiente de Asignación'}</p>
+                                        <div style={{ display: 'flex', gap: '15px' }}>
+                                            {selectedTicket.techPhone && (
+                                                <p style={{ fontSize: '0.85rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}>
+                                                    <Phone size={14} /> {selectedTicket.techPhone}
+                                                </p>
+                                            )}
+                                            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>{selectedTicket.assignedTo ? 'Soporte Especializado' : 'Gestión de Mesa de Ayuda'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Equipment Information Header */}
                             {selectedTicket.techNotes?.includes('💻 Equipo:') && (
                                 <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
@@ -304,30 +331,6 @@ export default function Dashboard() {
                                           selectedTicket.techNotes.split('📝 Descripción:')[1]?.trim() : 
                                           selectedTicket.techNotes)}
                                     </p>
-                                </div>
-                            </div>
-
-                            <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '1rem' }}>
-                                    <User size={14} /> TÉCNICO ENCARGADO
-                                </label>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--surface)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--surface-border)' }}>
-                                    <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'var(--primary-glow)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, overflow: 'hidden', border: '2px solid var(--surface-border)' }}>
-                                        {selectedTicket.techImage ? (
-                                            <img src={selectedTicket.techImage} alt="Tech Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        ) : (
-                                            selectedTicket.assignedTo ? selectedTicket.assignedTo.charAt(0) : <User size={24} />
-                                        )}
-                                    </div>
-                                    <div>
-                                        <p style={{ fontWeight: 700 }}>{selectedTicket.assignedTo || 'No asignado todavía'}</p>
-                                        {selectedTicket.techPhone && (
-                                            <p style={{ fontSize: '0.8rem', color: 'var(--text-main)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
-                                                <Phone size={12} color="var(--primary)"/> {selectedTicket.techPhone}
-                                            </p>
-                                        )}
-                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>{selectedTicket.assignedTo ? 'Soporte Nivel 1' : 'Pendiente de gestión'}</p>
-                                    </div>
                                 </div>
                             </div>
 
