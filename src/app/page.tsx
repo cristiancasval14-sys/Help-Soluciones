@@ -16,6 +16,9 @@ export default function Home() {
   return (
     <div className="landing-page fade-in" style={{ padding: '4rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <section className="hero" style={{ textAlign: 'center', marginBottom: '8rem', marginTop: '4rem' }}>
+        <div style={{ marginBottom: '2rem' }}>
+          <img src="/logo.png" alt="Help Soluciones Logo" style={{ height: '80px', margin: '0 auto' }} />
+        </div>
         <div style={{ display: 'inline-flex', padding: '0.5rem 1rem', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', borderRadius: '99px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '2rem', gap: '8px', alignItems: 'center' }}>
           <Zap size={14} /> Nueva Versión 2.0 Operacional
         </div>

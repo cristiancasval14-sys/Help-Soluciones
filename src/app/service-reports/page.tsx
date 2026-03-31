@@ -18,7 +18,8 @@ import {
     Cpu,
     Laptop,
     Database,
-    Trash2
+    Trash2,
+    X
 } from 'lucide-react';
 import { StaffService, CompanyService, InventoryService, ServiceReportService } from '@/lib/services';
 import { useSearchParams } from 'next/navigation';
@@ -783,99 +784,148 @@ export default function ServiceReports() {
 
             {/* Detailed Report Modal */}
             {showDetailModal && selectedReport && (
-                <div className="modal-overlay fade-in" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
-                    <div className="modal-card glass" style={{ width: '800px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: 'var(--radius-lg)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
-                        {/* Header */}
-                        <div style={{ background: 'var(--primary)', color: 'white', padding: '1.5rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '12px' }}>
-                                    <FileText size={24} />
-                                </div>
-                                <div>
-                                    <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>Reporte: {selectedReport.report_id}</h2>
-                                    <p style={{ fontSize: '0.85rem', opacity: 0.9, margin: 0 }}>Ticket: {selectedReport.ticket_id || 'Servicio directo'}</p>
-                                </div>
-                            </div>
-                            <button onClick={() => setShowDetailModal(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}><AlertCircle size={24} style={{ transform: 'rotate(45deg)' }} /></button>
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
+                    <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative' }}>
+                        <div className="no-print" style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20, display: 'flex', gap: '8px' }}>
+                             <button className="btn btn-primary" onClick={() => window.print()} style={{ borderRadius: '10px' }}><Save size={18} /> Imprimir</button>
+                             <button className="icon-btn" onClick={() => setShowDetailModal(false)} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px', cursor: 'pointer' }}><X size={24} /></button>
                         </div>
 
-                        <div style={{ padding: '2.5rem' }}>
-                            {/* Stats Bar */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
-                                <div className="detail-stat">
-                                    <span className="stat-label">Fecha del Servicio</span>
-                                    <span className="stat-value">{selectedReport.date}</span>
-                                </div>
-                                <div className="detail-stat">
-                                    <span className="stat-label">Técnico</span>
-                                    <span className="stat-value">{selectedReport.technician_name}</span>
-                                </div>
-                                <div className="detail-stat">
-                                    <span className="stat-label">Cliente</span>
-                                    <span className="stat-value">{selectedReport.company?.name || selectedReport.client_name || 'No especificado'}</span>
-                                </div>
-                                <div className="detail-stat">
-                                    <span className="stat-label">Estado</span>
-                                    <span className={`stat-value badge-${selectedReport.is_resolved === 'Si' ? 'success' : selectedReport.is_resolved === 'Parcial' ? 'warning' : 'error'}`} style={{ display: 'inline-block', width: 'fit-content', borderRadius: '4px', padding: '2px 8px' }}>
-                                        {selectedReport.is_resolved === 'Si' ? 'RESUELTO' : selectedReport.is_resolved === 'Parcial' ? 'SEGUIMIENTO' : 'NO RESUELTO'}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Main Content Sections */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
+                        <div id="printable-report" style={{ padding: '3.5rem' }}>
+                            {/* Header: Report & Ticket IDs */}
+                            <header style={{ marginBottom: '3.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <h3 className="section-title"><User size={18} /> Detalles del Usuario</h3>
-                                    <div className="info-box">
-                                        <div className="info-row"><strong>Usuario Final:</strong> {selectedReport.employee?.name || selectedReport.employee_name || 'General'}</div>
-                                        <div className="info-row"><strong>Sede:</strong> {selectedReport.sede?.name || selectedReport.sede_name || 'Principal'}</div>
-                                        <div className="info-row"><strong>Modalidad:</strong> {selectedReport.modality}</div>
-                                    </div>
-
-                                    <h3 className="section-title" style={{ marginTop: '2rem' }}><Laptop size={18} /> Información de Hardware</h3>
-                                    <div className="info-box">
-                                        <div className="info-row">
-                                            <strong>Equipo:</strong>{' '}
-                                            {selectedReport.inventory
-                                                ? `${selectedReport.inventory.equipment_id} — ${selectedReport.inventory.brand} ${selectedReport.inventory.model}`
-                                                : selectedReport.inventory_id || 'N/A'
-                                            }
-                                        </div>
-                                        <div className="info-row">
-                                            <strong>Mantenimiento:</strong> 
-                                            {selectedReport.maintenance_performed ? <span style={{ color: 'var(--success)', marginLeft: '10px' }}>✓ Realizado</span> : <span style={{ color: 'var(--text-muted)', marginLeft: '10px' }}>No realizado</span>}
-                                        </div>
-                                        {selectedReport.parts_changed && (
-                                            <div className="info-row" style={{ color: 'var(--warning)', fontWeight: 600 }}>
-                                                <strong>Cambio de piezas:</strong> {selectedReport.parts_details}
-                                            </div>
-                                        )}
-                                        {selectedReport.capacity_upgraded && (
-                                            <div className="info-row" style={{ color: 'var(--success)', fontWeight: 600 }}>
-                                                <strong>Upgrade:</strong> {selectedReport.upgrade_details}
-                                            </div>
-                                        )}
-                                    </div>
+                                    <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#94a3b8', margin: 0 }}>Reporte: {selectedReport.report_id}</h1>
+                                    <p style={{ fontSize: '1rem', color: '#cbd5e1', margin: '4px 0 0 0', fontWeight: 600 }}>Ticket: {selectedReport.ticket_id || 'Servicio Directo'}</p>
                                 </div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '50px', opacity: 0.8 }} />
+                                </div>
+                            </header>
 
+                            {/* Summary Stats Row */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0', marginBottom: '4rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '2.5rem' }}>
+                                <div style={{ borderLeft: '3px solid #3b82f6', paddingLeft: '1.2rem' }}>
+                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>FECHA DEL SERVICIO</p>
+                                    <p style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.date}</p>
+                                </div>
+                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem' }}>
+                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>TÉCNICO</p>
+                                    <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', lineHeight: 1.2 }}>{selectedReport.technician_name}</p>
+                                </div>
+                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem' }}>
+                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>CLIENTE</p>
+                                    <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.company?.name || selectedReport.company_name || 'Particular'}</p>
+                                </div>
+                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem' }}>
+                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>ESTADO</p>
+                                    <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.is_resolved === 'Si' ? '✅ RESUELTO' : '⚠️ SEGUIMIENTO'}</p>
+                                </div>
+                            </div>
+
+                            {/* Dual Column Layout */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.3fr) minmax(0, 1fr)', gap: '3.5rem' }}>
+                                {/* Left Column: User & Hardware */}
                                 <div>
-                                    <h3 className="section-title"><Clock size={18} /> Actividades Realizadas</h3>
-                                    <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0', minHeight: '100px', whiteSpace: 'pre-wrap', lineHeight: '1.6', fontSize: '0.95rem', color: '#334155' }}>
-                                        {selectedReport.activities}
+                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
+                                        <User size={18} /> Detalles del Usuario
+                                    </h3>
+                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', marginBottom: '3rem', background: '#f8fafc' }}>
+                                        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Usuario Final: </span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.employee?.name || selectedReport.employee_name || 'N/A'}</span>
+                                        </div>
+                                        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Sede: </span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.sede?.name || selectedReport.sede_name || 'Principal'}</span>
+                                        </div>
+                                        <div style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Modalidad: </span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.modality}</span>
+                                        </div>
+                                    </div>
+
+                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
+                                        <Laptop size={18} /> Información de Hardware
+                                    </h3>
+                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', background: '#f8fafc' }}>
+                                        <div style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0' }}>
+                                            <p style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Equipo Asignado</span>
+                                                <span style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: 700 }}>
+                                                    {selectedReport.inventory
+                                                        ? `${selectedReport.inventory.equipment_id} — ${selectedReport.inventory.brand} ${selectedReport.inventory.model}`
+                                                        : selectedReport.inventory_id || 'General / Soporte Periférico'
+                                                    }
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div style={{ padding: '1.25rem' }}>
+                                            <p style={{ margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Mantenimiento: </span>
+                                                <span style={{ fontSize: '0.9rem', color: '#10b981', fontWeight: 700 }}>{selectedReport.maintenance_performed ? '✓ REALIZADO' : 'NO APLICA'}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right Column: Activities */}
+                                <div>
+                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
+                                        <Clock size={18} /> Actividades Realizadas
+                                    </h3>
+                                    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '20px', padding: '2.5rem', minHeight: '350px', fontSize: '1rem', color: '#334155', lineHeight: 2 }}>
+                                        <div style={{ whiteSpace: 'pre-wrap' }}>
+                                            {selectedReport.activities.split('\n').map((line: string, i: number) => {
+                                                let processed = line;
+                                                const lower = line.toLowerCase();
+                                                if (lower.includes('contacto')) processed = '📞 ' + line;
+                                                else if (lower.includes('ubicación') || lower.includes('sede')) processed = '📍 ' + line;
+                                                else if (lower.includes('equipo')) processed = '💻 ' + line;
+                                                else if (lower.includes('acción') || lower.includes('realizó')) processed = '⚡ ' + line;
+                                                else if (line.trim()) processed = '• ' + line;
+                                                
+                                                return <div key={i} style={{ marginBottom: '0.75rem' }}>{processed}</div>;
+                                            })}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--surface-border)', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                                <button className="btn glass" onClick={() => setShowDetailModal(false)}>Cerrar Vista</button>
-                                <button className="btn btn-primary" onClick={() => window.print()}><Save size={18} /> Imprimir Reporte</button>
-                            </div>
+                            {/* Footer / Signature Spacer */}
+                            <footer style={{ marginTop: '6rem', paddingTop: '2.5rem', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                                <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                                    <p style={{ margin: 0 }}>© 2026 Help Soluciones Informáticas S.A.S</p>
+                                    <p style={{ margin: 0 }}>Sistema de Gestión de Soporte Técnico</p>
+                                </div>
+                                <div style={{ width: '250px', borderTop: '1px solid #cbd5e1', textAlign: 'center', paddingTop: '12px' }}>
+                                    <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', margin: 0 }}>Firma Responsable / Técnico</p>
+                                    <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>CC: ________________________</p>
+                                </div>
+                            </footer>
                         </div>
                     </div>
                 </div>
             )}
 
             <style jsx>{`
+                @media print {
+                    body * { visibility: hidden !important; }
+                    #printable-report, #printable-report * { visibility: visible !important; }
+                    #printable-report { 
+                        position: fixed !important; 
+                        left: 0 !important; 
+                        top: 0 !important; 
+                        width: 100% !important; 
+                        height: 100% !important; 
+                        padding: 1.5cm !important;
+                        margin: 0 !important;
+                        background: white !important;
+                    }
+                    .modal-overlay { background: white !important; position: static !important; }
+                    .modal-card { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
+                    .no-print { display: none !important; }
+                }
                 .form-input { width: 100%; padding: 0.8rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--surface-border); background: var(--surface); color: var(--text-main); font-family: inherit; font-size: 0.95rem; outline: none; }
                 .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
                 .fade-in { animation: fadeIn 0.3s ease-out; }
@@ -889,7 +939,7 @@ export default function ServiceReports() {
                 .btn-icon-danger:hover { color: #ef4444 !important; background: rgba(239,68,68,0.08) !important; transform: scale(1.1); }
                 .detail-stat { display: flex; flex-direction: column; gap: 4px; border-left: 3px solid var(--primary-glow); padding-left: 12px; }
                 .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; }
-                .stat-value { font-size: 1rem; font-weight: 800; color: var(--text-main); }
+                .stat-value { font-size: 1rem; fontWeight: 800; color: var(--text-main); }
                 .section-title { font-size: 1rem; font-weight: 800; display: flex; alignItems: center; gap: 8px; margin-bottom: 1.25rem; color: var(--primary); border-bottom: 2px solid var(--primary-glow); padding-bottom: 8px; }
                 .info-box { background: white; border-radius: 12px; border: 1px solid var(--surface-border); overflow: hidden; }
                 .info-row { padding: 0.75rem 1rem; border-bottom: 1px solid var(--surface-border); font-size: 0.9rem; }

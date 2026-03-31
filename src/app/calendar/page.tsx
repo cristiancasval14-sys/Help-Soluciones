@@ -579,25 +579,25 @@ export default function CalendarPage() {
                             <div style={{ display: 'grid', gridTemplateColumns: visitForm.isAllDay ? '1fr' : '1fr 1fr', gap: '1rem' }}>
                                 <div className="form-group">
                                     <label>Fecha</label>
-                                    <input type="date" className="form-input" value={visitForm.date} onChange={e => setVisitForm({ ...visitForm, date: e.target.value })} required />
+                                    <input type="date" className="form-input" value={visitForm.date} onChange={e => setVisitForm({ ...visitForm, date: e.target.value })} required disabled={!isAdmin} />
                                 </div>
                                 {!visitForm.isAllDay && (
                                     <div className="form-group">
                                         <label>Hora</label>
-                                        <input type="time" className="form-input" value={visitForm.time} onChange={e => setVisitForm({ ...visitForm, time: e.target.value })} required />
+                                        <input type="time" className="form-input" value={visitForm.time} onChange={e => setVisitForm({ ...visitForm, time: e.target.value })} required disabled={!isAdmin} />
                                     </div>
                                 )}
                             </div>
                             <div className="form-group" style={{ marginTop: '-0.5rem', marginBottom: '0.5rem' }}>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: 0 }}>
-                                    <input type="checkbox" style={{ width: '16px', height: '16px' }} checked={visitForm.isAllDay} onChange={e => setVisitForm({ ...visitForm, isAllDay: e.target.checked })} />
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: isAdmin ? 'pointer' : 'default', margin: 0 }}>
+                                    <input type="checkbox" style={{ width: '16px', height: '16px' }} checked={visitForm.isAllDay} onChange={e => setVisitForm({ ...visitForm, isAllDay: e.target.checked })} disabled={!isAdmin} />
                                     <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Asignar por todo el día</span>
                                 </label>
                             </div>
 
                             <div className="form-group">
                                 <label>Técnico Asignado</label>
-                                <select className="form-input" value={visitForm.technicianId} onChange={e => setVisitForm({ ...visitForm, technicianId: e.target.value })} required>
+                                <select className="form-input" value={visitForm.technicianId} onChange={e => setVisitForm({ ...visitForm, technicianId: e.target.value })} required disabled={!isAdmin}>
                                     <option value="">Seleccionar técnico...</option>
                                     {staff.map(s => (
                                         <option key={s.id} value={s.id}>{s.firstName} {s.lastName} — {s.role}</option>
@@ -607,7 +607,7 @@ export default function CalendarPage() {
 
                             <div className="form-group">
                                 <label>Empresa</label>
-                                <select className="form-input" value={visitForm.companyId} onChange={e => setVisitForm({ ...visitForm, companyId: e.target.value, sedeId: '' })} required>
+                                <select className="form-input" value={visitForm.companyId} onChange={e => setVisitForm({ ...visitForm, companyId: e.target.value, sedeId: '' })} required disabled={!isAdmin}>
                                     <option value="">Seleccionar empresa...</option>
                                     {companies.map(c => (
                                         <option key={c.id} value={c.id}>{c.name}</option>
@@ -618,7 +618,7 @@ export default function CalendarPage() {
                             {selectedCompany && selectedCompany.sedes && selectedCompany.sedes.length > 0 && (
                                 <div className="form-group fade-in">
                                     <label>Sede</label>
-                                    <select className="form-input" value={visitForm.sedeId} onChange={e => setVisitForm({ ...visitForm, sedeId: e.target.value })}>
+                                    <select className="form-input" value={visitForm.sedeId} onChange={e => setVisitForm({ ...visitForm, sedeId: e.target.value })} disabled={!isAdmin}>
                                         <option value="">Sede Principal</option>
                                         {selectedCompany.sedes.map((s: any) => (
                                             <option key={s.id} value={s.id}>{s.name}</option>
@@ -647,13 +647,13 @@ export default function CalendarPage() {
                             <div className="form-group">
                                 <label>Descripción / Motivo</label>
                                 <textarea className="form-input" value={visitForm.description} onChange={e => setVisitForm({ ...visitForm, description: e.target.value })}
-                                    rows={3} placeholder="Describa el motivo de la visita..." required style={{ resize: 'none' }} />
+                                    rows={3} placeholder="Describa el motivo de la visita..." required disabled={!isAdmin} style={{ resize: 'none' }} />
                             </div>
 
                             {selectedVisit && (
                                 <div className="form-group">
                                     <label>Estado</label>
-                                    <select className="form-input" value={visitForm.status} onChange={e => setVisitForm({ ...visitForm, status: e.target.value as Visit['status'] })}>
+                                    <select className="form-input" value={visitForm.status} onChange={e => setVisitForm({ ...visitForm, status: e.target.value as Visit['status'] })} disabled={!isAdmin}>
                                         <option value="Programada">Programada</option>
                                         <option value="En Curso">En Curso</option>
                                         <option value="Completada">Completada</option>
@@ -662,27 +662,35 @@ export default function CalendarPage() {
                                 </div>
                             )}
 
-                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                                    <Save size={20} /> {selectedVisit ? 'Actualizar' : 'Programar'} Visita
-                                </button>
-                                {selectedVisit && (
-                                    <button type="button" className="btn" style={{ color: 'var(--error)', border: '1px solid var(--error)', padding: '0.6rem 1rem' }}
-                                        onClick={async () => {
-                                            if (confirm('¿Eliminar esta visita?')) {
-                                                try {
-                                                    await VisitService.delete(selectedVisit.id);
-                                                    setVisits(visits.filter(v => v.id !== selectedVisit.id));
-                                                    setIsModalOpen(false);
-                                                } catch (err) {
-                                                    alert("Error al eliminar visita");
-                                                }
-                                            }
-                                        }}>
-                                        <Trash2 size={18} />
+                            {isAdmin && (
+                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                    <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
+                                        <Save size={20} /> {selectedVisit ? 'Actualizar' : 'Programar'} Visita
                                     </button>
-                                )}
-                            </div>
+                                    {selectedVisit && (
+                                        <button type="button" className="btn" style={{ color: 'var(--error)', border: '1px solid var(--error)', padding: '0.6rem 1rem' }}
+                                            onClick={async () => {
+                                                if (confirm('¿Eliminar esta visita?')) {
+                                                    try {
+                                                        await VisitService.delete(selectedVisit.id);
+                                                        setVisits(visits.filter(v => v.id !== selectedVisit.id));
+                                                        setIsModalOpen(false);
+                                                    } catch (err) {
+                                                        alert("Error al eliminar visita");
+                                                    }
+                                                }
+                                            }}>
+                                            <Trash2 size={18} />
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                            {!isAdmin && (
+                                <div style={{ padding: '1rem', background: 'rgba(59,130,246,0.1)', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.2)', textAlign: 'center' }}>
+                                    <p style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 600 }}>Vista de solo lectura</p>
+                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Solo el administrador puede modificar las visitas programadas.</p>
+                                </div>
+                            )}
                         </form>
                     </div>
                 </div>
