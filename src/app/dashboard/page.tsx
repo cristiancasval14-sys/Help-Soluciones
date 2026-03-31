@@ -19,7 +19,7 @@ import {
     Monitor,
     Image as ImageIcon
 } from 'lucide-react';
-import { TicketService } from '@/lib/services';
+import { TicketService, ServiceReportService } from '@/lib/services';
 import { useRouter } from 'next/navigation';
 
 interface Ticket {
@@ -36,6 +36,7 @@ interface Ticket {
     techNotes?: string;
     description?: string;
     imageUrl?: string;
+    solution?: string; // Activities from service report
 }
 
 export default function Dashboard() {
@@ -53,22 +54,32 @@ export default function Dashboard() {
             setCurrentUser(user);
 
             try {
-                const data = await TicketService.getAll();
-                const mapped = data.map((t: any) => ({
-                    id: t.id,
-                    client: t.company?.name || '---',
-                    requester: t.requester_name,
-                    type: t.type,
-                    priority: t.priority,
-                    status: t.status,
-                    date: t.date || t.created_at?.split('T')[0],
-                    assignedTo: t.staff ? `${t.staff.first_name} ${t.staff.last_name}` : undefined,
-                    techPhone: t.staff?.phone || undefined,
-                    techImage: t.staff?.photo || undefined,
-                    techNotes: t.tech_notes,
-                    description: t.description,
-                    imageUrl: t.image_url || t.imageUrl || t.evidence_url // Use all possible aliases
-                }));
+                const [data, reports] = await Promise.all([
+                    TicketService.getAll(),
+                    ServiceReportService.getAll()
+                ]);
+
+                const mapped = data.map((t: any) => {
+                    // Find matching report for this ticket
+                    const report = reports.find((r: any) => r.ticket_id === t.id);
+                    
+                    return {
+                        id: t.id,
+                        client: t.company?.name || '---',
+                        requester: t.requester_name,
+                        type: t.type,
+                        priority: t.priority,
+                        status: t.status,
+                        date: t.date || t.created_at?.split('T')[0],
+                        assignedTo: t.staff ? `${t.staff.first_name} ${t.staff.last_name}` : undefined,
+                        techPhone: t.staff?.phone || undefined,
+                        techImage: t.staff?.photo || undefined,
+                        techNotes: t.tech_notes,
+                        description: t.description,
+                        imageUrl: t.image_url || t.imageUrl || t.evidence_url,
+                        solution: report?.activities || undefined // Here we map the solution!
+                    };
+                });
 
                 let filtered = mapped;
                 if (user && user.role !== 'Administrador') {
@@ -313,6 +324,20 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Section: Technical Solution from Service Report */}
+                            {selectedTicket.solution && (
+                                <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--success)', marginBottom: '0.8rem', textTransform: 'uppercase' }}>
+                                        <CheckCircle2 size={16} /> Solución Técnica (Reporte Final)
+                                    </label>
+                                    <div style={{ background: 'rgba(16, 185, 129, 0.05)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                                        <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: 'var(--text-main)', whiteSpace: 'pre-line', fontWeight: 500 }}>
+                                            {selectedTicket.solution}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Equipment Information Header */}
                             {selectedTicket.techNotes?.includes('💻 Equipo:') && (
