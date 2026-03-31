@@ -121,11 +121,26 @@ export const CompanyService = {
         if (error) throw error;
     },
 
+    async updateEmployee(id: string, updates: any) {
+        const { data, error } = await supabase.from('company_employees').update(sanitize(updates)).eq('id', id).select();
+        if (error) throw error;
+        return data ? data[0] : null;
+    },
+
     async addSede(sede: any) {
         if (sede.lat === '') sede.lat = null;
         if (sede.lng === '') sede.lng = null;
 
         const { data, error } = await supabase.from('company_sedes').insert([sanitize(sede)]).select();
+        if (error) throw error;
+        return data ? data[0] : null;
+    },
+
+    async updateSede(id: string, updates: any) {
+        if (updates.lat === '') updates.lat = null;
+        if (updates.lng === '') updates.lng = null;
+
+        const { data, error } = await supabase.from('company_sedes').update(sanitize(updates)).eq('id', id).select();
         if (error) throw error;
         return data ? data[0] : null;
     },

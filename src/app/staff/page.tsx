@@ -309,10 +309,38 @@ export default function StaffPage() {
 
 
                             <div className="form-group">
-                                <label>Foto (URL)</label>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <input type="text" value={formData.photo} onChange={e => setFormData({ ...formData, photo: e.target.value })} placeholder="https://..." className="form-input" style={{ flex: 1 }} />
-                                    <button type="button" className="btn glass"><Camera size={18} /></button>
+                                <label>Foto de Perfil</label>
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                    <div style={{ width: '60px', height: '60px', borderRadius: '12px', background: 'var(--primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid var(--surface-border)' }}>
+                                        {formData.photo ? <img src={formData.photo} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <User size={24} color="var(--primary)" />}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <input
+                                            type="file"
+                                            id="photo-upload"
+                                            hidden
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        setFormData({ ...formData, photo: reader.result as string });
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="btn glass"
+                                            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.85rem' }}
+                                            onClick={() => document.getElementById('photo-upload')?.click()}
+                                        >
+                                            <Camera size={18} /> Seleccionar Imagen
+                                        </button>
+                                        <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '4px' }}>Soporta JPG, PNG. Máximo 2MB recomendado.</p>
+                                    </div>
                                 </div>
                             </div>
 

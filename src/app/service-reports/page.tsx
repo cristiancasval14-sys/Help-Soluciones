@@ -43,6 +43,7 @@ export default function ServiceReports() {
         assetId: '',
         ticketId: '',
         activities: '',
+        activitySummary: '',
         maintenancePerformed: false,
         partsChanged: false,
         partsDetails: '',
@@ -132,6 +133,7 @@ export default function ServiceReports() {
                         user: uName || '',
                         technician: techName || '',
                         activities: activitiesText,
+                        activitySummary: '',
                     }));
 
                     // Store ticket context for the info banner
@@ -216,6 +218,12 @@ export default function ServiceReports() {
             const selectedSede = (selectedComp?.sedes || []).find((s: any) => s.name === formData.sede);
             const selectedEmp = (selectedComp?.employees || []).find((em: any) => em.name === formData.user);
 
+            // Combine ticket context + technician's own activity summary
+            const fullActivities = [
+                formData.activities,
+                formData.activitySummary ? `\n\n--- ACTIVIDAD REALIZADA ---\n${formData.activitySummary}` : ''
+            ].filter(Boolean).join('');
+
             const payload = {
                 report_id: `REP-${Math.floor(1000 + Math.random() * 9000)}`,
                 date: formData.date,
@@ -231,7 +239,7 @@ export default function ServiceReports() {
                 employee_name: selectedEmp?.name || formData.user || null,
                 inventory_id: formData.assetId || null,
                 ticket_id: formData.ticketId || null,
-                activities: formData.activities,
+                activities: fullActivities,
                 maintenance_performed: formData.maintenancePerformed,
                 parts_changed: formData.partsChanged,
                 parts_details: formData.partsDetails,
@@ -463,18 +471,59 @@ export default function ServiceReports() {
                         </div>
                     </div>
 
+                    {/* Ticket Context (read-only if came from ticket) */}
+                    {ticketContext && formData.activities ? (
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+                                <FileText size={15} /> Descripción del Ticket (referencia)
+                            </label>
+                            <div style={{
+                                background: 'rgba(59,130,246,0.04)',
+                                border: '1px solid rgba(59,130,246,0.2)',
+                                borderRadius: '10px',
+                                padding: '1rem 1.2rem',
+                                fontSize: '0.9rem',
+                                color: 'var(--text-muted)',
+                                lineHeight: 1.6,
+                                whiteSpace: 'pre-wrap',
+                                minHeight: '70px'
+                            }}>
+                                {formData.activities}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Contexto / Descripción del Problema</label>
+                            <textarea
+                                name="activities"
+                                value={formData.activities}
+                                onChange={handleInputChange}
+                                className="form-input"
+                                rows={3}
+                                placeholder="Descripción del problema o motivo del servicio..."
+                                style={{ resize: 'none' }}
+                            ></textarea>
+                        </div>
+                    )}
+
+                    {/* Activity Performed - main field */}
                     <div className="form-group" style={{ marginBottom: '2rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Actividades Realizadas</label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 700, color: 'var(--primary)' }}>
+                            <Wrench size={15} /> Actividad Realizada por el Técnico <span style={{ color: 'var(--error)', marginLeft: '2px' }}>*</span>
+                        </label>
                         <textarea
-                            name="activities"
-                            value={formData.activities}
+                            name="activitySummary"
+                            value={formData.activitySummary}
                             onChange={handleInputChange}
                             className="form-input"
-                            rows={4}
-                            placeholder="Describa a detalle todas las actividades, configuraciones o reparaciones ejecutadas durante el servicio..."
+                            rows={5}
+                            placeholder="Describa en detalle lo que realizó: configuraciones, diagnósticos, reparaciones, instalaciones de software, ajustes de red, etc..."
                             required
-                            style={{ resize: 'none' }}
+                            style={{ resize: 'vertical', borderColor: formData.activitySummary ? 'var(--primary)' : undefined, boxShadow: formData.activitySummary ? '0 0 0 3px var(--primary-glow)' : undefined }}
                         ></textarea>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                            {formData.activitySummary.length} caracteres · Use este campo para documentar todo lo ejecutado durante la visita o soporte.
+                        </p>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem', borderBottom: '1px solid var(--surface-border)', paddingBottom: '1rem' }}>
@@ -531,8 +580,88 @@ export default function ServiceReports() {
 
                 </div>
 
-                {/* Right Column - Status */}
-                <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                {/* Right Column - Status + Equipment Info */}
+                <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+                    {/* Equipment Info Card */}
+                    {(() => {
+                        const selectedAsset = inventory.find(inv => inv.id === formData.assetId);
+                        return (
+                            <div className="card glass" style={{
+                                border: selectedAsset ? '1px solid rgba(99,102,241,0.3)' : '1px dashed var(--surface-border)',
+                                background: selectedAsset ? 'rgba(99,102,241,0.03)' : undefined,
+                                transition: 'all 0.3s ease'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.2rem' }}>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: selectedAsset ? 'rgba(99,102,241,0.15)' : 'rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Laptop size={17} color={selectedAsset ? 'var(--primary)' : 'var(--text-muted)'} />
+                                    </div>
+                                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: selectedAsset ? 'var(--primary)' : 'var(--text-muted)' }}>Equipo del Ticket</h3>
+                                </div>
+
+                                {!selectedAsset ? (
+                                    <div style={{ textAlign: 'center', padding: '1.5rem 0.5rem' }}>
+                                        <Laptop size={36} style={{ opacity: 0.2, marginBottom: '0.75rem' }} />
+                                        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                                            Seleccione un usuario y luego un equipo del inventario para ver su información.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="fade-in">
+                                        {/* Badge */}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+                                            <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '0.9rem', color: 'var(--primary)', background: 'rgba(99,102,241,0.1)', padding: '3px 10px', borderRadius: '6px' }}>
+                                                {selectedAsset.equipment_id}
+                                            </span>
+                                            <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 7px', borderRadius: '20px',
+                                                background: selectedAsset.status === 'Activo' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)',
+                                                color: selectedAsset.status === 'Activo' ? '#10b981' : '#f59e0b' }}>
+                                                ● {selectedAsset.status}
+                                            </span>
+                                        </div>
+
+                                        {/* Model */}
+                                        <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.25rem' }}>
+                                            {selectedAsset.brand} {selectedAsset.model}
+                                        </p>
+                                        {selectedAsset.clientName && (
+                                            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                                                🏢 {selectedAsset.clientName}
+                                            </p>
+                                        )}
+
+                                        {/* Specs grid */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                                            {[
+                                                { icon: <Cpu size={13}/>, label: 'CPU', val: selectedAsset.processor || selectedAsset.cpu },
+                                                { icon: <Layers size={13}/>, label: 'RAM', val: selectedAsset.ram },
+                                                { icon: <HardDrive size={13}/>, label: 'Disco', val: selectedAsset.storage },
+                                                { icon: <MonitorCheck size={13}/>, label: 'Serial', val: selectedAsset.serial },
+                                            ].map(spec => (
+                                                <div key={spec.label} style={{ background: 'rgba(0,0,0,0.03)', borderRadius: '8px', padding: '0.5rem 0.7rem', border: '1px solid var(--surface-border)' }}>
+                                                    <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 700, marginBottom: '2px', textTransform: 'uppercase' }}>
+                                                        {spec.icon} {spec.label}
+                                                    </p>
+                                                    <p style={{ fontSize: '0.78rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={spec.val || 'N/A'}>
+                                                        {spec.val || 'N/A'}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Licenses warning */}
+                                        {selectedAsset.licenses?.length > 0 && (
+                                            <div style={{ marginTop: '0.8rem', padding: '0.5rem 0.8rem', borderRadius: '8px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 600 }}>
+                                                🔑 {selectedAsset.licenses.length} licencia{selectedAsset.licenses.length !== 1 ? 's' : ''} registrada{selectedAsset.licenses.length !== 1 ? 's' : ''}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
+
+                    {/* Resolution Card */}
                     <div className="card glass">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem' }}>
                             <MonitorCheck size={20} color="var(--success)" />
@@ -540,7 +669,7 @@ export default function ServiceReports() {
                         </div>
 
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-                            Por favor indique si la falla reportada o la solicitud del cliente quedó solucionada al 100% o requiere seguimiento adicional.
+                            Indique si la falla quedó solucionada al 100% o requiere seguimiento.
                         </p>
 
                         <div className="form-group" style={{ marginBottom: '2rem' }}>
@@ -572,13 +701,13 @@ export default function ServiceReports() {
                         </button>
                     </div>
 
-                    <div className="card glass fade-in" style={{ background: 'rgba(37,99,235,0.03)', border: '1px solid var(--primary-glow)' }}>
+                    <div className="card glass" style={{ background: 'rgba(37,99,235,0.03)', border: '1px solid var(--primary-glow)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', color: 'var(--primary)' }}>
                             <AlertCircle size={18} />
                             <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Sincronización</h3>
                         </div>
                         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                            Al guardar este informe, quedará enlazado en el <strong>historial del equipo</strong> y se notificará automáticamente para los KPIs del dashboard y módulo de reportes globales.
+                            Al guardar este informe, quedará enlazado en el <strong>historial del equipo</strong> en el inventario.
                         </p>
                     </div>
                 </div>

@@ -16,16 +16,16 @@ import {
     Edit2,
     Mail,
     Navigation,
-    MapPinned,
     Globe,
-    Lock
+    ChevronRight,
+    ChevronDown
 } from 'lucide-react';
 
 import { CompanyService } from '@/lib/services';
-import { Company as DBCompany } from '@/lib/supabase';
 
 interface Sede {
     id: string;
+    company_id: string;
     name: string;
     lat: string;
     lng: string;
@@ -33,12 +33,19 @@ interface Sede {
 
 interface Employee {
     id: string;
+    company_id: string;
     name: string;
     email: string;
     phone: string;
 }
 
-interface Company extends DBCompany {
+interface Company {
+    id: string;
+    name: string;
+    nit: string;
+    lat: string;
+    lng: string;
+    email: string;
     employees: Employee[];
     sedes: Sede[];
 }
@@ -54,11 +61,14 @@ function ModalPortal({ children }: { children: React.ReactNode }) {
 export default function ClientsPage() {
     const [companies, setCompanies] = useState<Company[]>([]);
     const [currentUser, setCurrentUser] = useState<any>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeCompany, setActiveCompany] = useState<Company | null>(null);
     const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
+    const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
     const [isSedeModalOpen, setIsSedeModalOpen] = useState(false);
+    const [editingSede, setEditingSede] = useState<Sede | null>(null);
     const [activeTab, setActiveTab] = useState<'info' | 'sedes'>('info');
 
     const [companyForm, setCompanyForm] = useState({ name: '', nit: '', lat: '', lng: '', email: '' });
@@ -66,29 +76,28 @@ export default function ClientsPage() {
     const [sedeForm, setSedeForm] = useState({ name: '', lat: '', lng: '' });
     const [expandedCompany, setExpandedCompany] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchCompanies = async () => {
-            const session = localStorage.getItem('help_session');
-            const user = session ? JSON.parse(session) : null;
-            setCurrentUser(user);
+    const fetchCompanies = async () => {
+        const session = localStorage.getItem('help_session');
+        const user = session ? JSON.parse(session) : null;
+        setCurrentUser(user);
 
-            try {
-                const data = await CompanyService.getAll();
-                let list: Company[] = data as any;
+        try {
+            const data = await CompanyService.getAll();
+            let list: Company[] = data as any;
 
-                // If user is a Client, filter to only show THEIR company
-                if (user && user.role === 'Cliente') {
-                    const filtered = list.filter(c => c.name?.trim().toLowerCase() === user.assignedTo?.trim().toLowerCase());
-                    setCompanies(filtered);
-                    if (filtered.length > 0) setExpandedCompany(filtered[0].id);
-                } else {
-                    setCompanies(list);
-                }
-            } catch (err) {
-                console.error("Error fetching companies:", err);
+            if (user && user.role === 'Cliente') {
+                const filtered = list.filter(c => c.name?.trim().toLowerCase() === user.assignedTo?.trim().toLowerCase());
+                setCompanies(filtered);
+                if (filtered.length > 0) setExpandedCompany(filtered[0].id);
+            } else {
+                setCompanies(list);
             }
-        };
+        } catch (err) {
+            console.error("Error fetching companies:", err);
+        }
+    };
 
+    useEffect(() => {
         fetchCompanies();
     }, []);
 
@@ -97,11 +106,10 @@ export default function ClientsPage() {
         try {
             if (activeCompany) {
                 await CompanyService.update(activeCompany.id, companyForm);
-                setCompanies(companies.map(c => c.id === activeCompany.id ? { ...c, ...companyForm } : c));
             } else {
-                const newCo = await CompanyService.create(companyForm);
-                setCompanies([...companies, { ...newCo, employees: [], sedes: [] } as any]);
+                await CompanyService.create(companyForm);
             }
+            await fetchCompanies();
             setIsModalOpen(false);
             setActiveCompany(null);
         } catch (err) {
@@ -109,83 +117,166 @@ export default function ClientsPage() {
         }
     };
 
-    const handleAddEmployee = async (e: React.FormEvent) => {
+    const handleSaveEmployee = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!activeCompany) return;
         try {
-            const newEmp = await CompanyService.addEmployee({ company_id: activeCompany.id, ...employeeForm });
-            setCompanies(companies.map(c =>
-                c.id === activeCompany.id ? { ...c, employees: [...c.employees, newEmp] } : c
-            ));
+            if (editingEmployee) {
+                await CompanyService.updateEmployee(editingEmployee.id, employeeForm);
+            } else {
+                await CompanyService.addEmployee({ company_id: activeCompany.id, ...employeeForm });
+            }
+            await fetchCompanies();
             setIsEmployeeModalOpen(false);
+            setEditingEmployee(null);
             setEmployeeForm({ name: '', email: '', phone: '' });
         } catch (err) {
-            alert("Error al agregar empleado");
+            alert("Error al guardar empleado");
         }
     };
 
-    const handleAddSede = async (e: React.FormEvent) => {
+    const handleSaveSede = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!activeCompany) return;
         try {
-            const newSede = await CompanyService.addSede({ company_id: activeCompany.id, ...sedeForm });
-            setCompanies(companies.map(c =>
-                c.id === activeCompany.id ? { ...c, sedes: [...c.sedes, newSede] } : c
-            ));
+            if (editingSede) {
+                await CompanyService.updateSede(editingSede.id, sedeForm);
+            } else {
+                await CompanyService.addSede({ company_id: activeCompany.id, ...sedeForm });
+            }
+            await fetchCompanies();
             setIsSedeModalOpen(false);
+            setEditingSede(null);
             setSedeForm({ name: '', lat: '', lng: '' });
         } catch (err) {
-            alert("Error al agregar sede");
+            alert("Error al guardar sede");
         }
     };
 
     const isAdmin = currentUser?.role === 'Administrador';
     const isClient = currentUser?.role === 'Cliente';
 
+    // Filter companies
+    const filteredCompanies = companies.filter(c =>
+        c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.nit?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Stats
+    const totalCompanies = companies.length;
+    const totalEmployees = companies.reduce((acc, c) => acc + (c.employees?.length || 0), 0);
+    const totalSedes = companies.reduce((acc, c) => acc + (c.sedes?.length || 0), 0);
+
     return (
         <div className="clients-page fade-in">
-            <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <h1 style={{ fontSize: '2rem' }}>
+                    <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>
                         {isClient ? `Mi Empresa: ${currentUser?.assignedTo}` : 'Gestión de Clientes'}
                     </h1>
-                    <p style={{ color: 'var(--text-muted)' }}>
-                        {isClient ? 'Gestione sus sedes y personal autorizado' : 'Registro de organizaciones, sedes y empleados'}
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+                        {isClient ? 'Gestión central de sedes y personal autorizado' : 'Administración de organizaciones, centros de costos y usuarios finales'}
                     </p>
                 </div>
                 {isAdmin && (
                     <button className="btn btn-primary" onClick={() => { setActiveCompany(null); setCompanyForm({ name: '', nit: '', lat: '', lng: '', email: '' }); setIsModalOpen(true); }}>
-                        <Building2 size={20} /> Registrar Empresa
+                        <Plus size={20} /> Registrar Cliente
                     </button>
                 )}
             </header>
 
-            <div className="grid-layout" style={{ display: 'grid', gridTemplateColumns: isClient ? '1fr' : 'repeat(auto-fill, minmax(440px, 1fr))', gap: '2rem' }}>
-                {companies.map(company => (
-                    <div key={company.id} className="card glass client-card" style={isClient ? { maxWidth: '800px', margin: '0 auto' } : {}}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <Building2 size={24} />
+            {/* Stats Bar */}
+            {!isClient && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
+                    <div className="card glass stat-card" style={{ padding: '1.2rem', borderLeft: '4px solid var(--primary)' }}>
+                        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Total Empresas</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Building2 size={24} color="var(--primary)" />
+                            <span style={{ fontSize: '1.8rem', fontWeight: 800 }}>{totalCompanies}</span>
+                        </div>
+                    </div>
+                    <div className="card glass stat-card" style={{ padding: '1.2rem', borderLeft: '4px solid var(--secondary)' }}>
+                        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Total Empleados</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Users size={24} color="var(--secondary)" />
+                            <span style={{ fontSize: '1.8rem', fontWeight: 800 }}>{totalEmployees}</span>
+                        </div>
+                    </div>
+                    <div className="card glass stat-card" style={{ padding: '1.2rem', borderLeft: '4px solid var(--info)' }}>
+                        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Centros / Sedes</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <MapPin size={24} color="var(--info)" />
+                            <span style={{ fontSize: '1.8rem', fontWeight: 800 }}>{totalSedes}</span>
+                        </div>
+                    </div>
+                    <div className="card glass stat-card" style={{ padding: '1.2rem', borderLeft: '4px solid var(--success)', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%)' }}>
+                        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Estado Promedio</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Globe size={24} color="var(--success)" />
+                            <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--success)' }}>ACTIVOS</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Toolbar */}
+            <div className="toolbar glass" style={{ padding: '1rem', borderRadius: '12px', marginBottom: '2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                    <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <input
+                        type="text"
+                        placeholder="Buscar empresa por nombre o NIT..."
+                        className="form-input"
+                        style={{ paddingLeft: '2.5rem' }}
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <button className="btn glass" onClick={fetchCompanies}><Globe size={18} /> Actualizar</button>
+            </div>
+
+            <div className="grid-layout" style={{ display: 'grid', gridTemplateColumns: isClient ? '1fr' : 'repeat(auto-fill, minmax(450px, 1fr))', gap: '2rem' }}>
+                {filteredCompanies.map(company => (
+                    <div key={company.id} className={`card glass client-card-main ${expandedCompany === company.id ? 'expanded' : ''}`}
+                        style={{
+                            border: '1px solid var(--surface-border)',
+                            overflow: 'hidden',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            ...(isClient ? { maxWidth: '900px', margin: '0 auto' } : {})
+                        }}>
+
+                        <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: expandedCompany === company.id ? 'rgba(99, 102, 241, 0.03)' : 'transparent' }}>
+                            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                <div style={{
+                                    width: '56px', height: '56px', borderRadius: '14px',
+                                    background: 'linear-gradient(135deg, var(--primary) 0%, #4338ca 100%)',
+                                    color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)'
+                                }}>
+                                    <Building2 size={28} />
+                                </div>
+                                <div>
+                                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '4px' }}>{company.name}</h2>
+                                    <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Hash size={12} /> {company.nit}</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Mail size={12} /> {company.email || 'N/A'}</span>
+                                    </div>
+                                </div>
                             </div>
                             <div style={{ display: 'flex', gap: '8px' }}>
                                 {(isAdmin || isClient) && (
-                                    <button className="icon-btn edit" title="Editar Información" onClick={() => { setActiveCompany(company); setCompanyForm({ name: company.name, nit: company.nit || '', lat: company.lat || '', lng: company.lng || '', email: company.email || '' }); setIsModalOpen(true); }}>
+                                    <button className="icon-btn-v2 edit" title="Editar Información" onClick={() => { setActiveCompany(company); setCompanyForm({ name: company.name, nit: company.nit || '', lat: company.lat || '', lng: company.lng || '', email: company.email || '' }); setIsModalOpen(true); }}>
                                         <Edit2 size={16} />
                                     </button>
                                 )}
                                 {isAdmin && (
-                                    <button className="icon-btn delete" title="Eliminar" onClick={async () => {
-                                        if (confirm('¿Seguro que desea eliminar esta empresa?')) {
+                                    <button className="icon-btn-v2 delete" title="Eliminar" onClick={async () => {
+                                        if (confirm('¿Seguro que desea eliminar esta empresa? Todos los datos asociados (tickets, inventario, reportes) serán borrados.')) {
                                             try {
                                                 await CompanyService.delete(company.id);
                                                 setCompanies(companies.filter(c => c.id !== company.id));
                                             } catch (err: any) {
-                                                const msg = err?.message || "";
-                                                if (msg.includes("violates foreign key constraint")) {
-                                                    alert("No se puede eliminar la empresa porque tiene tickets, inventario o técnicos asociados. Limpie estos registros primero.");
-                                                } else {
-                                                    alert("Error al eliminar la empresa: " + (err.message || "Consulte la consola."));
-                                                }
+                                                alert("Error al eliminar la empresa: " + (err.message || "Falla en transacción"));
                                             }
                                         }
                                     }}>
@@ -195,143 +286,116 @@ export default function ClientsPage() {
                             </div>
                         </div>
 
-                        <h2 style={{ fontSize: '1.4rem', marginBottom: '0.4rem' }}>{company.name}</h2>
-
-                        {!isClient ? (
-                            <>
-                                <p style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
-                                    <Hash size={14} /> NIT: {company.nit}
-                                </p>
-                                <p style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
-                                    <Navigation size={14} /> Coords: {company.lat}, {company.lng}
-                                </p>
-                                <p style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
-                                    <Mail size={14} /> {company.email}
-                                </p>
-                                {company.lat && company.lng && (
-                                    <a
-                                        href={`https://www.google.com/maps?q=${company.lat},${company.lng}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 600, marginTop: '0.3rem', marginBottom: '1rem' }}
-                                    >
-                                        <Globe size={14} /> Ver en Google Maps ↗
-                                    </a>
-                                )}
-                            </>
-                        ) : (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                <p style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                                    <Hash size={14} /> NIT: {company.nit}
-                                </p>
-                                <p style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                                    <Mail size={14} /> {company.email || 'N/A'}
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Tabs */}
-                        <div style={{ display: 'flex', gap: '0', borderBottom: '2px solid var(--surface-border)', margin: '1.5rem 0 1.2rem 0' }}>
-                            {(['info', 'sedes'] as const).map(tab => (
-                                <button key={tab} onClick={() => { setExpandedCompany(company.id); setActiveTab(tab); }}
-                                    style={{
-                                        padding: '0.6rem 1rem', fontSize: '0.8rem', fontWeight: 600, border: 'none', background: 'none', cursor: 'pointer',
-                                        color: (expandedCompany === company.id && activeTab === tab) ? 'var(--primary)' : 'var(--text-muted)',
-                                        borderBottom: (expandedCompany === company.id && activeTab === tab) ? '2px solid var(--primary)' : '2px solid transparent',
-                                        marginBottom: '-2px', transition: '0.2s'
-                                    }}>
-                                    {tab === 'info' && `👥 Empleados (${company.employees?.length || 0})`}
-                                    {tab === 'sedes' && `📍 Sedes (${company.sedes?.length || 0})`}
+                        {/* Collapsed view indicator */}
+                        {expandedCompany !== company.id && (
+                            <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', gap: '20px' }}>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <p style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Empleados</p>
+                                        <p style={{ fontSize: '1rem', fontWeight: 800 }}>{company.employees?.length || 0}</p>
+                                    </div>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <p style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Sedes</p>
+                                        <p style={{ fontSize: '1rem', fontWeight: 800 }}>{company.sedes?.length || 0}</p>
+                                    </div>
+                                </div>
+                                <button className="btn glass" style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }} onClick={() => setExpandedCompany(company.id)}>
+                                    Gestionar Detalles <ChevronRight size={14} />
                                 </button>
-                            ))}
-                        </div>
-
-                        {/* Employees Tab */}
-                        {expandedCompany === company.id && activeTab === 'info' && (
-                            <div className="tab-content fade-in">
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.8rem' }}>
-                                    <button className="btn glass" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }} onClick={() => { setActiveCompany(company); setIsEmployeeModalOpen(true); }}>
-                                        <Plus size={14} /> Agregar Empleado
-                                    </button>
-                                </div>
-                                <div style={{ display: 'grid', gap: '0.5rem' }}>
-                                    {(!company.employees || company.employees.length === 0) ? (
-                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', padding: '1rem', textAlign: 'center' }}>Sin empleados registrados</p>
-                                    ) : (
-                                        company.employees.map(emp => (
-                                            <div key={emp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-alt)', padding: '0.6rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--surface-border)' }}>
-                                                <div>
-                                                    <p style={{ fontWeight: 600, fontSize: '0.9rem' }}>{emp.name}</p>
-                                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{emp.email} · {emp.phone}</p>
-                                                </div>
-                                                <button onClick={async () => {
-                                                    if (confirm('¿Eliminar empleado?')) {
-                                                        try {
-                                                            await CompanyService.deleteEmployee(emp.id);
-                                                            const updatedEmps = company.employees.filter(e => e.id !== emp.id);
-                                                            setCompanies(companies.map(c => c.id === company.id ? { ...c, employees: updatedEmps } : c));
-                                                        } catch (err: any) {
-                                                            const msg = err?.message || "";
-                                                            if (msg.includes("violates foreign key constraint")) {
-                                                                alert("No se puede eliminar el empleado porque tiene registros asociados (tickets o reportes).");
-                                                            } else {
-                                                                alert("Error al eliminar: " + msg);
-                                                            }
-                                                        }
-                                                    }
-                                                }} style={{ color: 'var(--error)', opacity: 0.6 }}>
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
                             </div>
                         )}
 
-                        {/* Sedes Tab */}
-                        {expandedCompany === company.id && activeTab === 'sedes' && (
-                            <div className="tab-content fade-in">
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.8rem' }}>
-                                    <button className="btn glass" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }} onClick={() => { setActiveCompany(company); setIsSedeModalOpen(true); }}>
-                                        <MapPinned size={14} /> Nueva Sede
+                        {expandedCompany === company.id && (
+                            <div className="expanded-content fade-in" style={{ padding: '0 1.5rem 1.5rem 1.5rem' }}>
+                                {/* Location Info */}
+                                <div style={{ background: 'rgba(0,0,0,0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--surface-border)', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div style={{ display: 'flex', gap: '1.5rem' }}>
+                                        <div>
+                                            <p style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '2px' }}>Coordenadas Principales</p>
+                                            <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>{company.lat || '0.0'}, {company.lng || '0.0'}</p>
+                                        </div>
+                                        {company.lat && company.lng && (
+                                            <a href={`https://www.google.com/maps?q=${company.lat},${company.lng}`} target="_blank" rel="noopener noreferrer" className="btn glass" style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <Navigation size={14} /> Abrir Mapa
+                                            </a>
+                                        )}
+                                    </div>
+                                    <button className="btn glass" style={{ fontSize: '0.75rem' }} onClick={() => setExpandedCompany(null)}>Cerrar</button>
+                                </div>
+
+                                {/* Tabs Navigation */}
+                                <div style={{ display: 'flex', gap: '8px', marginBottom: '1.2rem', borderBottom: '1px solid var(--surface-border)' }}>
+                                    <button onClick={() => setActiveTab('info')} className={`tab-btn-v2 ${activeTab === 'info' ? 'active' : ''}`}>
+                                        <Users size={16} /> Personal Autorizado ({company.employees?.length || 0})
+                                    </button>
+                                    <button onClick={() => setActiveTab('sedes')} className={`tab-btn-v2 ${activeTab === 'sedes' ? 'active' : ''}`}>
+                                        <MapPin size={16} /> Sedes / Sucursales ({company.sedes?.length || 0})
                                     </button>
                                 </div>
-                                <div style={{ display: 'grid', gap: '0.8rem' }}>
-                                    {(!company.sedes || company.sedes.length === 0) ? (
-                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', padding: '1rem', textAlign: 'center' }}>Sin sedes registradas</p>
-                                    ) : (
-                                        company.sedes.map(sede => (
-                                            <div key={sede.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(13, 148, 136, 0.05)', padding: '0.8rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(13,148,136,0.15)' }}>
-                                                <div>
-                                                    <p style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem' }}>
-                                                        <MapPin size={14} color="var(--secondary)" /> {sede.name}
-                                                    </p>
-                                                    <a href={`https://www.google.com/maps?q=${sede.lat},${sede.lng}`} target="_blank" rel="noopener noreferrer"
-                                                        style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 600, marginTop: '4px', display: 'block' }}>
-                                                        Ver Ubicación ↗
-                                                    </a>
-                                                </div>
-                                                <button onClick={async () => {
-                                                    if (confirm('¿Eliminar sede?')) {
-                                                        try {
-                                                            await CompanyService.deleteSede(sede.id);
-                                                            const updatedSedes = company.sedes.filter(s => s.id !== sede.id);
-                                                            setCompanies(companies.map(c => c.id === company.id ? { ...c, sedes: updatedSedes } : c));
-                                                        } catch (err: any) {
-                                                            const msg = err?.message || "";
-                                                            if (msg.includes("violates foreign key constraint")) {
-                                                                alert("No se puede eliminar la sede porque tiene visitas o registros asociados.");
-                                                            } else {
-                                                                alert("Error al eliminar: " + msg);
-                                                            }
-                                                        }
-                                                    }
-                                                }} style={{ color: 'var(--error)', opacity: 0.6 }}>
-                                                    <Trash2 size={14} />
+
+                                {/* Tab Panels */}
+                                <div style={{ minHeight: '150px' }}>
+                                    {activeTab === 'info' ? (
+                                        <div className="fade-in">
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Lista de Empleados</h3>
+                                                <button className="btn btn-primary" style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem' }} onClick={() => { setActiveCompany(company); setEditingEmployee(null); setEmployeeForm({ name: '', email: '', phone: '' }); setIsEmployeeModalOpen(true); }}>
+                                                    <Plus size={14} /> Nuevo Registro
                                                 </button>
                                             </div>
-                                        ))
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                                                {company.employees?.map(emp => (
+                                                    <div key={emp.id} className="item-row glass">
+                                                        <div style={{ flex: 1 }}>
+                                                            <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>{emp.name}</p>
+                                                            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{emp.email} · {emp.phone || 'Sin tel'}</p>
+                                                        </div>
+                                                        <div style={{ display: 'flex', gap: '4px' }}>
+                                                            <button onClick={() => { setEditingEmployee(emp); setActiveCompany(company); setEmployeeForm({ name: emp.name, email: emp.email, phone: emp.phone || '' }); setIsEmployeeModalOpen(true); }} className="mini-icon-btn"><Edit2 size={12} /></button>
+                                                            <button onClick={async () => {
+                                                                if (confirm('¿Eliminar empleado?')) {
+                                                                    await CompanyService.deleteEmployee(emp.id);
+                                                                    fetchCompanies();
+                                                                }
+                                                            }} className="mini-icon-btn delete"><Trash2 size={12} /></button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {(!company.employees || company.employees.length === 0) && <p className="empty-msg">No hay personal registrado</p>}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="fade-in">
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Sedes Autorizadas</h3>
+                                                <button className="btn btn-primary" style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem' }} onClick={() => { setActiveCompany(company); setEditingSede(null); setSedeForm({ name: '', lat: '', lng: '' }); setIsSedeModalOpen(true); }}>
+                                                    <Plus size={14} /> Nueva Sede
+                                                </button>
+                                            </div>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                                                {company.sedes?.map(sede => (
+                                                    <div key={sede.id} className="item-row glass" style={{ borderColor: 'rgba(13, 148, 136, 0.2)' }}>
+                                                        <div style={{ flex: 1 }}>
+                                                            <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>{sede.name}</p>
+                                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>📍 {sede.lat}, {sede.lng}</span>
+                                                                <a href={`https://www.google.com/maps?q=${sede.lat},${sede.lng}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 700 }}>Map ↗</a>
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ display: 'flex', gap: '4px' }}>
+                                                            <button onClick={() => { setEditingSede(sede); setActiveCompany(company); setSedeForm({ name: sede.name, lat: sede.lat || '', lng: sede.lng || '' }); setIsSedeModalOpen(true); }} className="mini-icon-btn"><Edit2 size={12} /></button>
+                                                            <button onClick={async () => {
+                                                                if (confirm('¿Eliminar sede?')) {
+                                                                    await CompanyService.deleteSede(sede.id);
+                                                                    fetchCompanies();
+                                                                }
+                                                            }} className="mini-icon-btn delete"><Trash2 size={12} /></button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {(!company.sedes || company.sedes.length === 0) && <p className="empty-msg">No hay sedes registradas</p>}
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -340,108 +404,147 @@ export default function ClientsPage() {
                 ))}
             </div>
 
-            {isModalOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '5vh 1rem', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
-                    <div style={{ width: '100%', maxWidth: '500px', background: '#ffffff', padding: '2rem', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.25)', border: '1px solid #e2e8f0' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#1e293b', fontFamily: 'Outfit, sans-serif' }}>{isClient ? 'Mi Información' : (activeCompany ? 'Editar Empresa' : 'Nueva Empresa')}</h2>
-                            <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={22} /></button>
+            {/* Modals */}
+            <ModalPortal>
+                {isModalOpen && (
+                    <div className="modal-overlay">
+                        <div className="modal-content-glass">
+                            <header className="modal-header">
+                                <h2>{activeCompany ? 'Editar Empresa' : 'Nuevo Cliente Corporativo'}</h2>
+                                <button onClick={() => setIsModalOpen(false)} className="close-btn"><X size={22} /></button>
+                            </header>
+                            <form onSubmit={handleSaveCompany} className="modal-form">
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label>Nombre Legal / Comercial *</label>
+                                        <input type="text" value={companyForm.name} onChange={e => setCompanyForm({ ...companyForm, name: e.target.value })} required placeholder="Ej: Tech Corp S.A." disabled={isClient} className="form-input" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>NIT / Identificación *</label>
+                                        <input type="text" value={companyForm.nit} onChange={e => setCompanyForm({ ...companyForm, nit: e.target.value })} required placeholder="Ej: 900.123.456-7" disabled={isClient} className="form-input" />
+                                    </div>
+                                    <div className="form-group full">
+                                        <label>Email de Notificaciones *</label>
+                                        <input type="email" value={companyForm.email} onChange={e => setCompanyForm({ ...companyForm, email: e.target.value })} required placeholder="it-manager@empresa.com" className="form-input" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Latitud (Oficina Principal)</label>
+                                        <input type="text" value={companyForm.lat} onChange={e => setCompanyForm({ ...companyForm, lat: e.target.value })} placeholder="4.7110" className="form-input" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Longitud (Oficina Principal)</label>
+                                        <input type="text" value={companyForm.lng} onChange={e => setCompanyForm({ ...companyForm, lng: e.target.value })} placeholder="-74.0721" className="form-input" />
+                                    </div>
+                                </div>
+                                <div className="modal-actions">
+                                    <button type="button" className="btn glass" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+                                    <button type="submit" className="btn btn-primary"><Save size={18} /> Guardar Cambios</button>
+                                </div>
+                            </form>
                         </div>
-                        <form onSubmit={handleSaveCompany}>
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.4rem', color: '#64748b' }}>Nombre Comercial *</label>
-                                <input type="text" value={companyForm.name} onChange={e => setCompanyForm({ ...companyForm, name: e.target.value })} disabled={isClient} required placeholder="Ej: Empresa XYZ S.A.S"
-                                    style={{ display: 'block', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#1e293b', fontFamily: 'inherit', fontSize: '0.95rem', boxSizing: 'border-box' }} />
-                            </div>
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.4rem', color: '#64748b' }}>NIT *</label>
-                                <input type="text" value={companyForm.nit} onChange={e => setCompanyForm({ ...companyForm, nit: e.target.value })} disabled={isClient} required placeholder="Ej: 900123456-1"
-                                    style={{ display: 'block', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#1e293b', fontFamily: 'inherit', fontSize: '0.95rem', boxSizing: 'border-box' }} />
-                            </div>
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.4rem', color: '#64748b' }}>Correo Corporativo *</label>
-                                <input type="email" value={companyForm.email} onChange={e => setCompanyForm({ ...companyForm, email: e.target.value })} required placeholder="correo@empresa.com"
-                                    style={{ display: 'block', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#1e293b', fontFamily: 'inherit', fontSize: '0.95rem', boxSizing: 'border-box' }} />
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.4rem', color: '#64748b' }}>Latitud</label>
-                                    <input type="text" value={companyForm.lat} onChange={e => setCompanyForm({ ...companyForm, lat: e.target.value })} placeholder="Ej: 4.7110"
-                                        style={{ display: 'block', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#1e293b', fontFamily: 'inherit', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                    </div>
+                )}
+
+                {isEmployeeModalOpen && (
+                    <div className="modal-overlay">
+                        <div className="modal-content-glass tiny">
+                            <header className="modal-header">
+                                <h2>{editingEmployee ? 'Editar Empleado' : 'Asignar Nuevo Empleado'}</h2>
+                                <button onClick={() => setIsEmployeeModalOpen(false)} className="close-btn"><X size={20} /></button>
+                            </header>
+                            <form onSubmit={handleSaveEmployee} className="modal-form">
+                                <div className="form-group">
+                                    <label>Nombre Completo *</label>
+                                    <input type="text" className="form-input" value={employeeForm.name} onChange={e => setEmployeeForm({ ...employeeForm, name: e.target.value })} required />
                                 </div>
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.4rem', color: '#64748b' }}>Longitud</label>
-                                    <input type="text" value={companyForm.lng} onChange={e => setCompanyForm({ ...companyForm, lng: e.target.value })} placeholder="Ej: -74.0721"
-                                        style={{ display: 'block', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#1e293b', fontFamily: 'inherit', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                                <div className="form-group">
+                                    <label>Email Corporativo *</label>
+                                    <input type="email" className="form-input" value={employeeForm.email} onChange={e => setEmployeeForm({ ...employeeForm, email: e.target.value })} required />
                                 </div>
-                            </div>
-                            <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                                <Save size={18} /> Guardar Cambios
-                            </button>
-                        </form>
+                                <div className="form-group">
+                                    <label>Teléfono / Celular</label>
+                                    <input type="text" className="form-input" value={employeeForm.phone} onChange={e => setEmployeeForm({ ...employeeForm, phone: e.target.value })} />
+                                </div>
+                                <div className="modal-actions">
+                                    <button type="submit" className="btn btn-primary full"><Save size={18} /> {editingEmployee ? 'Actualizar' : 'Registrar'}</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-
-            {isEmployeeModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal-content glass">
-                        <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                            <h2>Agregar Empleado</h2>
-                            <button onClick={() => setIsEmployeeModalOpen(false)}><X size={24} /></button>
-                        </header>
-                        <form onSubmit={handleAddEmployee} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                            <div className="form-group">
-                                <label>Nombre</label>
-                                <input type="text" className="form-input" value={employeeForm.name} onChange={e => setEmployeeForm({ ...employeeForm, name: e.target.value })} required />
-                            </div>
-                            <div className="form-group">
-                                <label>Email</label>
-                                <input type="email" className="form-input" value={employeeForm.email} onChange={e => setEmployeeForm({ ...employeeForm, email: e.target.value })} required />
-                            </div>
-                            <div className="form-group">
-                                <label>Teléfono</label>
-                                <input type="text" className="form-input" value={employeeForm.phone} onChange={e => setEmployeeForm({ ...employeeForm, phone: e.target.value })} />
-                            </div>
-                            <button type="submit" className="btn btn-primary"><Save size={20} /> Registrar</button>
-                        </form>
+                {isSedeModalOpen && (
+                    <div className="modal-overlay">
+                        <div className="modal-content-glass tiny">
+                            <header className="modal-header">
+                                <h2>{editingSede ? 'Editar Sede' : 'Registrar Nueva Sede'}</h2>
+                                <button onClick={() => setIsSedeModalOpen(false)} className="close-btn"><X size={20} /></button>
+                            </header>
+                            <form onSubmit={handleSaveSede} className="modal-form">
+                                <div className="form-group">
+                                    <label>Nombre de la Sede *</label>
+                                    <input type="text" className="form-input" value={sedeForm.name} onChange={e => setSedeForm({ ...sedeForm, name: e.target.value })} required placeholder="Ej: Planta Norte, Oficina Calle 100" />
+                                </div>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label>Latitud *</label>
+                                        <input type="text" className="form-input" value={sedeForm.lat} onChange={e => setSedeForm({ ...sedeForm, lat: e.target.value })} required />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Longitud *</label>
+                                        <input type="text" className="form-input" value={sedeForm.lng} onChange={e => setSedeForm({ ...sedeForm, lng: e.target.value })} required />
+                                    </div>
+                                </div>
+                                <div className="modal-actions">
+                                    <button type="submit" className="btn btn-primary full"><Save size={18} /> {editingSede ? 'Actualizar Sede' : 'Guardar Sede'}</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
-
-            {isSedeModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal-content glass">
-                        <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                            <h2>Nueva Sede</h2>
-                            <button onClick={() => setIsSedeModalOpen(false)}><X size={24} /></button>
-                        </header>
-                        <form onSubmit={handleAddSede} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                            <div className="form-group">
-                                <label>Nombre Sede</label>
-                                <input type="text" className="form-input" value={sedeForm.name} onChange={e => setSedeForm({ ...sedeForm, name: e.target.value })} required />
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <input type="text" className="form-input" placeholder="Latitud" value={sedeForm.lat} onChange={e => setSedeForm({ ...sedeForm, lat: e.target.value })} required />
-                                <input type="text" className="form-input" placeholder="Longitud" value={sedeForm.lng} onChange={e => setSedeForm({ ...sedeForm, lng: e.target.value })} required />
-                            </div>
-                            <button type="submit" className="btn btn-primary"><Save size={20} /> Guardar</button>
-                        </form>
-                    </div>
-                </div>
-            )}
+                )}
+            </ModalPortal>
 
             <style jsx>{`
-                .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 3vh 1rem; z-index: 1000; backdrop-filter: blur(4px); }
-                .modal-content { width: 100%; max-width: 500px; background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); box-shadow: 0 20px 50px rgba(0,0,0,0.2); margin: auto; }
-                .form-group label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-muted); }
-                .form-input { width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--surface-border); background: var(--surface); color: var(--text-main); font-family: inherit; font-size: 0.95rem; box-sizing: border-box; }
-                .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
-                .icon-btn { padding: 0.4rem; border-radius: 4px; color: var(--text-muted); }
-                .icon-btn:hover { color: var(--primary); background: rgba(99, 102, 241, 0.05); }
-                .client-card { border: 1px solid var(--surface-border); }
-                .tab-content { min-height: 60px; }
+                .clients-page { max-width: 1400px; margin: 0 auto; }
+                .stat-card { transition: transform 0.2s; }
+                .stat-card:hover { transform: translateY(-3px); }
+                .icon-btn-v2 { padding: 8px; border-radius: 10px; background: rgba(0,0,0,0.02); color: var(--text-muted); transition: 0.2s; border: 1px solid transparent; }
+                .icon-btn-v2:hover { color: var(--primary); background: var(--primary-glow); border-color: var(--primary); }
+                .icon-btn-v2.delete:hover { color: var(--error); background: rgba(239, 68, 68, 0.05); border-color: var(--error); }
+                
+                .tab-btn-v2 { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; background: none; cursor: pointer; color: var(--text-muted); font-size: 0.85rem; font-weight: 700; border-bottom: 3px solid transparent; transition: 0.2s; }
+                .tab-btn-v2.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--primary-glow); border-radius: 8px 8px 0 0; }
+                
+                .item-row { display: flex; align-items: center; padding: 10px 14px; background: rgba(0,0,0,0.02); border: 1px solid var(--surface-border); borderRadius: 10px; transition: 0.2s; }
+                .item-row:hover { background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+                
+                .mini-icon-btn { padding: 4px; border-radius: 6px; color: var(--text-muted); opacity: 0.6; transition: 0.2s; }
+                .mini-icon-btn:hover { opacity: 1; background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+                .mini-icon-btn.delete:hover { color: var(--error); background: rgba(239, 68, 68, 0.1); }
+                
+                .empty-msg { grid-column: span 2; padding: 2rem; color: var(--text-muted); text-align: center; font-style: italic; font-size: 0.85rem; }
+                
+                .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); display: flex; align-items: center; justifyContent: center; z-index: 9999; }
+                .modal-content-glass { background: white; border: 1px solid rgba(255,255,255,0.2); borderRadius: 24px; box-shadow: 0 40px 100px rgba(0,0,0,0.3); width: 600px; padding: 2.5rem; }
+                .modal-content-glass.tiny { width: 420px; }
+                .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+                .modal-header h2 { margin: 0; font-size: 1.4rem; fontWeight: 800; color: #1e293b; }
+                
+                .modal-form { display: flex; flex-direction: column; gap: 1.5rem; }
+                .form-grid { display: grid; gridTemplateColumns: 1fr 1fr; gap: 1.2rem; }
+                .form-group.full { grid-column: span 2; }
+                .form-group label { display: block; font-size: 0.82rem; fontWeight: 700; color: #64748b; margin-bottom: 0.5rem; textTransform: uppercase; }
+                .form-input { width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; background: #f8fafc; borderRadius: 12px; color: #1e293b; font-family: inherit; font-size: 0.95rem; box-sizing: border-box; }
+                .form-input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 4px var(--primary-glow); }
+                
+                .modal-actions { display: flex; gap: 12px; margin-top: 1rem; }
+                .btn.full { width: 100%; justifyContent: center; padding: 14px; }
+                
+                .close-btn { background: #f1f5f9; border: none; borderRadius: 10px; padding: 5px; cursor: pointer; color: #64748b; transition: 0.2s; }
+                .close-btn:hover { background: #fee2e2; color: #ef4444; }
+                
+                .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
             `}</style>
         </div>
     );

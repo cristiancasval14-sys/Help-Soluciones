@@ -51,7 +51,7 @@ export default function KnowledgeBase() {
         const fetchArticles = async () => {
             try {
                 const data = await KnowledgeBaseService.getAll();
-                const mapped = data.map((a: any) => ({
+                const mapped: Article[] = data.map((a: any) => ({
                     id: a.id,
                     kbId: a.kb_id,
                     title: a.title,
@@ -66,7 +66,39 @@ export default function KnowledgeBase() {
                     notHelpful: a.not_helpful,
                     pinned: !!a.pinned
                 }));
-                setArticles(mapped as Article[]);
+
+                // If empty, add some common solutions as examples
+                if (mapped.length === 0) {
+                    const examples: Article[] = [
+                        {
+                            id: 'ex1', kbId: 'KB-101', title: 'Problemas de Conexión a Internet (Wi-Fi/LAN)', category: 'redes',
+                            tags: ['internet', 'red', 'wifi'], author: 'Soporte Help', views: 45, helpful: 12, notHelpful: 0, pinned: true,
+                            createdAt: '2024-03-20', updatedAt: '2024-03-20',
+                            content: '1. Verifique que el cable de red esté conectado correctamente.\n2. Reinicie el router o switch de su área.\n3. Verifique que el adaptador de red esté habilitado en Panel de Control.\n4. Ejecute el comando ipconfig /release y ipconfig /renew en la terminal.'
+                        },
+                        {
+                            id: 'ex2', kbId: 'KB-102', title: 'Impresora no responde o está en cola', category: 'impresoras',
+                            tags: ['impresora', 'cola', 'print'], author: 'Soporte Help', views: 82, helpful: 24, notHelpful: 2, pinned: false,
+                            createdAt: '2024-03-21', updatedAt: '2024-03-21',
+                            content: '1. Verifique que la impresora esté encendida y tenga papel.\n2. Reinicie el servicio de "Cola de impresión" (Spooler) en Windows Services.\n3. Asegúrese de que no haya documentos atascados en la bandeja física.'
+                        },
+                        {
+                            id: 'ex3', kbId: 'KB-103', title: 'Configuración de Correo en Outlook', category: 'email',
+                            tags: ['outlook', 'correo', 'config'], author: 'Soporte Help', views: 120, helpful: 50, notHelpful: 1, pinned: false,
+                            createdAt: '2024-03-22', updatedAt: '2024-03-22',
+                            content: 'Para configurar su correo corporativo:\n1. Abra Outlook > Archivo > Agregar cuenta.\n2. Ingrese su dirección de correo completa.\n3. Seleccione IMAP/POP según las instrucciones enviadas por IT.\n4. Servidor de entrada: mail.empresa.com (Puerto 993 SSL).\n5. Servidor de salida: mail.empresa.com (Puerto 465 SSL).'
+                        },
+                        {
+                            id: 'ex4', kbId: 'KB-104', title: 'El equipo no enciende o pantalla negra', category: 'hardware',
+                            tags: ['energia', 'pc', 'hardware'], author: 'Soporte Help', views: 30, helpful: 5, notHelpful: 0, pinned: false,
+                            createdAt: '2024-03-23', updatedAt: '2024-03-23',
+                            content: '1. Verifique la conexión a la toma de corriente.\n2. Pruebe con otro cable de poder si es posible.\n3. Mantenga presionado el botón de encendido por 30 segundos (descarga estática).\n4. Si es portátil, verifique si el indicador de carga del adaptador enciende.'
+                        }
+                    ];
+                    setArticles(examples);
+                } else {
+                    setArticles(mapped);
+                }
             } catch (err) {
                 console.error("Error connecting to Supabase KB:", err);
             }

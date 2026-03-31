@@ -73,8 +73,14 @@ export default function CalendarPage() {
         status: 'Programada' as Visit['status']
     });
 
+    const [currentUser, setCurrentUser] = useState<any>(null);
+
     // Load data
     useEffect(() => {
+        const session = localStorage.getItem('help_session');
+        const user = session ? JSON.parse(session) : null;
+        setCurrentUser(user);
+
         const fetchData = async () => {
             let loadedStaff: Staff[] = [];
             try {
@@ -99,7 +105,7 @@ export default function CalendarPage() {
 
             try {
                 const visitData = await VisitService.getAll();
-                setVisits(visitData.map((v: any) => {
+                let visitsList = visitData.map((v: any) => {
                     const tech = loadedStaff.find(s => s.id === v.technician_id);
                     return {
                         id: v.id,
@@ -117,7 +123,21 @@ export default function CalendarPage() {
                         lng: v.lng,
                         isAllDay: v.is_all_day
                     };
-                }));
+                });
+
+                // --- Technician Role Logic ---
+                if (user && user.role === 'Personal') {
+                    // Find the staff entry for this user
+                    const staffMember = loadedStaff.find(s =>
+                        `${s.firstName} ${s.lastName}`.trim().toLowerCase() === user.assignedTo?.trim().toLowerCase()
+                    );
+                    if (staffMember) {
+                        visitsList = visitsList.filter(v => v.technicianId === staffMember.id);
+                        setFilterTechnician(staffMember.id);
+                    }
+                }
+
+                setVisits(visitsList);
             } catch (err: any) {
                 console.error("Error loading visits:", err);
             }
@@ -260,17 +280,20 @@ export default function CalendarPage() {
         .filter(v => v.date >= todayStr && v.status !== 'Cancelada')
         .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
         .slice(0, 5);
+    const isAdmin = currentUser?.role === 'Administrador';
 
     return (
         <div className="calendar-page fade-in">
             <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <h1 style={{ fontSize: '2rem' }}>Asignar Visita</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Programación y asignación de visitas técnicas a empresas</p>
+                    <h1 style={{ fontSize: '2rem' }}>{isAdmin ? 'Asignar Visita' : 'Mis Visitas Técnicas'}</h1>
+                    <p style={{ color: 'var(--text-muted)' }}>{isAdmin ? 'Programación y asignación de visitas técnicas a empresas' : 'Visualización de sus visitas programadas'}</p>
                 </div>
-                <button className="btn btn-primary" onClick={() => openNewVisit(todayStr)}>
-                    <Plus size={20} /> Nueva Visita
-                </button>
+                {isAdmin && (
+                    <button className="btn btn-primary" onClick={() => openNewVisit(todayStr)}>
+                        <Plus size={20} /> Nueva Visita
+                    </button>
+                )}
             </header>
 
             {/* Toolbar */}
@@ -287,14 +310,15 @@ export default function CalendarPage() {
                     <div style={{ display: 'flex', gap: '4px' }}>
                         <button onClick={() => setViewMode('month')} className={`view-btn ${viewMode === 'month' ? 'active' : ''}`}>Mes</button>
                         <button onClick={() => setViewMode('week')} className={`view-btn ${viewMode === 'week' ? 'active' : ''}`}>Semana</button>
-                        <button onClick={() => setViewMode('day')} className={`view-btn ${viewMode === 'day' ? 'active' : ''}`}>Día</button>
                     </div>
-                    <select className="filter-select" value={filterTechnician} onChange={e => setFilterTechnician(e.target.value)}>
-                        <option value="">Todos los técnicos</option>
-                        {staff.map(s => (
-                            <option key={s.id} value={s.id}>{s.firstName} {s.lastName}</option>
-                        ))}
-                    </select>
+                    {isAdmin && (
+                        <select className="filter-select" value={filterTechnician} onChange={e => setFilterTechnician(e.target.value)}>
+                            <option value="">Todos los técnicos</option>
+                            {staff.map(s => (
+                                <option key={s.id} value={s.id}>{s.firstName} {s.lastName}</option>
+                            ))}
+                        </select>
+                    )}
                 </div>
             </div>
 
@@ -316,19 +340,29 @@ export default function CalendarPage() {
                                     const isToday = dateStr === todayStr;
                                     return (
                                         <div key={dateStr} className={`calendar-cell ${isToday ? 'today' : ''} ${dayVisits.length > 0 ? 'has-visits' : ''}`}
-                                            onClick={() => openNewVisit(dateStr)}>
+                                            onClick={() => isAdmin && openNewVisit(dateStr)} style={{ cursor: isAdmin ? 'pointer' : 'default' }}>
                                             <span className={`day-number ${isToday ? 'today-badge' : ''}`}>{day}</span>
                                             {dayVisits.slice(0, 3).map(v => (
                                                 <div key={v.id} className="visit-pill"
                                                     style={{ background: statusColors[v.status]?.bg, color: statusColors[v.status]?.color, borderLeft: `3px solid ${statusColors[v.status]?.color}` }}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        setSelectedVisit(v);
-                                                        setVisitForm({
-                                                            date: v.date, time: v.time, isAllDay: !!v.isAllDay, technicianId: v.technicianId,
-                                                            companyId: v.companyId, sedeId: v.sedeId || '', description: v.description, status: v.status
-                                                        });
-                                                        setIsModalOpen(true);
+                                                        if (isAdmin) {
+                                                            setSelectedVisit(v);
+                                                            setVisitForm({
+                                                                date: v.date, time: v.time, isAllDay: !!v.isAllDay, technicianId: v.technicianId,
+                                                                companyId: v.companyId, sedeId: v.sedeId || '', description: v.description, status: v.status
+                                                            });
+                                                            setIsModalOpen(true);
+                                                        } else {
+                                                            // For tech, maybe just show details (future)
+                                                            setSelectedVisit(v);
+                                                            setVisitForm({
+                                                                date: v.date, time: v.time, isAllDay: !!v.isAllDay, technicianId: v.technicianId,
+                                                                companyId: v.companyId, sedeId: v.sedeId || '', description: v.description, status: v.status
+                                                            });
+                                                            setIsModalOpen(true); // Open modal read-only
+                                                        }
                                                     }}>
                                                     <span style={{ fontSize: '0.6rem', fontWeight: 700 }}>{v.isAllDay ? 'Todo el día' : v.time}</span>
                                                     <span style={{ fontSize: '0.6rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.companyName}</span>
@@ -450,7 +484,7 @@ export default function CalendarPage() {
                                                 ))}
                                             </div>
                                         </React.Fragment>
-                                    );
+                                    )
                                 })}
                             </div>
                         </div>
