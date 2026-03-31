@@ -222,7 +222,16 @@ export default function Dashboard() {
             {/* Ticket Detail Modal (The "Desplegar" functionality) */}
             {isDetailOpen && selectedTicket && (
                 <div className="modal-overlay fade-in" onClick={() => setIsDetailOpen(false)}>
-                    <div className="modal-content glass" onClick={e => e.stopPropagation()} style={{ width: '600px', padding: '0', overflow: 'hidden' }}>
+                    <div 
+                        className="modal-content glass" 
+                        onClick={e => e.stopPropagation()} 
+                        style={{ 
+                            width: '650px', 
+                            padding: '0', 
+                            maxHeight: '90vh', 
+                            overflowY: 'auto'
+                        }}
+                    >
                         <header style={{
                             padding: '2rem',
                             background: 'linear-gradient(to right, rgba(99, 102, 241, 0.05), transparent)',
@@ -334,8 +343,9 @@ export default function Dashboard() {
                                 </div>
                             </div>
 
-                            {selectedTicket.imageUrl && (
-                                <div style={{ border: '1px solid var(--surface-border)', borderRadius: '12px', overflow: 'hidden' }}>
+                            {/* Evidence Image Block */}
+                            {selectedTicket.imageUrl && selectedTicket.imageUrl.length > 5 && (
+                                <div style={{ border: '1px solid var(--surface-border)', borderRadius: '12px', overflow: 'hidden', marginTop: '1rem' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.8rem 1.5rem', background: 'var(--surface-alt)', borderBottom: '1px solid var(--surface-border)' }}>
                                         <p style={{ fontSize: '0.75rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
                                             <ImageIcon size={14} /> EVIDENCIA ADJUNTA
@@ -344,13 +354,19 @@ export default function Dashboard() {
                                             Ampliar Imagen
                                         </button>
                                     </div>
-                                    <img 
-                                        src={selectedTicket.imageUrl} 
-                                        alt="Evidencia del ticket" 
-                                        style={{ width: '100%', display: 'block', maxHeight: '400px', objectFit: 'contain', background: 'var(--surface-alt)', cursor: 'zoom-in' }} 
-                                        onClick={() => setIsImageFullscreen(true)} 
-                                        title="Haga clic para ampliar" 
-                                    />
+                                    <div style={{ background: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+                                        <img 
+                                            src={selectedTicket.imageUrl} 
+                                            alt="Evidencia del ticket" 
+                                            style={{ maxWidth: '100%', maxHeight: '500px', display: 'block', objectFit: 'contain', cursor: 'zoom-in' }} 
+                                            onClick={() => setIsImageFullscreen(true)} 
+                                            title="Haga clic para ampliar"
+                                            onError={(e) => {
+                                                console.error("Image display error");
+                                                e.currentTarget.style.display = 'none';
+                                            }}
+                                        />
+                                    </div>
                                 </div>
                             )}
                         </div>
