@@ -122,10 +122,10 @@ export default function ServiceReports() {
                     // Build activities text from ticket info
                     let activitiesText = '';
                     if (description) {
-                        activitiesText = `Descripci√≥n del ticket: ${description}`;
+                        activitiesText = `Descripci+¶n del ticket: ${description}`;
                     }
                     if (techNotes) {
-                        activitiesText += activitiesText ? `\n\nNotas del t√©cnico: ${techNotes}` : `Notas del t√©cnico: ${techNotes}`;
+                        activitiesText += activitiesText ? `\n\nNotas del t+Æcnico: ${techNotes}` : `Notas del t+Æcnico: ${techNotes}`;
                     }
 
                     setFormData(prev => ({
@@ -175,7 +175,7 @@ export default function ServiceReports() {
 
     // Filter inventory based on selected client and strictly selected user
     const filteredInventory = inventory.filter(inv => {
-        // Si no hay usuario seleccionado, no mostrar ning√∫n equipo
+        // Si no hay usuario seleccionado, no mostrar ning+¶n equipo
         if (!formData.user) return false;
 
         const itemClient = inv.clientName || inv.company?.name;
@@ -184,7 +184,7 @@ export default function ServiceReports() {
         // Validar que pertenezca al cliente correcto
         if (formData.client && itemClient !== (selectedClientObj?.name || formData.client)) return false;
         
-        // Mostrar estrictamente el equipo que est√° asignado a la persona seleccionada
+        // Mostrar estrictamente el equipo que est+Ì asignado a la persona seleccionada
         if (itemEmployee !== formData.user) return false;
 
         return true;
@@ -200,7 +200,7 @@ export default function ServiceReports() {
     };
 
     const handleDeleteReport = async (id: string, reportId: string) => {
-        if (!confirm(`¬øEstas seguro de eliminar el reporte ${reportId}? Esta accion no se puede deshacer.`)) return;
+        if (!confirm(`-+Estas seguro de eliminar el reporte ${reportId}? Esta accion no se puede deshacer.`)) return;
         try {
             await ServiceReportService.delete(id);
             setReports(prev => prev.filter(r => r.id !== id));
@@ -292,7 +292,7 @@ export default function ServiceReports() {
                     <CheckCircle2 size={40} />
                 </div>
                 <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>Reporte Generado</h1>
-                <p style={{ color: 'var(--text-muted)' }}>El reporte de servicio t√©cnico ha sido registrado exitosamente.</p>
+                <p style={{ color: 'var(--text-muted)' }}>El reporte de servicio t+Æcnico ha sido registrado exitosamente.</p>
                 <button className="btn btn-primary" style={{ marginTop: '2rem' }} onClick={() => setSuccess(false)}>
                     Registrar Nuevo Reporte
                 </button>
@@ -304,8 +304,8 @@ export default function ServiceReports() {
         <div className="service-reports-page fade-in">
             <header style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                    <h1 style={{ fontSize: '2rem' }}>Reporte T√©cnico</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Registro y control de actividades, mantenimientos y cambios f√≠sicos.</p>
+                    <h1 style={{ fontSize: '2rem' }}>Reporte T+Æcnico</h1>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Registro y control de actividades, mantenimientos y cambios f+°sicos.</p>
                 </div>
             </header>
 
@@ -329,12 +329,12 @@ export default function ServiceReports() {
                     <div style={{ height: '20px', width: '1px', background: 'var(--surface-border)' }} />
                     {ticketContext.client && (
                         <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                            üè¢ <strong>{ticketContext.client}</strong>
+                            ≠É≈Û <strong>{ticketContext.client}</strong>
                         </span>
                     )}
                     {ticketContext.requester && (
                         <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                            üë§ <strong>{ticketContext.requester}</strong>
+                            ≠ÉÊÒ <strong>{ticketContext.requester}</strong>
                         </span>
                     )}
                     {ticketContext.priority && (
@@ -343,18 +343,18 @@ export default function ServiceReports() {
                             fontWeight: 700,
                             padding: '2px 10px',
                             borderRadius: '99px',
-                            background: ticketContext.priority === 'Cr√≠tica' ? 'rgba(239,68,68,0.12)' : ticketContext.priority === 'Alta' ? 'rgba(245,158,11,0.12)' : 'rgba(59,130,246,0.12)',
-                            color: ticketContext.priority === 'Cr√≠tica' ? '#ef4444' : ticketContext.priority === 'Alta' ? '#f59e0b' : 'var(--primary)',
+                            background: ticketContext.priority === 'Cr+°tica' ? 'rgba(239,68,68,0.12)' : ticketContext.priority === 'Alta' ? 'rgba(245,158,11,0.12)' : 'rgba(59,130,246,0.12)',
+                            color: ticketContext.priority === 'Cr+°tica' ? '#ef4444' : ticketContext.priority === 'Alta' ? '#f59e0b' : 'var(--primary)',
                         }}>
                             {ticketContext.priority}
                         </span>
                     )}
                     {ticketContext.category && (
-                        <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>üìÇ {ticketContext.category}</span>
+                        <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>≠ÉÙÈ {ticketContext.category}</span>
                     )}
                     {ticketContext.description && (
                         <p style={{ width: '100%', fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, paddingTop: '0.5rem', borderTop: '1px solid rgba(59,130,246,0.15)' }}>
-                            <strong>Descripci√≥n:</strong> {ticketContext.description}
+                            <strong>Descripci+¶n:</strong> {ticketContext.description}
                         </p>
                     )}
                 </div>
@@ -366,13 +366,13 @@ export default function ServiceReports() {
                 <div className="card glass" style={{ gridColumn: 'span 8', padding: '2rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2rem', borderBottom: '1px solid var(--surface-border)', paddingBottom: '1rem' }}>
                         <FileText size={20} color="var(--primary)" />
-                        <h2 style={{ fontSize: '1.2rem' }}>Informaci√≥n del Servicio</h2>
+                        <h2 style={{ fontSize: '1.2rem' }}>Informaci+¶n del Servicio</h2>
                     </div>
 
                     {/* Fila 1 */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                         <div className="form-group">
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>T√©cnico Responsable</label>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>T+Æcnico Responsable</label>
                             <div style={{ position: 'relative' }}>
                                 <User size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                                 <select name="technician" value={formData.technician} onChange={handleInputChange} className="form-input" required style={{ paddingLeft: '2.5rem' }}>
@@ -466,9 +466,9 @@ export default function ServiceReports() {
                         <div className="form-group">
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Modalidad</label>
                             <select name="modality" value={formData.modality} onChange={handleInputChange} className="form-input" style={{ fontWeight: 600, color: 'var(--primary)', padding: '0.8rem 0.5rem' }}>
-                                <option value="Soporte Remoto">üéß Remoto</option>
-                                <option value="Visita T√©cnica Programada">üìÖ Visita</option>
-                                <option value="Presencial Emergencia">üö® Emergencia</option>
+                                <option value="Soporte Remoto">≠Éƒ∫ Remoto</option>
+                                <option value="Visita T+Æcnica Programada">≠ÉÙ‡ Visita</option>
+                                <option value="Presencial Emergencia">≠É‹ø Emergencia</option>
                             </select>
                         </div>
                     </div>
@@ -477,7 +477,7 @@ export default function ServiceReports() {
                     {ticketContext && formData.activities ? (
                         <div style={{ marginBottom: '1.5rem' }}>
                             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-muted)' }}>
-                                <FileText size={15} /> Descripci√≥n del Ticket (referencia)
+                                <FileText size={15} /> Descripci+¶n del Ticket (referencia)
                             </label>
                             <div style={{
                                 background: 'rgba(59,130,246,0.04)',
@@ -495,14 +495,14 @@ export default function ServiceReports() {
                         </div>
                     ) : (
                         <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Contexto / Descripci√≥n del Problema</label>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Contexto / Descripci+¶n del Problema</label>
                             <textarea
                                 name="activities"
                                 value={formData.activities}
                                 onChange={handleInputChange}
                                 className="form-input"
                                 rows={3}
-                                placeholder="Descripci√≥n del problema o motivo del servicio..."
+                                placeholder="Descripci+¶n del problema o motivo del servicio..."
                                 style={{ resize: 'none' }}
                             ></textarea>
                         </div>
@@ -511,7 +511,7 @@ export default function ServiceReports() {
                     {/* Activity Performed - main field */}
                     <div className="form-group" style={{ marginBottom: '2rem' }}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 700, color: 'var(--primary)' }}>
-                            <Wrench size={15} /> Actividad Realizada por el T√©cnico <span style={{ color: 'var(--error)', marginLeft: '2px' }}>*</span>
+                            <Wrench size={15} /> Actividad Realizada por el T+Æcnico <span style={{ color: 'var(--error)', marginLeft: '2px' }}>*</span>
                         </label>
                         <textarea
                             name="activitySummary"
@@ -519,12 +519,12 @@ export default function ServiceReports() {
                             onChange={handleInputChange}
                             className="form-input"
                             rows={5}
-                            placeholder="Describa en detalle lo que realiz√≥: configuraciones, diagn√≥sticos, reparaciones, instalaciones de software, ajustes de red, etc..."
+                            placeholder="Describa en detalle lo que realiz+¶: configuraciones, diagn+¶sticos, reparaciones, instalaciones de software, ajustes de red, etc..."
                             required
                             style={{ resize: 'vertical', borderColor: formData.activitySummary ? 'var(--primary)' : undefined, boxShadow: formData.activitySummary ? '0 0 0 3px var(--primary-glow)' : undefined }}
                         ></textarea>
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                            {formData.activitySummary.length} caracteres ¬∑ Use este campo para documentar todo lo ejecutado durante la visita o soporte.
+                            {formData.activitySummary.length} caracteres -¿ Use este campo para documentar todo lo ejecutado durante la visita o soporte.
                         </p>
                     </div>
 
@@ -550,18 +550,18 @@ export default function ServiceReports() {
                         {/* Maintenance */}
                         <label className="toggle-group" style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', background: 'rgba(0,0,0,0.02)', padding: '10px 15px', borderRadius: '8px', border: '1px solid var(--surface-border)' }}>
                             <input type="checkbox" name="maintenancePerformed" checked={formData.maintenancePerformed} onChange={handleInputChange} style={{ width: '18px', height: '18px', accentColor: 'var(--primary)' }} />
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}><Wrench size={18} color="var(--text-muted)" /> Se realiz√≥ mantenimiento preventivo/correctivo al equipo</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}><Wrench size={18} color="var(--text-muted)" /> Se realiz+¶ mantenimiento preventivo/correctivo al equipo</div>
                         </label>
 
                         {/* Parts Changed */}
                         <div style={{ background: formData.partsChanged ? 'rgba(245, 158, 11, 0.05)' : 'rgba(0,0,0,0.02)', padding: '10px 15px', borderRadius: '8px', border: formData.partsChanged ? '1px solid var(--warning)' : '1px solid var(--surface-border)', transition: 'all 0.3s' }}>
                             <label className="toggle-group" style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
                                 <input type="checkbox" name="partsChanged" checked={formData.partsChanged} onChange={handleInputChange} style={{ width: '18px', height: '18px', accentColor: 'var(--primary)' }} />
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}><Cpu size={18} color="var(--text-muted)" /> Se cambi√≥ o reemplaz√≥ alguna pieza da√±ada</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}><Cpu size={18} color="var(--text-muted)" /> Se cambi+¶ o reemplaz+¶ alguna pieza da+¶ada</div>
                             </label>
                             {formData.partsChanged && (
                                 <div className="fade-in" style={{ marginTop: '1rem', paddingLeft: '30px' }}>
-                                    <input type="text" name="partsDetails" value={formData.partsDetails} onChange={handleInputChange} className="form-input" placeholder="Especifique qu√© piezas fueron reemplazadas (Ej. Teclado, Bater√≠a, Fuente de poder...)" required />
+                                    <input type="text" name="partsDetails" value={formData.partsDetails} onChange={handleInputChange} className="form-input" placeholder="Especifique qu+Æ piezas fueron reemplazadas (Ej. Teclado, Bater+°a, Fuente de poder...)" required />
                                 </div>
                             )}
                         </div>
@@ -570,7 +570,7 @@ export default function ServiceReports() {
                         <div style={{ background: formData.capacityUpgraded ? 'rgba(16, 185, 129, 0.05)' : 'rgba(0,0,0,0.02)', padding: '10px 15px', borderRadius: '8px', border: formData.capacityUpgraded ? '1px solid var(--success)' : '1px solid var(--surface-border)', transition: 'all 0.3s' }}>
                             <label className="toggle-group" style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
                                 <input type="checkbox" name="capacityUpgraded" checked={formData.capacityUpgraded} onChange={handleInputChange} style={{ width: '18px', height: '18px', accentColor: 'var(--primary)' }} />
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}><Layers size={18} color="var(--text-muted)" /> Se aument√≥ capacidad o hizo Upgrade (RAM / Disco Duro)</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}><Layers size={18} color="var(--text-muted)" /> Se aument+¶ capacidad o hizo Upgrade (RAM / Disco Duro)</div>
                             </label>
                             {formData.capacityUpgraded && (
                                 <div className="fade-in" style={{ marginTop: '1rem', paddingLeft: '30px' }}>
@@ -605,7 +605,7 @@ export default function ServiceReports() {
                                     <div style={{ textAlign: 'center', padding: '1.5rem 0.5rem' }}>
                                         <Laptop size={36} style={{ opacity: 0.2, marginBottom: '0.75rem' }} />
                                         <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                                            Seleccione un usuario y luego un equipo del inventario para ver su informaci√≥n.
+                                            Seleccione un usuario y luego un equipo del inventario para ver su informaci+¶n.
                                         </p>
                                     </div>
                                 ) : (
@@ -618,7 +618,7 @@ export default function ServiceReports() {
                                             <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 7px', borderRadius: '20px',
                                                 background: selectedAsset.status === 'Activo' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)',
                                                 color: selectedAsset.status === 'Activo' ? '#10b981' : '#f59e0b' }}>
-                                                ‚óè {selectedAsset.status}
+                                                ‘˘≈ {selectedAsset.status}
                                             </span>
                                         </div>
 
@@ -628,7 +628,7 @@ export default function ServiceReports() {
                                         </p>
                                         {selectedAsset.clientName && (
                                             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-                                                üè¢ {selectedAsset.clientName}
+                                                ≠É≈Û {selectedAsset.clientName}
                                             </p>
                                         )}
 
@@ -654,7 +654,7 @@ export default function ServiceReports() {
                                         {/* Licenses warning */}
                                         {selectedAsset.licenses?.length > 0 && (
                                             <div style={{ marginTop: '0.8rem', padding: '0.5rem 0.8rem', borderRadius: '8px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 600 }}>
-                                                üîë {selectedAsset.licenses.length} licencia{selectedAsset.licenses.length !== 1 ? 's' : ''} registrada{selectedAsset.licenses.length !== 1 ? 's' : ''}
+                                                ≠ÉˆÊ {selectedAsset.licenses.length} licencia{selectedAsset.licenses.length !== 1 ? 's' : ''} registrada{selectedAsset.licenses.length !== 1 ? 's' : ''}
                                             </div>
                                         )}
                                     </div>
@@ -667,15 +667,15 @@ export default function ServiceReports() {
                     <div className="card glass">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem' }}>
                             <MonitorCheck size={20} color="var(--success)" />
-                            <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Resoluci√≥n y Estado</h3>
+                            <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Resoluci+¶n y Estado</h3>
                         </div>
 
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-                            Indique si la falla qued√≥ solucionada al 100% o requiere seguimiento.
+                            Indique si la falla qued+¶ solucionada al 100% o requiere seguimiento.
                         </p>
 
                         <div className="form-group" style={{ marginBottom: '2rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.8rem', fontSize: '0.875rem', fontWeight: 600 }}>¬øSolucion√≥ la falla reportada?</label>
+                            <label style={{ display: 'block', marginBottom: '0.8rem', fontSize: '0.875rem', fontWeight: 600 }}>-+Solucion+¶ la falla reportada?</label>
                             <select
                                 name="isResolved"
                                 value={formData.isResolved}
@@ -688,9 +688,9 @@ export default function ServiceReports() {
                                     fontSize: '1rem'
                                 }}
                             >
-                                <option value="Si">‚úÖ S√≠, Solucionado (Cerrar caso)</option>
-                                <option value="Parcial">‚ö†Ô∏è Soluci√≥n Parcial (En monitoreo)</option>
-                                <option value="No">‚ùå No Solucionado (Escalar o Reprogramar)</option>
+                                <option value="Si">‘£‡ S+°, Solucionado (Cerrar caso)</option>
+                                <option value="Parcial">‘‹·¥©≈ Soluci+¶n Parcial (En monitoreo)</option>
+                                <option value="No">‘ÿÓ No Solucionado (Escalar o Reprogramar)</option>
                             </select>
                         </div>
 
@@ -706,10 +706,10 @@ export default function ServiceReports() {
                     <div className="card glass" style={{ background: 'rgba(37,99,235,0.03)', border: '1px solid var(--primary-glow)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', color: 'var(--primary)' }}>
                             <AlertCircle size={18} />
-                            <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Sincronizaci√≥n</h3>
+                            <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Sincronizaci+¶n</h3>
                         </div>
                         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                            Al guardar este informe, quedar√° enlazado en el <strong>historial del equipo</strong> en el inventario.
+                            Al guardar este informe, quedar+Ì enlazado en el <strong>historial del equipo</strong> en el inventario.
                         </p>
                     </div>
                 </div>
@@ -719,7 +719,7 @@ export default function ServiceReports() {
                 <div className="reports-summary fade-in" style={{ marginTop: '4rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2rem' }}>
                         <Database size={24} color="var(--primary)" />
-                        <h2 style={{ fontSize: '1.5rem' }}>Resumen de Reportes T√©cnicos (Administrador)</h2>
+                        <h2 style={{ fontSize: '1.5rem' }}>Resumen de Reportes T+Æcnicos (Administrador)</h2>
                     </div>
 
                     <div className="table-container glass" style={{ padding: '0.5rem', borderRadius: 'var(--radius-md)', overflowX: 'auto' }}>
@@ -730,15 +730,15 @@ export default function ServiceReports() {
                                     <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Ticket</th>
                                     <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Fecha</th>
                                     <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Cliente</th>
-                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>T√©cnico</th>
+                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>T+Æcnico</th>
                                     <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Estado</th>
-                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Acci√≥n</th>
+                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Acci+¶n</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {reports.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No hay reportes registrados a√∫n.</td>
+                                        <td colSpan={7} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No hay reportes registrados a+¶n.</td>
                                     </tr>
                                 ) : (
                                     reports.map(report => (
@@ -792,26 +792,26 @@ export default function ServiceReports() {
                              <button className="icon-btn" onClick={() => setShowDetailModal(false)} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px', cursor: 'pointer' }}><X size={24} /></button>
                         </div>
 
-                        <div id="printable-report" style={{ padding: '3.5rem' }}>
-                            {/* Header: Report & Ticket IDs */}
-                            <header style={{ marginBottom: '3.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                         <div id="printable-report" style={{ padding: '3.5rem' }}>
+                            {/* Header: Logo and IDs */}
+                            <header style={{ marginBottom: '3.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
-                                    <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#94a3b8', margin: 0 }}>Reporte: {selectedReport.report_id}</h1>
-                                    <p style={{ fontSize: '1rem', color: '#cbd5e1', margin: '4px 0 0 0', fontWeight: 600 }}>Ticket: {selectedReport.ticket_id || 'Servicio Directo'}</p>
+                                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#94a3b8', margin: 0, letterSpacing: '-0.02em' }}>Reporte: {selectedReport.report_id}</h1>
+                                    <p style={{ fontSize: '1.1rem', color: '#cbd5e1', margin: '4px 0 0 0', fontWeight: 600 }}>Ticket: {selectedReport.ticket_id || 'Servicio Directo'}</p>
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
-                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '50px', opacity: 0.8 }} />
+                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '70px', objectFit: 'contain' }} />
                                 </div>
                             </header>
 
                             {/* Summary Stats Row */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0', marginBottom: '4rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '2.5rem' }}>
-                                <div style={{ borderLeft: '3px solid #3b82f6', paddingLeft: '1.2rem' }}>
-                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>FECHA DEL SERVICIO</p>
-                                    <p style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.date}</p>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0', marginBottom: '3.5rem' }}>
+                                <div style={{ borderLeft: '3px solid #3b82f6', paddingLeft: '1.2rem', minHeight: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '8px', letterSpacing: '0.05em' }}>FECHA DEL SERVICIO</p>
+                                    <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.date}</p>
                                 </div>
-                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: '#f1f5f9', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                                <div style={{ borderLeft: '3px solid #3b82f6', paddingLeft: '1.2rem', minHeight: '60px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: '#f1f5f9', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
                                         {selectedReport.technician_photo ? (
                                             <img src={selectedReport.technician_photo} alt="Tech" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                         ) : (
@@ -821,61 +821,61 @@ export default function ServiceReports() {
                                         )}
                                     </div>
                                     <div>
-                                        <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>T√âCNICO</p>
-                                        <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', lineHeight: 1.2 }}>{selectedReport.technician_name}</p>
+                                        <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>T+ÎCNICO</p>
+                                        <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e293b', lineHeight: 1.1 }}>{selectedReport.technician_name}</p>
                                     </div>
                                 </div>
-                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem' }}>
-                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>CLIENTE</p>
-                                    <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.company?.name || selectedReport.company_name || 'Particular'}</p>
+                                <div style={{ borderLeft: '3px solid #3b82f6', paddingLeft: '1.2rem', minHeight: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '8px', letterSpacing: '0.05em' }}>CLIENTE</p>
+                                    <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e293b', textTransform: 'uppercase' }}>{selectedReport.company?.name || selectedReport.company_name || 'Particular'}</p>
                                 </div>
-                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem' }}>
-                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>ESTADO</p>
-                                    <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.is_resolved === 'Si' ? '‚úÖ RESUELTO' : '‚ö†Ô∏è SEGUIMIENTO'}</p>
+                                <div style={{ borderLeft: '3px solid #3b82f6', paddingLeft: '1.2rem', minHeight: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                    <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '8px', letterSpacing: '0.05em' }}>ESTADO</p>
+                                    <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.is_resolved === 'Si' ? 'RESUELTO' : 'SEGUIMIENTO'}</p>
                                 </div>
                             </div>
 
                             {/* Dual Column Layout */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.3fr) minmax(0, 1fr)', gap: '3.5rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '3rem' }}>
                                 {/* Left Column: User & Hardware */}
                                 <div>
-                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
-                                        <User size={18} /> Detalles del Usuario
+                                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', borderBottom: '2px solid #3b82f615', paddingBottom: '10px' }}>
+                                        <User size={20} /> Detalles del Usuario
                                     </h3>
-                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', marginBottom: '3rem', background: '#f8fafc' }}>
-                                        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Usuario Final: </span>
-                                            <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.employee?.name || selectedReport.employee_name || 'N/A'}</span>
+                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', marginBottom: '3rem', background: 'white' }}>
+                                        <div style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569' }}>Usuario Final: </span>
+                                            <span style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.employee?.name || selectedReport.employee_name || 'N/A'}</span>
                                         </div>
-                                        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Sede: </span>
-                                            <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.sede?.name || selectedReport.sede_name || 'Principal'}</span>
+                                        <div style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569' }}>Sede: </span>
+                                            <span style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.sede?.name || selectedReport.sede_name || 'Principal'}</span>
                                         </div>
-                                        <div style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Modalidad: </span>
-                                            <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.modality}</span>
+                                        <div style={{ padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569' }}>Modalidad: </span>
+                                            <span style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.modality}</span>
                                         </div>
                                     </div>
 
-                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
-                                        <Laptop size={18} /> Informaci√≥n de Hardware
+                                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', borderBottom: '2px solid #3b82f615', paddingBottom: '10px' }}>
+                                        <Laptop size={20} /> Informaci+¶n de Hardware
                                     </h3>
-                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', background: '#f8fafc' }}>
+                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', background: 'white' }}>
                                         <div style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0' }}>
-                                            <p style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Equipo Asignado</span>
-                                                <span style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: 700 }}>
+                                            <p style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569' }}>Equipo: </span>
+                                                <span style={{ fontSize: '1rem', color: '#1e293b', fontWeight: 700 }}>
                                                     {selectedReport.inventory
-                                                        ? `${selectedReport.inventory.equipment_id} ‚Äî ${selectedReport.inventory.brand} ${selectedReport.inventory.model}`
-                                                        : selectedReport.inventory_id || 'General / Soporte Perif√©rico'
+                                                        ? `${selectedReport.inventory.equipment_id} ‘«ˆ ${selectedReport.inventory.brand} ${selectedReport.inventory.model}`
+                                                        : selectedReport.inventory_id || 'General / Soporte Perif+Ærico'
                                                     }
                                                 </span>
                                             </p>
                                         </div>
                                         <div style={{ padding: '1.25rem' }}>
                                             <p style={{ margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Mantenimiento: </span>
-                                                <span style={{ fontSize: '0.9rem', color: '#10b981', fontWeight: 700 }}>{selectedReport.maintenance_performed ? '‚úì REALIZADO' : 'NO APLICA'}</span>
+                                                <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569' }}>Mantenimiento: </span>
+                                                <span style={{ fontSize: '1.1rem', color: '#10b981', fontWeight: 800 }}>‘£Ù Realizado</span>
                                             </p>
                                         </div>
                                     </div>
@@ -891,11 +891,11 @@ export default function ServiceReports() {
                                             {selectedReport.activities.split('\n').map((line: string, i: number) => {
                                                 let processed = line;
                                                 const lower = line.toLowerCase();
-                                                if (lower.includes('contacto')) processed = 'üìû ' + line;
-                                                else if (lower.includes('ubicaci√≥n') || lower.includes('sede')) processed = 'üìç ' + line;
-                                                else if (lower.includes('equipo')) processed = 'üíª ' + line;
-                                                else if (lower.includes('acci√≥n') || lower.includes('realiz√≥')) processed = '‚ö° ' + line;
-                                                else if (line.trim()) processed = '‚Ä¢ ' + line;
+                                                if (lower.includes('contacto')) processed = '≠ÉÙ◊ ' + line;
+                                                else if (lower.includes('ubicaci+¶n') || lower.includes('sede')) processed = '≠ÉÙÏ ' + line;
+                                                else if (lower.includes('equipo')) processed = '≠É∆+ ' + line;
+                                                else if (lower.includes('acci+¶n') || lower.includes('realiz+¶')) processed = '‘‹Ì ' + line;
+                                                else if (line.trim()) processed = '‘«Û ' + line;
                                                 
                                                 return <div key={i} style={{ marginBottom: '0.75rem' }}>{processed}</div>;
                                             })}
@@ -907,11 +907,11 @@ export default function ServiceReports() {
                             {/* Footer / Signature Spacer */}
                             <footer style={{ marginTop: '6rem', paddingTop: '2.5rem', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                                 <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                                    <p style={{ margin: 0 }}>¬© 2026 Help Soluciones Inform√°ticas S.A.S</p>
-                                    <p style={{ margin: 0 }}>Sistema de Gesti√≥n de Soporte T√©cnico</p>
+                                    <p style={{ margin: 0 }}>-Æ 2026 Help Soluciones Inform+Ìticas S.A.S</p>
+                                    <p style={{ margin: 0 }}>Sistema de Gesti+¶n de Soporte T+Æcnico</p>
                                 </div>
                                 <div style={{ width: '250px', borderTop: '1px solid #cbd5e1', textAlign: 'center', paddingTop: '12px' }}>
-                                    <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', margin: 0 }}>Firma Responsable / T√©cnico</p>
+                                    <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', margin: 0 }}>Firma Responsable / T+Æcnico</p>
                                     <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>CC: ________________________</p>
                                 </div>
                             </footer>

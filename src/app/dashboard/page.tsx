@@ -15,7 +15,9 @@ import {
     Briefcase,
     Activity,
     FileText,
-    Phone
+    Phone,
+    Monitor,
+    Image as ImageIcon
 } from 'lucide-react';
 import { TicketService } from '@/lib/services';
 import { useRouter } from 'next/navigation';
@@ -65,7 +67,7 @@ export default function Dashboard() {
                     techImage: t.staff?.photo || undefined,
                     techNotes: t.tech_notes,
                     description: t.description,
-                    imageUrl: t.image_url
+                    imageUrl: t.image_url || t.imageUrl || t.evidence_url // Use all possible aliases
                 }));
 
                 let filtered = mapped;
@@ -276,6 +278,35 @@ export default function Dashboard() {
                                 </div>
                             </div>
 
+                            {/* Equipment Information Header */}
+                            {selectedTicket.techNotes?.includes('💻 Equipo:') && (
+                                <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, color: '#3b82f6', marginBottom: '0.8rem', textTransform: 'uppercase' }}>
+                                        <Monitor size={16} /> Información de Hardware
+                                    </label>
+                                    <div style={{ background: 'rgba(59, 130, 246, 0.05)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                                        <p style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-main)' }}>
+                                            {selectedTicket.techNotes.split('💻 Equipo:')[1]?.split('📝 Descripción:')[0]?.trim() || 'No especificado'}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Problem Description */}
+                            <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.8rem', textTransform: 'uppercase' }}>
+                                    <FileText size={16} /> Descripción del Problema
+                                </label>
+                                <div style={{ background: 'var(--surface-alt)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--surface-border)' }}>
+                                    <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: 'var(--text-main)', whiteSpace: 'pre-line' }}>
+                                        {selectedTicket.description || 
+                                         (selectedTicket.techNotes?.includes('📝 Descripción:') ? 
+                                          selectedTicket.techNotes.split('📝 Descripción:')[1]?.trim() : 
+                                          selectedTicket.techNotes)}
+                                    </p>
+                                </div>
+                            </div>
+
                             <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '1rem' }}>
                                     <User size={14} /> TÉCNICO ENCARGADO
@@ -300,32 +331,23 @@ export default function Dashboard() {
                                 </div>
                             </div>
 
-                            {selectedTicket.techNotes && (
-                                <div style={{ background: 'rgba(13, 148, 136, 0.05)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed var(--secondary)' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--secondary)', marginBottom: '0.8rem' }}>
-                                        <FileText size={16} /> NOTAS TÉCNICAS DE RESOLUCIÓN
-                                    </label>
-                                    <p style={{ fontSize: '0.95rem', lineHeight: '1.5', color: 'var(--text-main)' }}>
-                                        {selectedTicket.techNotes}
-                                    </p>
-                                </div>
-                            )}
-
-                            {!selectedTicket.techNotes && (
-                                <div style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--surface-border)', textAlign: 'center' }}>
-                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>No hay notas técnicas registradas aún para este ticket.</p>
-                                </div>
-                            )}
-
                             {selectedTicket.imageUrl && (
                                 <div style={{ border: '1px solid var(--surface-border)', borderRadius: '12px', overflow: 'hidden' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.8rem 1.5rem', background: 'var(--surface-alt)', borderBottom: '1px solid var(--surface-border)' }}>
-                                        <p style={{ fontSize: '0.75rem', fontWeight: 700, margin: 0 }}>EVIDENCIA ADJUNTA</p>
+                                        <p style={{ fontSize: '0.75rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <ImageIcon size={14} /> EVIDENCIA ADJUNTA
+                                        </p>
                                         <button onClick={() => setIsImageFullscreen(true)} className="btn glass" style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                             Ampliar Imagen
                                         </button>
                                     </div>
-                                    <img src={selectedTicket.imageUrl} alt="Evidencia del ticket" style={{ width: '100%', display: 'block', maxHeight: '400px', objectFit: 'contain', background: 'var(--surface-alt)', cursor: 'zoom-in' }} onClick={() => setIsImageFullscreen(true)} title="Haga clic para ampliar" />
+                                    <img 
+                                        src={selectedTicket.imageUrl} 
+                                        alt="Evidencia del ticket" 
+                                        style={{ width: '100%', display: 'block', maxHeight: '400px', objectFit: 'contain', background: 'var(--surface-alt)', cursor: 'zoom-in' }} 
+                                        onClick={() => setIsImageFullscreen(true)} 
+                                        title="Haga clic para ampliar" 
+                                    />
                                 </div>
                             )}
                         </div>
