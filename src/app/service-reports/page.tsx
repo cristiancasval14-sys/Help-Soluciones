@@ -103,6 +103,7 @@ export default function ServiceReports() {
                              brand: invItem.brand,
                              model: invItem.model,
                          } : null,
+                         technician_photo: (staffList as any[]).find(s => s.id === r.technician_id || `${s.first_name} ${s.last_name}` === r.technician_name)?.photo
                      };
                  });
                  setReports(enriched);
@@ -809,9 +810,20 @@ export default function ServiceReports() {
                                     <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>FECHA DEL SERVICIO</p>
                                     <p style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.date}</p>
                                 </div>
-                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem' }}>
-                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>TÉCNICO</p>
-                                    <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', lineHeight: 1.2 }}>{selectedReport.technician_name}</p>
+                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: '#f1f5f9', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                                        {selectedReport.technician_photo ? (
+                                            <img src={selectedReport.technician_photo} alt="Tech" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : (
+                                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                                                <User size={20} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>TÉCNICO</p>
+                                        <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', lineHeight: 1.2 }}>{selectedReport.technician_name}</p>
+                                    </div>
                                 </div>
                                 <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem' }}>
                                     <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>CLIENTE</p>

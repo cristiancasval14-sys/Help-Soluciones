@@ -30,6 +30,7 @@ interface Ticket {
     date: string;
     assignedTo?: string;
     techPhone?: string;
+    techImage?: string;
     techNotes?: string;
     description?: string;
     imageUrl?: string;
@@ -61,6 +62,7 @@ export default function Dashboard() {
                     date: t.date || t.created_at?.split('T')[0],
                     assignedTo: t.staff ? `${t.staff.first_name} ${t.staff.last_name}` : undefined,
                     techPhone: t.staff?.phone || undefined,
+                    techImage: t.staff?.photo || undefined,
                     techNotes: t.tech_notes,
                     description: t.description,
                     imageUrl: t.image_url
@@ -279,8 +281,12 @@ export default function Dashboard() {
                                     <User size={14} /> TÉCNICO ENCARGADO
                                 </label>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--surface)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--surface-border)' }}>
-                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--primary-glow)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
-                                        {selectedTicket.assignedTo ? selectedTicket.assignedTo.charAt(0) : '?'}
+                                    <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'var(--primary-glow)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, overflow: 'hidden', border: '2px solid var(--surface-border)' }}>
+                                        {selectedTicket.techImage ? (
+                                            <img src={selectedTicket.techImage} alt="Tech Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : (
+                                            selectedTicket.assignedTo ? selectedTicket.assignedTo.charAt(0) : <User size={24} />
+                                        )}
                                     </div>
                                     <div>
                                         <p style={{ fontWeight: 700 }}>{selectedTicket.assignedTo || 'No asignado todavía'}</p>

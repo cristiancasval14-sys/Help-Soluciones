@@ -27,6 +27,7 @@ interface Ticket {
     status: string;
     date: string;
     assignedTo?: string;
+    techImage?: string;
     progressNotes?: string;
 }
 
@@ -68,6 +69,7 @@ export default function AdministrativeManagement() {
                     status: t.status,
                     date: t.date || t.created_at?.split('T')[0],
                     assignedTo: t.staff ? `${t.staff.first_name} ${t.staff.last_name}` : undefined,
+                    techImage: t.staff?.photo,
                     progressNotes: t.tech_notes
                 })));
 
@@ -99,6 +101,7 @@ export default function AdministrativeManagement() {
                 status: t.status,
                 date: t.date || t.created_at?.split('T')[0],
                 assignedTo: t.staff ? `${t.staff.first_name} ${t.staff.last_name}` : undefined,
+                techImage: t.staff?.photo,
                 progressNotes: t.tech_notes
             })));
             setSelectedTicket(null);
