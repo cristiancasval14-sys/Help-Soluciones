@@ -229,53 +229,51 @@ export default function ReportsHistory() {
                      <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative' }}>
                         
                         <div className="no-print" style={{ 
-                            position: 'fixed', 
-                            top: '20px', 
-                            right: '20px', 
-                            zIndex: 99999, 
+                            position: 'absolute', 
+                            top: '30px', 
+                            right: '30px', 
+                            zIndex: 100, 
                             display: 'flex', 
-                            gap: '12px' 
+                            gap: '8px' 
                         }}>
                              <button 
                                 onClick={() => window.print()} 
+                                className="btn btn-primary"
                                 style={{ 
-                                    background: '#2563eb', 
-                                    color: 'white', 
-                                    border: 'none', 
-                                    borderRadius: '12px', 
-                                    padding: '12px 24px', 
-                                    fontWeight: 900, 
-                                    boxShadow: '0 10px 20px rgba(0,0,0,0.3)',
-                                    cursor: 'pointer'
+                                    borderRadius: '10px', 
+                                    padding: '10px 20px',
+                                    fontWeight: 700,
+                                    fontSize: '0.9rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
                                 }}
                              >
-                                <Save size={20} /> IMPRIMIR (PDF)
+                                <Save size={18} /> Imprimir / PDF
                              </button>
                              <button 
                                 onClick={() => setShowDetailModal(false)} 
                                 style={{ 
                                     background: 'white', 
-                                    color: '#f43f5e', 
-                                    border: '3px solid #f43f5e', 
-                                    borderRadius: '12px', 
-                                    padding: '12px 24px', 
-                                    fontWeight: 900, 
-                                    boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
-                                    cursor: 'pointer'
+                                    color: '#64748b', 
+                                    border: '1px solid #e2e8f0', 
+                                    borderRadius: '10px', 
+                                    padding: '8px', 
+                                    cursor: 'pointer' 
                                 }}
                              >
-                                <X size={20} /> CERRAR
+                                <X size={22} />
                              </button>
                         </div>
 
-                        <div id="printable-report" style={{ padding: '3.5rem 5rem 5rem 5rem' }}>
+                        <div id="printable-report" style={{ padding: '4rem 5rem' }}>
                             <header style={{ marginBottom: '4rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                                 <div style={{ marginBottom: '1.5rem' }}>
                                     <img src="/logo.png" alt="Help Soluciones" style={{ height: '72px', width: 'auto', objectFit: 'contain' }} />
                                 </div>
                                 <div style={{ borderTop: '2px solid #334155', paddingTop: '1.5rem', width: '100%' }}>
-                                    <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO (VERSIÓN 4.0)</h1>
-                                    <p style={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 700, marginTop: '8px', marginBottom: '4px' }}>Certificado N°: {selectedReport.report_id}</p>
+                                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO</h1>
+                                    <p style={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 700, marginTop: '8px', marginBottom: '4px' }}>Reporte N°: {selectedReport.report_id}</p>
                                     <p style={{ fontSize: '1rem', color: '#64748b', margin: 0, fontWeight: 600 }}>Ticket Relacionado: {selectedReport.ticket_id || 'Servicio Programado / Directo'}</p>
                                 </div>
                             </header>
