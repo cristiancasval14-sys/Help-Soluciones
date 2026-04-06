@@ -236,3 +236,53 @@ td {
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
 }
+
+/* Print Overrides */
+@media print {
+  .sidebar, .sidebar *, header, .header-actions, .no-print, nav, .btn, .reports-summary, form, .toolbar {
+    display: none !important;
+  }
+
+  .app-container {
+    display: block !important;
+  }
+
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .modal-overlay {
+    background: white !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    z-index: 9999 !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+  }
+
+  .modal-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+}

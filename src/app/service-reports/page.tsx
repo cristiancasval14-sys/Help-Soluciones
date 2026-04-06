@@ -938,21 +938,19 @@ export default function ServiceReports() {
 
             <style jsx>{`
                 @media print {
-                    body * { visibility: hidden !important; }
-                    #printable-report, #printable-report * { visibility: visible !important; }
                     #printable-report { 
-                        position: fixed !important; 
-                        left: 0 !important; 
-                        top: 0 !important; 
-                        width: 100% !important; 
-                        height: 100% !important; 
-                        padding: 1.5cm !important;
+                        display: block !important;
+                        padding: 0 !important;
                         margin: 0 !important;
-                        background: white !important;
                     }
-                    .modal-overlay { background: white !important; position: static !important; }
-                    .modal-card { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
                     .no-print { display: none !important; }
+                    .modal-card { 
+                        width: 100% !important; 
+                        max-width: 100% !important; 
+                        box-shadow: none !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                    }
                 }
                 .form-input { width: 100%; padding: 0.8rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--surface-border); background: var(--surface); color: var(--text-main); font-family: inherit; font-size: 0.95rem; outline: none; }
                 .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
