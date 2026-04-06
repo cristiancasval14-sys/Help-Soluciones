@@ -262,8 +262,7 @@ export default function ServiceReports() {
         <div className="service-reports-page fade-in">
             <header style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-main)' }}>Reporte Técnico</h1>
-                    <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>Mesa de Ayuda Pro</p>
+                    <h1 style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Reporte Técnico</h1>
                 </div>
             </header>
 
