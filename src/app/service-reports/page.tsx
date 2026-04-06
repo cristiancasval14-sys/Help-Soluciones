@@ -895,21 +895,26 @@ export default function ServiceReports() {
                                 {/* Right Column: Activities */}
                                 <div>
                                     <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
-                                        <Clock size={18} /> Actividades Realizadas
+                                        <Clock size={18} /> Resumen del Servicio
                                     </h3>
-                                    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '20px', padding: '2.5rem', minHeight: '350px', fontSize: '1rem', color: '#334155', lineHeight: 2 }}>
-                                        <div style={{ whiteSpace: 'pre-wrap' }}>
-                                            {selectedReport.activities.split('\n').map((line: string, i: number) => {
-                                                let processed = line;
-                                                const lower = line.toLowerCase();
-                                                if (lower.includes('contacto')) processed = '📞 ' + line;
-                                                else if (lower.includes('ubicación') || lower.includes('sede')) processed = '📍 ' + line;
-                                                else if (lower.includes('equipo')) processed = '💻 ' + line;
-                                                else if (lower.includes('acción') || lower.includes('realizó')) processed = '⚡ ' + line;
-                                                else if (line.trim()) processed = '• ' + line;
-                                                
-                                                return <div key={i} style={{ marginBottom: '0.75rem' }}>{processed}</div>;
-                                            })}
+                                    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '20px', padding: '2.5rem', minHeight: '400px', fontSize: '1rem', color: '#334155', lineHeight: 2 }}>
+                                        {/* Problem Context */}
+                                        <div style={{ marginBottom: '2rem' }}>
+                                            <p style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>Descripción del Problema</p>
+                                            <div style={{ whiteSpace: 'pre-wrap', color: '#64748b', fontSize: '0.95rem' }}>
+                                                {selectedReport.activities.split('--- ACTIVIDAD REALIZADA ---')[0]?.trim() || 'No especificada'}
+                                            </div>
+                                        </div>
+
+                                        {/* Activity Done */}
+                                        <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '1.5rem' }}>
+                                            <p style={{ fontSize: '0.8rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>Actividad Realizada</p>
+                                            <div style={{ whiteSpace: 'pre-wrap', fontWeight: 500 }}>
+                                                {selectedReport.activities.includes('--- ACTIVIDAD REALIZADA ---') 
+                                                    ? selectedReport.activities.split('--- ACTIVIDAD REALIZADA ---')[1]?.trim()
+                                                    : 'Vea el detalle arriba' // Legacy reports
+                                                }
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

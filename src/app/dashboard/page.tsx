@@ -325,20 +325,6 @@ export default function Dashboard() {
                                 </div>
                             </div>
 
-                            {/* Section: Technical Solution from Service Report */}
-                            {selectedTicket.solution && (
-                                <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--success)', marginBottom: '0.8rem', textTransform: 'uppercase' }}>
-                                        <CheckCircle2 size={16} /> Solución Técnica (Reporte Final)
-                                    </label>
-                                    <div style={{ background: 'rgba(16, 185, 129, 0.05)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                                        <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: 'var(--text-main)', whiteSpace: 'pre-line', fontWeight: 500 }}>
-                                            {selectedTicket.solution}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
                             {/* Equipment Information Header */}
                             {selectedTicket.techNotes?.includes('💻 Equipo:') && (
                                 <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
@@ -367,6 +353,22 @@ export default function Dashboard() {
                                     </p>
                                 </div>
                             </div>
+
+                            {/* Section: Technical Solution from Service Report */}
+                            {selectedTicket.solution && (
+                                <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '1.5rem' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--success)', marginBottom: '0.8rem', textTransform: 'uppercase' }}>
+                                        <CheckCircle2 size={16} /> Actividad Realizada (Solución Técnica)
+                                    </label>
+                                    <div style={{ background: 'rgba(16, 185, 129, 0.05)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                                        <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: 'var(--text-main)', whiteSpace: 'pre-line', fontWeight: 500 }}>
+                                            {selectedTicket.solution.includes('--- ACTIVIDAD REALIZADA ---') 
+                                                ? selectedTicket.solution.split('--- ACTIVIDAD REALIZADA ---')[1]?.trim() 
+                                                : selectedTicket.solution}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Evidence Image Block */}
                             {selectedTicket.imageUrl && selectedTicket.imageUrl.length > 5 && (
