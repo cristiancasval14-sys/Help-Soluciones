@@ -23,6 +23,7 @@ import {
     FileText
 } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 import { TicketService, StaffService, ServiceReportService } from '@/lib/services';
 import { Ticket as DBTicket, Priority, TicketStatus, Company, Staff } from '@/lib/supabase';
@@ -35,6 +36,8 @@ interface Ticket extends DBTicket {
 }
 
 export default function TicketsList() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [currentUser, setCurrentUser] = useState<any>(null);
     const [serviceReports, setServiceReports] = useState<any[]>([]);
@@ -112,6 +115,24 @@ export default function TicketsList() {
 
             setTickets(updatedTickets);
             setIsStatusModalOpen(false);
+
+            // Redirect to report creation if status is Finalizado
+            if (newStatus === 'Finalizado') {
+                const techFullName = `${selectedTicket.staff?.first_name || ''} ${selectedTicket.staff?.last_name || ''}`.trim();
+                const params = new URLSearchParams({
+                    ticketId: selectedTicket.id,
+                    companyId: selectedTicket.company_id || '',
+                    clientId: selectedTicket.company?.name || '',
+                    requester: selectedTicket.requester_name || '',
+                    techName: techFullName,
+                    description: selectedTicket.description || '',
+                    priority: selectedTicket.priority || '',
+                    category: selectedTicket.category || '',
+                    techNotes: techNotes || '',
+                });
+                router.push(`/service-reports?${params.toString()}`);
+            }
+
             setSelectedTicket(null);
         } catch (err: any) {
             alert("Error de Supabase: " + (err.message || "Fallo al actualizar estado"));

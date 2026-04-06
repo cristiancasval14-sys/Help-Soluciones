@@ -46,16 +46,32 @@ export default function ReportsHistory() {
                     ServiceReportService.getAll()
                 ]);
 
-                // Multi-tenancy filtering
+                // Robust multi-tenancy filtering
                 let toEnrich = reportsList as any[];
-                if (userRole === 'Técnico' && assignedId) {
-                    toEnrich = toEnrich.filter(r => r.technician_id === assignedId);
-                } else if (userRole === 'Cliente' && assignedId) {
-                    toEnrich = toEnrich.filter(r => r.company_id === assignedId);
-                } else if (userRole === 'Empleado' && assignedId) {
-                     toEnrich = toEnrich.filter(r => r.employee_id === assignedId);
-                } else if (userRole !== 'Administrador') {
-                    // Safety: if not admin and role unrecognized, show nothing
+                if (userRole === 'Administrador') {
+                    // Admins see everything
+                } else if (userRole === 'Técnico') {
+                    // Technicians see only their reports by ID or Name
+                    const techFullName = user?.assignedTo || ''; 
+                    toEnrich = toEnrich.filter(r => 
+                        (r.technician_id && r.technician_id === assignedId) || 
+                        (r.technician_name === techFullName)
+                    );
+                } else if (userRole === 'Cliente' || userRole === 'Empresa') {
+                    // Clients see only their company's reports
+                    const clientName = user?.assignedTo || '';
+                    toEnrich = toEnrich.filter(r => 
+                        (r.company_id && r.company_id === assignedId) || 
+                        (r.company_name === clientName)
+                    );
+                } else if (userRole === 'Empleado') {
+                    const empName = user?.assignedTo || '';
+                    toEnrich = toEnrich.filter(r => 
+                        (r.employee_id && r.employee_id === assignedId) || 
+                        (r.employee_name === empName)
+                    );
+                } else {
+                    // Unknown roles see nothing for security
                     toEnrich = [];
                 }
 
