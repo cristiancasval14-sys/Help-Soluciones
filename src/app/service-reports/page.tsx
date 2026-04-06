@@ -260,7 +260,7 @@ export default function ServiceReports() {
         <div className="service-reports-page fade-in">
             <header style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 900 }}>Reporte Técnico V8</h1>
+                    <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Reporte Técnico</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Registro y control de actividades, mantenimientos y cambios físicos.</p>
                 </div>
             </header>
@@ -278,10 +278,10 @@ export default function ServiceReports() {
             )}
 
             <form onSubmit={handleSubmit} className="form-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '2rem' }}>
-                <div className="card glass" style={{ gridColumn: 'span 8', padding: '2rem', background: 'rgba(59, 130, 246, 0.03)' }}>
+                <div className="card glass" style={{ gridColumn: 'span 8', padding: '2rem', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2rem', borderBottom: '1px solid var(--surface-border)', paddingBottom: '1rem' }}>
                         <FileText size={20} color="var(--primary)" />
-                        <h2 style={{ fontSize: '1.2rem' }}>Información del Servicio V8</h2>
+                        <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Información del Servicio</h2>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
@@ -382,70 +382,79 @@ export default function ServiceReports() {
                 <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
                      <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '16px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', position: 'relative' }}>
                         
-                        {/* Aesthetic Toolbar inside the sheet */}
+                        {/* Aesthetic Premium Toolbar */}
                         <div className="no-print" style={{ 
                             display: 'flex', 
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            padding: '1.25rem 3rem', 
-                            background: '#f8fafc',
+                            padding: '1rem 3rem', 
+                            background: 'rgba(255, 255, 255, 0.95)',
+                            backdropFilter: 'blur(10px)',
                             borderBottom: '1px solid #e2e8f0',
                             position: 'sticky',
                             top: 0,
-                            zIndex: 10000
+                            zIndex: 1000,
+                            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
                         }}>
-                             <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#94a3b8', letterSpacing: '0.05em' }}>
-                                 VISTA PREVIA DEL REPORTE TÉCNICO V6
-                             </span>
-                             <div style={{ display: 'flex', gap: '12px' }}>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }} />
+                                 <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#64748b', letterSpacing: '0.05em' }}>
+                                     VISTA PREVIA DEL DOCUMENTO
+                                 </span>
+                             </div>
+                             <div style={{ display: 'flex', gap: '16px' }}>
                                  <button 
                                     onClick={() => window.print()} 
+                                    className="btn-aesthetic-blue"
                                     style={{ 
-                                        background: '#2563eb', 
+                                        background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', 
                                         color: 'white', 
                                         border: 'none', 
-                                        borderRadius: '8px', 
-                                        padding: '8px 16px', 
-                                        fontWeight: 800, 
+                                        borderRadius: '10px', 
+                                        padding: '10px 24px', 
+                                        fontWeight: 700, 
                                         fontSize: '0.9rem',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '8px',
+                                        gap: '10px',
                                         cursor: 'pointer',
+                                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+                                        transition: 'all 0.2s'
                                     }}
                                  >
-                                    <Save size={18} /> IMPRIMIR V6 / PDF
+                                    <Save size={18} /> Imprimir Reporte / PDF
                                  </button>
                                  <button 
                                     onClick={() => setShowDetailModal(false)} 
                                     style={{ 
                                         background: 'white', 
-                                        color: '#475569', 
-                                        border: '1px solid #cbd5e1', 
-                                        borderRadius: '8px', 
-                                        padding: '8px 16px', 
-                                        fontWeight: 800, 
+                                        color: '#64748b', 
+                                        border: '1px solid #e2e8f0', 
+                                        borderRadius: '10px', 
+                                        padding: '10px 20px', 
+                                        fontWeight: 700, 
                                         fontSize: '0.9rem',
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '8px',
                                         cursor: 'pointer',
+                                        transition: 'all 0.2s'
                                     }}
                                  >
-                                    <X size={18} /> CERRAR V6
+                                    <X size={18} /> Cerrar
                                  </button>
                              </div>
                         </div>
 
-                        <div id="printable-report" style={{ padding: '3rem 5rem 5rem 5rem' }}>
+                        <div id="printable-report" style={{ padding: '4rem 6rem' }}>
                             <header style={{ marginBottom: '4rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                                 <div style={{ marginBottom: '1.5rem' }}>
                                     <img src="/logo.png" alt="Help Soluciones" style={{ height: '72px', width: 'auto', objectFit: 'contain' }} />
                                 </div>
                                 <div style={{ borderTop: '2px solid #334155', paddingTop: '1.5rem', width: '100%' }}>
-                                    <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO V6</h1>
-                                    <p style={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 700, marginTop: '8px', marginBottom: '4px' }}>Reporte N°: {selectedReport.report_id}</p>
-                                    <p style={{ fontSize: '1rem', color: '#64748b', margin: 0, fontWeight: 600 }}>Ticket Relacionado: {selectedReport.ticket_id || 'Servicio Programado / Directo'}</p>
+                                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO</h1>
+                                    <p style={{ fontSize: '1.1rem', color: '#475569', fontWeight: 700, marginTop: '8px', marginBottom: '4px' }}>Reporte N°: {selectedReport.report_id}</p>
+                                    <p style={{ fontSize: '1rem', color: '#94a3b8', margin: 0, fontWeight: 600 }}>Ticket Relacionado: {selectedReport.ticket_id || 'Servicio Programado / Directo'}</p>
                                 </div>
                             </header>
 
