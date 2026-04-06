@@ -55,7 +55,7 @@ export function Sidebar() {
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
                 <div>
-                    <h1 style={{ color: 'var(--primary)', fontSize: '1.5rem', fontWeight: 800 }}>Help Soluciones - V7</h1>
+                    <h1 style={{ color: 'var(--primary)', fontSize: '1.5rem', fontWeight: 800 }}>Help Soluciones</h1>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Mesa de Ayuda Pro</p>
                 </div>
             </div>
