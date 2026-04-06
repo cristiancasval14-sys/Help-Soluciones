@@ -225,38 +225,23 @@ export default function ReportsHistory() {
 
             {/* Detailed Report Modal */}
             {showDetailModal && selectedReport && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
-                    
-                    {/* Floating Fix Action Buttons */}
-                    <div className="no-print" style={{ position: 'fixed', top: '30px', right: '30px', zIndex: 1100, display: 'flex', gap: '12px' }}>
-                         <button 
-                            className="btn btn-primary" 
-                            onClick={() => window.print()} 
-                            style={{ padding: '0.8rem 1.5rem', borderRadius: '12px', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.3)', fontWeight: 700 }}
-                         >
-                            <Save size={20} /> Imprimir / Descargar PDF
-                         </button>
-                         <button 
-                            className="btn-icon" 
-                            onClick={(e) => { e.stopPropagation(); setShowDetailModal(false); }}
-                            style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px', cursor: 'pointer', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', color: '#ef4444' }}
-                            title="Cerrar Reporte"
-                         >
-                            <X size={28} />
-                         </button>
-                    </div>
-
-                    <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative' }}>
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
+                     <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative' }}>
+                        
+                        <div className="no-print" style={{ position: 'absolute', top: '25px', right: '25px', zIndex: 100, display: 'flex', gap: '8px' }}>
+                             <button className="btn btn-primary" onClick={() => window.print()} style={{ borderRadius: '10px', padding: '10px 15px' }}><Save size={18} /> Imprimir / PDF</button>
+                             <button className="btn-icon" onClick={() => setShowDetailModal(false)} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px', cursor: 'pointer' }}><X size={24} /></button>
+                        </div>
 
                         <div id="printable-report" style={{ padding: '4rem 5rem' }}>
                             <header style={{ marginBottom: '4rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                                 <div style={{ marginBottom: '1.5rem' }}>
                                     <img src="/logo.png" alt="Help Soluciones" style={{ height: '72px', width: 'auto', objectFit: 'contain' }} />
                                 </div>
-                                <div style={{ borderTop: '2px solid #f1f5f9', paddingTop: '1.5rem', width: '100%' }}>
-                                    <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#1e3a5f', margin: 0, letterSpacing: '-0.02em' }}>REPORTE TÉCNICO</h1>
-                                    <p style={{ fontSize: '1.1rem', color: '#64748b', fontWeight: 700, marginTop: '8px' }}>Certificado N°: <span style={{ color: 'var(--primary)' }}>{selectedReport.report_id}</span></p>
-                                    <p style={{ fontSize: '0.9rem', color: '#94a3b8', margin: '4px 0 0 0', fontWeight: 600 }}>Ticket Relacionado: {selectedReport.ticket_id || 'Servicio Programado / Directo'}</p>
+                                <div style={{ borderTop: '2px solid #334155', paddingTop: '1.5rem', width: '100%' }}>
+                                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO</h1>
+                                    <p style={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 700, marginTop: '8px', marginBottom: '4px' }}>Certificado N°: {selectedReport.report_id}</p>
+                                    <p style={{ fontSize: '1rem', color: '#64748b', margin: 0, fontWeight: 600 }}>Ticket Relacionado: {selectedReport.ticket_id || 'Servicio Programado / Directo'}</p>
                                 </div>
                             </header>
 
