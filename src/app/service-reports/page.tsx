@@ -19,7 +19,9 @@ import {
     Laptop,
     Database,
     Trash2,
-    X
+    X,
+    Building2,
+    Users
 } from 'lucide-react';
 import { StaffService, CompanyService, InventoryService, ServiceReportService } from '@/lib/services';
 import { useSearchParams } from 'next/navigation';
@@ -260,8 +262,8 @@ export default function ServiceReports() {
         <div className="service-reports-page fade-in">
             <header style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Reporte Técnico</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Registro y control de actividades, mantenimientos y cambios físicos.</p>
+                    <h1 style={{ color: 'var(--primary)', fontSize: '1.5rem', fontWeight: 800 }}>Help Soluciones</h1>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Mesa de Ayuda Pro</p>
                 </div>
             </header>
 
@@ -277,102 +279,215 @@ export default function ServiceReports() {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className="form-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '2rem' }}>
-                <div className="card glass" style={{ gridColumn: 'span 8', padding: '2rem', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2rem', borderBottom: '1px solid var(--surface-border)', paddingBottom: '1rem' }}>
-                        <FileText size={20} color="var(--primary)" />
-                        <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Información del Servicio</h2>
+            <form onSubmit={handleSubmit} className="form-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '2rem', alignItems: 'start' }}>
+                <div className="card glass shadow-lg" style={{ gridColumn: 'span 8', padding: '2.5rem', borderRadius: '24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2.5rem', borderBottom: '1px solid var(--surface-border)', paddingBottom: '1.25rem' }}>
+                        <div style={{ background: 'var(--primary-glow)', padding: '10px', borderRadius: '12px' }}>
+                            <FileText size={24} color="var(--primary)" />
+                        </div>
+                        <div>
+                            <h2 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0 }}>Información del Servicio</h2>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>Complete todos los detalles técnicos del servicio</p>
+                        </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
                         <div className="form-group">
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Técnico Responsable</label>
-                            <select name="technician" value={formData.technician} onChange={handleInputChange} className="form-input" required>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
+                                <User size={18} color="var(--primary)" /> Técnico Responsable
+                            </label>
+                            <select name="technician" value={formData.technician} onChange={handleInputChange} className="form-input" required style={{ borderRadius: '12px', padding: '12px' }}>
                                 <option value="">Seleccione al personal...</option>
                                 {staff.map(s => <option key={s.id} value={`${s.first_name} ${s.last_name}`}>{s.first_name} {s.last_name}</option>)}
                             </select>
                         </div>
                         <div className="form-group">
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Empresa / Cliente</label>
-                            <select name="client" value={formData.client} onChange={(e) => { handleInputChange(e); setFormData(prev => ({ ...prev, sede: '', user: '', assetId: '' })); }} className="form-input" required>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
+                                <Building2 size={18} color="var(--primary)" /> Empresa / Cliente
+                            </label>
+                            <select name="client" value={formData.client} onChange={(e) => { handleInputChange(e); setFormData(prev => ({ ...prev, sede: '', user: '', assetId: '' })); }} className="form-input" required style={{ borderRadius: '12px', padding: '12px' }}>
                                 <option value="">Seleccione cliente...</option>
                                 {clients.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                             </select>
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
                         <div className="form-group">
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Sede</label>
-                            <select name="sede" value={formData.sede} onChange={handleInputChange} className="form-input" disabled={!formData.client || clientSedes.length === 0}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
+                                <MapPin size={18} color="var(--primary)" /> Sede
+                            </label>
+                            <select name="sede" value={formData.sede} onChange={handleInputChange} className="form-input" disabled={!formData.client || clientSedes.length === 0} style={{ borderRadius: '12px', padding: '12px' }}>
                                 <option value="">Sede Principal</option>
                                 {clientSedes.map((s: any) => <option key={s.id} value={s.name}>{s.name}</option>)}
                             </select>
                         </div>
                         <div className="form-group">
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600 }}>Usuario Final</label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
+                                <Users size={18} color="var(--primary)" /> Usuario Final
+                            </label>
                             <select name="user" value={formData.user} onChange={(e) => {
                                 const newUserName = e.target.value;
                                 const empAssets = inventory.filter(inv => (inv.clientName === formData.client || inv.company?.name === formData.client) && (inv.assignedEmployee === newUserName || inv.employee?.name === newUserName));
                                 setFormData(prev => ({ ...prev, user: newUserName, assetId: empAssets.length === 1 ? empAssets[0].id : '' }));
-                            }} className="form-input" disabled={!formData.client || clientEmployees.length === 0}>
+                            }} className="form-input" disabled={!formData.client || clientEmployees.length === 0} style={{ borderRadius: '12px', padding: '12px' }}>
                                 <option value="">Seleccione usuario...</option>
                                 {clientEmployees.map((e: any) => <option key={e.id} value={e.name}>{e.name}</option>)}
                             </select>
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                        <div className="form-group"><label>Ticket ID</label><input type="text" name="ticketId" value={formData.ticketId} onChange={handleInputChange} className="form-input" /></div>
-                        <div className="form-group"><label>Fecha</label><input type="date" name="date" value={formData.date} onChange={handleInputChange} className="form-input" required /></div>
-                        <div className="form-group"><label>Hora</label><input type="time" name="time" value={formData.time} onChange={handleInputChange} className="form-input" required /></div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.2fr 1fr', gap: '1.25rem', marginBottom: '2.5rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '16px', border: '1px dashed #cbd5e1' }}>
                         <div className="form-group">
-                            <label>Modalidad</label>
-                            <select name="modality" value={formData.modality} onChange={handleInputChange} className="form-input">
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px' }}><FileText size={14} /> Ticket ID</label>
+                            <input type="text" name="ticketId" value={formData.ticketId} onChange={handleInputChange} className="form-input" placeholder="Opcional" style={{ borderRadius: '8px' }} />
+                        </div>
+                        <div className="form-group">
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px' }}><Calendar size={14} /> Fecha</label>
+                            <input type="date" name="date" value={formData.date} onChange={handleInputChange} className="form-input" required style={{ borderRadius: '8px' }} />
+                        </div>
+                        <div className="form-group">
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px' }}><Clock size={14} /> Hora</label>
+                            <input type="time" name="time" value={formData.time} onChange={handleInputChange} className="form-input" required style={{ borderRadius: '8px' }} />
+                        </div>
+                        <div className="form-group">
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px' }}><MonitorCheck size={14} /> Modalidad</label>
+                            <select name="modality" value={formData.modality} onChange={handleInputChange} className="form-input" style={{ borderRadius: '8px' }}>
                                 <option value="Soporte Remoto">Remoto</option>
-                                <option value="Visita Técnica Programada">Visita</option>
+                                <option value="Visita Técnica Programada">Presencial</option>
+                                <option value="Soporte Directo">Directo</option>
                             </select>
                         </div>
                     </div>
 
-                    <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                        <label style={{ fontWeight: 600 }}>Descripción del Problema</label>
-                        <textarea name="activities" value={formData.activities} onChange={handleInputChange} className="form-input" rows={3}></textarea>
+                    <div className="form-group" style={{ marginBottom: '2.5rem' }}>
+                        <label style={{ display: 'block', fontWeight: 800, color: '#1e293b', marginBottom: '1rem', borderLeft: '4px solid #cbd5e1', paddingLeft: '1rem', fontSize: '1rem' }}>
+                             Descripción del Problema
+                        </label>
+                        <textarea name="activities" value={formData.activities} onChange={handleInputChange} className="form-input" rows={3} style={{ borderRadius: '16px', padding: '1.25rem', width: '100%' }} placeholder="Escriba aquí los detalles del requerimiento solicitado..."></textarea>
                     </div>
 
-                    <div className="form-group" style={{ marginBottom: '2rem' }}>
-                        <label style={{ fontWeight: 700, color: 'var(--primary)' }}>Actividad Realizada por el Técnico *</label>
-                        <textarea name="activitySummary" value={formData.activitySummary} onChange={handleInputChange} className="form-input" rows={5} required placeholder="Describa su solución técnica aquí..."></textarea>
+                    <div className="form-group" style={{ marginBottom: '3rem' }}>
+                        <label style={{ display: 'block', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem', borderLeft: '4px solid var(--primary)', paddingLeft: '1rem', fontSize: '1rem' }}>
+                             Actividad Realizada por el Técnico *
+                        </label>
+                        <textarea name="activitySummary" value={formData.activitySummary} onChange={handleInputChange} className="form-input" rows={6} required placeholder="Describa a detalle la solución técnica aplicada o los procedimientos realizados..." style={{ borderRadius: '16px', padding: '1.5rem', width: '100%', border: '1px solid var(--primary-glow)', boxShadow: '0 4px 6px rgba(37, 99, 235, 0.05)' }}></textarea>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                    <div style={{ background: '#f1f5f9', padding: '2rem', borderRadius: '20px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div className="form-group">
-                            <label>Equipo (Inventario)</label>
-                            <select name="assetId" value={formData.assetId} onChange={handleInputChange} className="form-input">
-                                <option value="">General...</option>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
+                                <Laptop size={18} color="var(--primary)" /> Equipo (Inventario)
+                            </label>
+                            <select name="assetId" value={formData.assetId} onChange={handleInputChange} className="form-input" style={{ borderRadius: '12px' }}>
+                                <option value="">Soporte General / Sin equipo específico</option>
                                 {filteredInventory.map((inv: any) => <option key={inv.id} value={inv.id}>{inv.equipment_id} - {inv.brand} {inv.model}</option>)}
                             </select>
                         </div>
-                        <label style={{ display: 'flex', gap: '10px' }}>
-                            <input type="checkbox" name="maintenancePerformed" checked={formData.maintenancePerformed} onChange={handleInputChange} /> Mantenimiento Realizado
-                        </label>
-                        <label style={{ display: 'flex', gap: '10px' }}>
-                            <input type="checkbox" name="partsChanged" checked={formData.partsChanged} onChange={handleInputChange} /> Cambio de Piezas
-                        </label>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                            <div style={{ background: 'white', padding: '1.25rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                                <label style={{ display: 'flex', gap: '12px', alignItems: 'center', cursor: 'pointer', fontWeight: 600 }}>
+                                    <input type="checkbox" name="maintenancePerformed" checked={formData.maintenancePerformed} onChange={handleInputChange} style={{ width: '20px', height: '20px' }} /> 
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Wrench size={18} color="#10b981" /> Mantenimiento</span>
+                                </label>
+                                {formData.maintenancePerformed && (
+                                    <select style={{ width: '100%', marginTop: '12px', padding: '8px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}>
+                                        <option>Preventivo</option>
+                                        <option>Correctivo</option>
+                                        <option>Limpieza Física</option>
+                                        <option>Optimización Software</option>
+                                    </select>
+                                )}
+                            </div>
+                            <div style={{ background: 'white', padding: '1.25rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                                <label style={{ display: 'flex', gap: '12px', alignItems: 'center', cursor: 'pointer', fontWeight: 600 }}>
+                                    <input type="checkbox" name="partsChanged" checked={formData.partsChanged} onChange={handleInputChange} style={{ width: '20px', height: '20px' }} /> 
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Cpu size={18} color="#f59e0b" /> Cambio de Piezas</span>
+                                </label>
+                                {formData.partsChanged && (
+                                    <input 
+                                        type="text" 
+                                        placeholder="¿Qué piezas se reemplazaron?" 
+                                        className="form-input" 
+                                        style={{ marginTop: '12px', width: '100%', padding: '8px', fontSize: '0.85rem', borderRadius: '8px' }}
+                                        name="partsDetails"
+                                        value={formData.partsDetails}
+                                        onChange={handleInputChange}
+                                    />
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div style={{ gridColumn: 'span 4' }}>
-                    <div className="card glass">
-                        <h3 style={{ marginBottom: '1.5rem' }}>Resolución</h3>
-                        <select name="isResolved" value={formData.isResolved} onChange={handleInputChange} className="form-input" style={{ marginBottom: '1.5rem' }}>
-                            <option value="Si">Resuelto</option>
-                            <option value="Parcial">Seguimiento</option>
-                            <option value="No">No Resuelto</option>
-                        </select>
-                        <button className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
-                            {loading ? 'Guardando...' : <><Save size={20} /> Guardar Reporte</>}
+                <div style={{ gridColumn: 'span 4', position: 'sticky', top: '2rem' }}>
+                    <div className="card glass shadow-xl" style={{ border: 'none', background: 'linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%)', padding: '2rem', borderRadius: '24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
+                            <div style={{ background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', padding: '8px', borderRadius: '10px', color: 'white' }}>
+                                <MonitorCheck size={20} />
+                            </div>
+                            <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Resolución</h3>
+                        </div>
+
+                        <div className="form-group" style={{ marginBottom: '2rem' }}>
+                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#64748b', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                Estado Final
+                            </label>
+                            <div style={{ position: 'relative' }}>
+                                <select 
+                                    name="isResolved" 
+                                    value={formData.isResolved} 
+                                    onChange={handleInputChange} 
+                                    className="form-input" 
+                                    style={{ 
+                                        borderRadius: '14px', 
+                                        padding: '12px 16px', 
+                                        fontWeight: 800,
+                                        fontSize: '1rem',
+                                        background: formData.isResolved === 'Si' ? '#ecfdf5' : formData.isResolved === 'No' ? '#fef2f2' : '#fff7ed',
+                                        color: formData.isResolved === 'Si' ? '#059669' : formData.isResolved === 'No' ? '#dc2626' : '#d97706',
+                                        border: '2px solid currentColor'
+                                    }}
+                                >
+                                    <option value="Si">✓ RESUELTO</option>
+                                    <option value="Parcial">⚠ SEGUIMIENTO</option>
+                                    <option value="No">✗ NO RESUELTO</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button 
+                            className="btn-primary" 
+                            style={{ 
+                                width: '100%', 
+                                padding: '1.25rem', 
+                                borderRadius: '16px', 
+                                fontSize: '1.1rem', 
+                                fontWeight: 800,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '12px',
+                                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                                boxShadow: '0 10px 20px rgba(37, 99, 235, 0.3)',
+                                transition: 'all 0.3s'
+                            }} 
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                'Guardando...' 
+                            ) : (
+                                <>
+                                    <Save size={24} /> 
+                                    Guardar Reporte
+                                </>
+                            )}
                         </button>
+                        
+                        <p style={{ marginTop: '1.5rem', fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center', fontWeight: 500 }}>
+                            Al guardar, el reporte quedará disponible para consulta e impresión inmediata.
+                        </p>
                     </div>
                 </div>
             </form>
