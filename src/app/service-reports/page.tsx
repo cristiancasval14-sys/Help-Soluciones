@@ -151,16 +151,21 @@ export default function ServiceReports() {
         fetchData();
     }, [searchParams]);
 
-    const selectedClientObj = clients.find(c => c.name === formData.client || c.id === formData.client);
+    const selectedClientObj = clients.find(c => (c.name?.trim().toLowerCase() === formData.client?.trim().toLowerCase()) || c.id === formData.client);
     const clientSedes = selectedClientObj?.sedes || [];
     const clientEmployees = selectedClientObj?.employees || [];
 
     const filteredInventory = inventory.filter(inv => {
         if (!formData.user) return false;
-        const itemClient = inv.clientName || inv.company?.name;
-        const itemEmployee = inv.assignedEmployee || inv.employee?.name;
-        if (formData.client && itemClient !== (selectedClientObj?.name || formData.client)) return false;
-        if (itemEmployee !== formData.user) return false;
+        
+        const clientName = (selectedClientObj?.name || formData.client || '').trim().toLowerCase();
+        const userName = (formData.user || '').trim().toLowerCase();
+        
+        const itemClient = (inv.clientName || inv.company?.name || '').trim().toLowerCase();
+        const itemEmployee = (inv.assignedEmployee || inv.employee?.name || '').trim().toLowerCase();
+        
+        if (clientName && itemClient !== clientName) return false;
+        if (userName && itemEmployee !== userName) return false;
         return true;
     });
 
@@ -255,7 +260,7 @@ export default function ServiceReports() {
         <div className="service-reports-page fade-in">
             <header style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                    <h1 style={{ fontSize: '2rem' }}>Reporte Técnico</h1>
+                    <h1 style={{ fontSize: '2rem', fontWeight: 900 }}>Reporte Técnico V8</h1>
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Registro y control de actividades, mantenimientos y cambios físicos.</p>
                 </div>
             </header>
@@ -273,10 +278,10 @@ export default function ServiceReports() {
             )}
 
             <form onSubmit={handleSubmit} className="form-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '2rem' }}>
-                <div className="card glass" style={{ gridColumn: 'span 8', padding: '2rem' }}>
+                <div className="card glass" style={{ gridColumn: 'span 8', padding: '2rem', background: 'rgba(59, 130, 246, 0.03)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2rem', borderBottom: '1px solid var(--surface-border)', paddingBottom: '1rem' }}>
                         <FileText size={20} color="var(--primary)" />
-                        <h2 style={{ fontSize: '1.2rem' }}>Información del Servicio</h2>
+                        <h2 style={{ fontSize: '1.2rem' }}>Información del Servicio V8</h2>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
