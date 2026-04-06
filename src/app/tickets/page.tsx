@@ -81,6 +81,9 @@ export default function TicketsList() {
                         filtered = ticketsData.filter((t: any) => t.company?.name?.trim().toLowerCase() === user.assignedTo?.trim().toLowerCase());
                     }
                 }
+                
+                // Only show active tickets (exclude Finalizado/Resuelto as they go to Reports)
+                filtered = filtered.filter((t: any) => t.status !== 'Finalizado' && t.status !== 'Resuelto' && t.status !== 'Terminado');
                 setTickets(filtered as Ticket[]);
                 setStaffList(staffData);
 

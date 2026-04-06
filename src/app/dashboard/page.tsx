@@ -153,7 +153,13 @@ export default function Dashboard() {
                         key={kpi.label} 
                         className="card kpi-card glass" 
                         style={{ position: 'relative', overflow: 'hidden', cursor: 'pointer' }}
-                        onClick={() => router.push(`/tickets?filter=${kpi.label}`)}
+                        onClick={() => {
+                            if (['Resueltos', 'Resuelto', 'Finalizado', 'Terminado'].includes(kpi.label)) {
+                                router.push('/reports');
+                            } else {
+                                router.push(`/tickets?filter=${kpi.label}`);
+                            }
+                        }}
                         title={`Ver detalles de ${kpi.label} en Gestión Tickets`}
                     >
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
