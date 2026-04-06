@@ -374,65 +374,15 @@ export default function ServiceReports() {
 
             {/* Detailed Report Modal */}
             {showDetailModal && selectedReport && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
-                     <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '16px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', position: 'relative' }}>
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
+                     <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative' }}>
                         
-                        {/* Aesthetic Toolbar inside the sheet */}
-                        <div className="no-print" style={{ 
-                            display: 'flex', 
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '1.25rem 3rem', 
-                            background: '#f8fafc',
-                            borderBottom: '1px solid #e2e8f0',
-                            position: 'sticky',
-                            top: 0,
-                            zIndex: 10
-                        }}>
-                             <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#94a3b8', letterSpacing: '0.05em' }}>
-                                 VISTA PREVIA DEL DOCUMENTO
-                             </span>
-                             <div style={{ display: 'flex', gap: '12px' }}>
-                                 <button 
-                                    onClick={() => window.print()} 
-                                    style={{ 
-                                        background: '#2563eb', 
-                                        color: 'white', 
-                                        border: 'none', 
-                                        borderRadius: '8px', 
-                                        padding: '8px 16px', 
-                                        fontWeight: 700, 
-                                        fontSize: '0.9rem',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        cursor: 'pointer',
-                                    }}
-                                 >
-                                    <Save size={18} /> Imprimir / PDF
-                                 </button>
-                                 <button 
-                                    onClick={() => setShowDetailModal(false)} 
-                                    style={{ 
-                                        background: 'white', 
-                                        color: '#475569', 
-                                        border: '1px solid #cbd5e1', 
-                                        borderRadius: '8px', 
-                                        padding: '8px 16px', 
-                                        fontWeight: 700, 
-                                        fontSize: '0.9rem',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        cursor: 'pointer',
-                                    }}
-                                 >
-                                    <X size={18} /> Cerrar
-                                 </button>
-                             </div>
+                        <div className="no-print" style={{ position: 'sticky', top: '0', right: '0', zIndex: 100, display: 'flex', justifyContent: 'flex-end', gap: '8px', padding: '20px', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', borderBottom: '1px solid #f1f5f9', borderRadius: '24px 24px 0 0' }}>
+                             <button className="btn btn-primary" onClick={() => window.print()} style={{ borderRadius: '10px' }}><Save size={18} /> Imprimir / PDF</button>
+                             <button className="btn-icon" onClick={() => setShowDetailModal(false)} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px', cursor: 'pointer' }}><X size={24} /></button>
                         </div>
 
-                        <div id="printable-report" style={{ padding: '3rem 5rem 5rem 5rem' }}>
+                        <div id="printable-report" style={{ padding: '4rem 5rem' }}>
                             <header style={{ marginBottom: '4rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                                 <div style={{ marginBottom: '1.5rem' }}>
                                     <img src="/logo.png" alt="Help Soluciones" style={{ height: '72px', width: 'auto', objectFit: 'contain' }} />
