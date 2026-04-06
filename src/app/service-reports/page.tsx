@@ -377,8 +377,8 @@ export default function ServiceReports() {
                 <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
                      <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative' }}>
                         
-                        <div className="no-print" style={{ position: 'sticky', top: '0', right: '0', zIndex: 100, display: 'flex', justifyContent: 'flex-end', gap: '8px', padding: '20px', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', borderBottom: '1px solid #f1f5f9', borderRadius: '24px 24px 0 0' }}>
-                             <button className="btn btn-primary" onClick={() => window.print()} style={{ borderRadius: '10px' }}><Save size={18} /> Imprimir / PDF</button>
+                        <div className="no-print" style={{ position: 'absolute', top: '25px', right: '25px', zIndex: 100, display: 'flex', gap: '8px' }}>
+                             <button className="btn btn-primary" onClick={() => window.print()} style={{ borderRadius: '10px', padding: '10px 15px' }}><Save size={18} /> Imprimir / PDF</button>
                              <button className="btn-icon" onClick={() => setShowDetailModal(false)} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px', cursor: 'pointer' }}><X size={24} /></button>
                         </div>
 
