@@ -228,18 +228,53 @@ export default function ReportsHistory() {
                 <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
                      <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative' }}>
                         
-                        <div className="no-print" style={{ position: 'absolute', top: '25px', right: '25px', zIndex: 100, display: 'flex', gap: '8px' }}>
-                             <button className="btn btn-primary" onClick={() => window.print()} style={{ borderRadius: '10px', padding: '10px 15px' }}><Save size={18} /> Imprimir / PDF</button>
-                             <button className="btn-icon" onClick={() => setShowDetailModal(false)} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px', cursor: 'pointer' }}><X size={24} /></button>
+                        <div className="no-print" style={{ 
+                            position: 'fixed', 
+                            top: '20px', 
+                            right: '20px', 
+                            zIndex: 99999, 
+                            display: 'flex', 
+                            gap: '12px' 
+                        }}>
+                             <button 
+                                onClick={() => window.print()} 
+                                style={{ 
+                                    background: '#2563eb', 
+                                    color: 'white', 
+                                    border: 'none', 
+                                    borderRadius: '12px', 
+                                    padding: '12px 24px', 
+                                    fontWeight: 900, 
+                                    boxShadow: '0 10px 20px rgba(0,0,0,0.3)',
+                                    cursor: 'pointer'
+                                }}
+                             >
+                                <Save size={20} /> IMPRIMIR (PDF)
+                             </button>
+                             <button 
+                                onClick={() => setShowDetailModal(false)} 
+                                style={{ 
+                                    background: 'white', 
+                                    color: '#f43f5e', 
+                                    border: '3px solid #f43f5e', 
+                                    borderRadius: '12px', 
+                                    padding: '12px 24px', 
+                                    fontWeight: 900, 
+                                    boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
+                                    cursor: 'pointer'
+                                }}
+                             >
+                                <X size={20} /> CERRAR
+                             </button>
                         </div>
 
-                        <div id="printable-report" style={{ padding: '3rem 5rem 5rem 5rem' }}>
+                        <div id="printable-report" style={{ padding: '3.5rem 5rem 5rem 5rem' }}>
                             <header style={{ marginBottom: '4rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                                 <div style={{ marginBottom: '1.5rem' }}>
                                     <img src="/logo.png" alt="Help Soluciones" style={{ height: '72px', width: 'auto', objectFit: 'contain' }} />
                                 </div>
                                 <div style={{ borderTop: '2px solid #334155', paddingTop: '1.5rem', width: '100%' }}>
-                                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO</h1>
+                                    <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO (VERSIÓN 4.0)</h1>
                                     <p style={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 700, marginTop: '8px', marginBottom: '4px' }}>Certificado N°: {selectedReport.report_id}</p>
                                     <p style={{ fontSize: '1rem', color: '#64748b', margin: 0, fontWeight: 600 }}>Ticket Relacionado: {selectedReport.ticket_id || 'Servicio Programado / Directo'}</p>
                                 </div>
