@@ -387,10 +387,10 @@ export default function ServiceReports() {
                             borderBottom: '1px solid #e2e8f0',
                             position: 'sticky',
                             top: 0,
-                            zIndex: 10
+                            zIndex: 10000
                         }}>
                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#94a3b8', letterSpacing: '0.05em' }}>
-                                 VISTA PREVIA DEL REPORTE TÉCNICO
+                                 VISTA PREVIA DEL REPORTE TÉCNICO V6
                              </span>
                              <div style={{ display: 'flex', gap: '12px' }}>
                                  <button 
@@ -401,7 +401,7 @@ export default function ServiceReports() {
                                         border: 'none', 
                                         borderRadius: '8px', 
                                         padding: '8px 16px', 
-                                        fontWeight: 700, 
+                                        fontWeight: 800, 
                                         fontSize: '0.9rem',
                                         display: 'flex',
                                         alignItems: 'center',
@@ -409,7 +409,7 @@ export default function ServiceReports() {
                                         cursor: 'pointer',
                                     }}
                                  >
-                                    <Save size={18} /> Imprimir / PDF
+                                    <Save size={18} /> IMPRIMIR V6 / PDF
                                  </button>
                                  <button 
                                     onClick={() => setShowDetailModal(false)} 
@@ -419,7 +419,7 @@ export default function ServiceReports() {
                                         border: '1px solid #cbd5e1', 
                                         borderRadius: '8px', 
                                         padding: '8px 16px', 
-                                        fontWeight: 700, 
+                                        fontWeight: 800, 
                                         fontSize: '0.9rem',
                                         display: 'flex',
                                         alignItems: 'center',
@@ -427,7 +427,7 @@ export default function ServiceReports() {
                                         cursor: 'pointer',
                                     }}
                                  >
-                                    <X size={18} /> Cerrar
+                                    <X size={18} /> CERRAR V6
                                  </button>
                              </div>
                         </div>
@@ -438,7 +438,7 @@ export default function ServiceReports() {
                                     <img src="/logo.png" alt="Help Soluciones" style={{ height: '72px', width: 'auto', objectFit: 'contain' }} />
                                 </div>
                                 <div style={{ borderTop: '2px solid #334155', paddingTop: '1.5rem', width: '100%' }}>
-                                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO</h1>
+                                    <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO V6</h1>
                                     <p style={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 700, marginTop: '8px', marginBottom: '4px' }}>Reporte N°: {selectedReport.report_id}</p>
                                     <p style={{ fontSize: '1rem', color: '#64748b', margin: 0, fontWeight: 600 }}>Ticket Relacionado: {selectedReport.ticket_id || 'Servicio Programado / Directo'}</p>
                                 </div>
