@@ -2,427 +2,361 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-    BarChart3,
-    Calendar,
-    Download,
-    Filter,
     Database,
-    Clock,
-    CheckCircle,
-    PieChart as PieChartIcon,
+    MonitorCheck,
+    Trash2,
+    Search,
+    Calendar,
+    User,
+    Building2,
     FileText,
-    Users,
-    TrendingUp
+    Wrench,
+    X,
+    Save,
+    Laptop,
+    Clock
 } from 'lucide-react';
-import { InventoryService, CompanyService, TicketService, StaffService } from '@/lib/services';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import * as XLSX from 'xlsx';
+import { StaffService, CompanyService, InventoryService, ServiceReportService } from '@/lib/services';
+import { useSearchParams } from 'next/navigation';
 
-interface Ticket {
-    id: string;
-    client: string;
-    requester: string;
-    type: string;
-    priority: string;
-    status: string;
-    date: string;
-    assignedTo?: string;
-    techNotes?: string;
-    description?: string;
-    assetId?: string;
-}
-
-interface User {
-    id: string;
-    username: string;
-    role: string;
-    assignedTo: string;
-}
-
-export default function Reports() {
-    const [generating, setGenerating] = useState(false);
-    const [filters, setFilters] = useState({
-        client: 'Todos los Clientes',
-        employee: 'Todos los Usuarios',
-        technician: 'Todos los Técnicos',
-        equipment: 'Todos los Equipos',
-        startDate: '',
-        endDate: ''
-    });
+export default function ReportsHistory() {
+    const [reports, setReports] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [selectedReport, setSelectedReport] = useState<any>(null);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
     
-    const [inventory, setInventory] = useState<any[]>([]);
-    const [clients, setClients] = useState<any[]>([]);
-    const [tickets, setTickets] = useState<Ticket[]>([]);
-    const [technicians, setTechnicians] = useState<string[]>([]);
+    const searchParams = useSearchParams();
 
     useEffect(() => {
         const fetchData = async () => {
-             try {
-                 const [invData, clientData, ticketData, staffData] = await Promise.all([
-                     InventoryService.getAll(),
-                     CompanyService.getAll(),
-                     TicketService.getAll(),
-                     StaffService.getAll()
-                 ]);
+            const session = localStorage.getItem('help_session');
+            const user = session ? JSON.parse(session) : null;
+            setIsAdmin(user?.role === 'Administrador');
 
-                 setInventory(invData as any[]);
-                 setClients(clientData as any[]);
-                 setTickets(ticketData.map((t: any) => ({
-                    id: t.id,
-                    client: t.company?.name || '---',
-                    requester: t.requester_name,
-                    type: t.type,
-                    priority: t.priority,
-                    status: t.status,
-                    date: t.date || t.created_at?.split('T')[0],
-                    assignedTo: t.staff ? `${t.staff.first_name} ${t.staff.last_name}` : undefined,
-                    techNotes: t.tech_notes,
-                    description: t.description,
-                    assetId: t.inventory_id
-                 })));
+            try {
+                const [staffList, clientList, invList, reportsList] = await Promise.all([
+                    StaffService.getAll(),
+                    CompanyService.getAll(),
+                    InventoryService.getAll(),
+                    ServiceReportService.getAll()
+                ]);
 
-                 setTechnicians(staffData.map((s: any) => `${s.first_name} ${s.last_name}`));
-             } catch (err) {
-                 console.error("Error loading reports data:", err);
-             }
-        };
+                // Enrichment logic (same as service-reports page)
+                const enriched = (reportsList as any[]).map(r => {
+                    const company = (clientList as any[]).find(c => c.id === r.company_id);
+                    const invItem = (invList as any[]).find(i => i.id === r.inventory_id);
+                    let employee: any = null;
+                    let sede: any = null;
+                    if (company) {
+                        employee = (company.employees || []).find((e: any) => e.id === r.employee_id);
+                        sede = (company.sedes || []).find((s: any) => s.id === r.sede_id);
+                    }
+                    return {
+                        ...r,
+                        company: company
+                            ? { id: company.id, name: company.name }
+                            : (r.company_name ? { name: r.company_name } : null),
+                        employee: employee
+                            ? { id: employee.id, name: employee.name }
+                            : (r.employee_name ? { name: r.employee_name } : null),
+                        sede: sede
+                            ? { id: sede.id, name: sede.name }
+                            : (r.sede_name ? { name: r.sede_name } : null),
+                        inventory: invItem ? {
+                            id: invItem.id,
+                            equipment_id: invItem.equipment_id,
+                            brand: invItem.brand,
+                            model: invItem.model,
+                        } : null,
+                        technician_photo: (staffList as any[]).find(s => s.id === r.technician_id || `${s.first_name} ${s.last_name}` === r.technician_name)?.photo
+                    };
+                });
+                
+                setReports(enriched.reverse()); // Latest first
+                setLoading(false);
 
-        fetchData();
-    }, []);
-
-    const getFilteredTickets = () => {
-        return tickets.filter(t => {
-            const matchClient = filters.client === 'Todos los Clientes' || t.client === filters.client;
-            const matchTech = filters.technician === 'Todos los Técnicos' || t.assignedTo === filters.technician;
-            const matchEquip = filters.equipment === 'Todos los Equipos' || t.assetId === filters.equipment;
-            const matchUser = filters.employee === 'Todos los Usuarios' || t.requester === filters.employee;
-            
-            let matchDate = true;
-            if (filters.startDate) matchDate = matchDate && t.date >= filters.startDate;
-            if (filters.endDate) matchDate = matchDate && t.date <= filters.endDate;
-
-            return matchClient && matchTech && matchEquip && matchDate && matchUser;
-        });
-    };
-
-    const generatePDF = () => {
-        const filteredData = getFilteredTickets();
-        if (filteredData.length === 0) {
-            alert('No hay datos para exportar con los filtros seleccionados.');
-            return;
-        }
-
-        setGenerating(true);
-        const doc = new jsPDF() as any;
-
-        // -- Page Styling --
-        const primaryColor = [67, 56, 202]; // Indigo 700
-        const lightGray = [249, 250, 251];
-
-        // Header Rect
-        doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-        doc.rect(0, 0, 210, 40, 'F');
-
-        // Logo Simulation / Text
-        doc.setTextColor(255);
-        doc.setFontSize(24);
-        doc.setFont('helvetica', 'bold');
-        doc.text('HELP SOLUCIONES', 14, 25);
-        
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        doc.text('REPORTE OFICIAL DE SERVICIOS TÉCNICOS', 14, 32);
-
-        // Metadata Right aligned
-        doc.setFontSize(9);
-        doc.text(`Generado: ${new Date().toLocaleString()}`, 196, 20, { align: 'right' });
-        doc.text(`ID Reporte: HS-${Math.floor(Date.now() / 10000)}`, 196, 26, { align: 'right' });
-
-        // -- Summary Box --
-        doc.setTextColor(50);
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Resumen de Filtros Aplicados', 14, 55);
-
-        const filterSummary = [
-            ['Cliente:', filters.client, 'Técnico:', filters.technician],
-            ['Desde:', filters.startDate || 'Inicio', 'Hasta:', filters.endDate || 'Hoy'],
-            ['Equipo:', filters.equipment, 'Total Encontrado:', filteredData.length.toString()]
-        ];
-
-        doc.autoTable({
-            startY: 60,
-            body: filterSummary,
-            theme: 'plain',
-            styles: { fontSize: 9, cellPadding: 2 },
-            columnStyles: { 0: { fontStyle: 'bold', width: 25 }, 2: { fontStyle: 'bold', width: 35 } }
-        });
-
-        // -- Stats Bar --
-        const resolved = filteredData.filter(t => ['Resuelto', 'Terminado', 'Finalizado', 'Cerrado'].includes(t.status)).length;
-        const pending = filteredData.length - resolved;
-        const resolutionRate = ((resolved / filteredData.length) * 100).toFixed(1);
-
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Indicadores de Rendimiento', 14, doc.lastAutoTable.finalY + 15);
-
-        const statsData = [
-            ['Total Solicitudes', 'Tickets Finalizados', 'Tickets Pendientes', '% Efectividad'],
-            [filteredData.length.toString(), resolved.toString(), pending.toString(), `${resolutionRate}%`]
-        ];
-
-        doc.autoTable({
-            startY: doc.lastAutoTable.finalY + 20,
-            head: [statsData[0]],
-            body: [statsData[1]],
-            theme: 'grid',
-            headStyles: { fillColor: primaryColor, textColor: 255, halign: 'center' },
-            bodyStyles: { halign: 'center', fontSize: 12, fontStyle: 'bold' }
-        });
-
-        // -- Detailed Table --
-        doc.setFontSize(11);
-        doc.text('Desglose Detallado de Actividades', 14, doc.lastAutoTable.finalY + 15);
-
-        const tableRows = filteredData.map(t => [
-            t.id,
-            t.date,
-            t.client,
-            t.assignedTo || 'Sin asignar',
-            t.status,
-            t.priority
-        ]);
-
-        doc.autoTable({
-            startY: doc.lastAutoTable.finalY + 20,
-            head: [['Ticket ID', 'Fecha', 'Empresa / Cliente', 'Técnico Responsable', 'Estado', 'Prioridad']],
-            body: tableRows,
-            theme: 'striped',
-            headStyles: { fillColor: [100, 116, 139], textColor: 255 }, // Slate 500
-            styles: { fontSize: 8 },
-            columnStyles: {
-                0: { fontStyle: 'bold' }
+                // Check for view param in URL
+                const viewId = searchParams.get('view');
+                if (viewId) {
+                    const reportToView = enriched.find(r => r.id === viewId);
+                    if (reportToView) {
+                        setSelectedReport(reportToView);
+                        setShowDetailModal(true);
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading reports data:", err);
+                setLoading(false);
             }
-        });
+        };
+        fetchData();
+    }, [searchParams]);
 
-        // -- Footer / Signatures --
-        const finalY = doc.lastAutoTable.finalY + 30;
-        if (finalY < 250) {
-            doc.setLineWidth(0.5);
-            doc.line(14, finalY, 70, finalY);
-            doc.line(130, finalY, 190, finalY);
-            
-            doc.setFontSize(8);
-            doc.text('Firma Responsable Help Soluciones', 14, finalY + 5);
-            doc.text('Sello / Firma de Conformidad Cliente', 130, finalY + 5);
+    const handleDeleteReport = async (id: string, reportId: string) => {
+        if (!confirm(`¿Estas seguro de eliminar el reporte ${reportId}? Esta accion no se puede deshacer.`)) return;
+        try {
+            await ServiceReportService.delete(id);
+            setReports(prev => prev.filter(r => r.id !== id));
+        } catch (err) {
+            console.error('Error eliminando reporte:', err);
+            alert('Error al eliminar el reporte. Intente nuevamente.');
         }
-
-        // Page Numbers
-        const pageCount = doc.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-            doc.setPage(i);
-            doc.setFontSize(8);
-            doc.setTextColor(150);
-            doc.text(`Help Soluciones e Ingeniería - www.helpsoluciones.com | Página ${i} de ${pageCount}`, 105, 290, { align: 'center' });
-        }
-
-        doc.save(`Reporte_HS_${new Date().toISOString().split('T')[0]}.pdf`);
-        setGenerating(false);
     };
 
-    const generateExcel = () => {
-        const filteredData = getFilteredTickets();
-        if (filteredData.length === 0) {
-            alert('No hay datos para exportar con los filtros seleccionados.');
-            return;
-        }
-
-        const worksheetData = filteredData.map(t => ({
-            'ID Ticket': t.id,
-            'Fecha': t.date,
-            'Empresa / Cliente': t.client,
-            'Usuario Solicitante': t.requester,
-            'Técnico Asignado': t.assignedTo || 'Sin asignar',
-            'Equipo (ID)': t.assetId || 'N/A',
-            'Tipo de Servicio': t.type,
-            'Prioridad': t.priority,
-            'Estado': t.status,
-            'Descripción': t.description || '',
-            'Notas Técnicas': t.techNotes || ''
-        }));
-
-        const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Soportes");
-
-        // Column widths for better presentation
-        const wscols = [
-            { wch: 12 }, { wch: 12 }, { wch: 25 }, { wch: 25 }, 
-            { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 10 }, 
-            { wch: 12 }, { wch: 40 }, { wch: 40 }
-        ];
-        worksheet['!cols'] = wscols;
-
-        XLSX.writeFile(workbook, `Reporte_Tickets_HS_${new Date().toISOString().split('T')[0]}.xlsx`);
-    };
+    const filteredReports = reports.filter(r => 
+        r.report_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (r.technician_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (r.company?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (r.employee?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
-        <div className="reports-page fade-in">
-            <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div className="reports-history-page fade-in">
+            <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <h1 style={{ fontSize: '2.25rem' }}>Informes Avanzados</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Análisis de rendimiento, KPIs e indicadores de servicio</p>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <button className="btn btn-primary" style={{ padding: '0.8rem 1.2rem' }} onClick={generatePDF} disabled={generating}>
-                        <FileText size={18} /> {generating ? 'Generando PDF...' : 'Exportar PDF'}
-                    </button>
-                    <button className="btn glass" style={{ padding: '0.8rem 1.2rem', color: 'var(--success)', borderColor: 'var(--success)' }} onClick={generateExcel}>
-                        <Database size={18} /> Exportar Excel
-                    </button>
+                    <h1 style={{ fontSize: '2rem' }}>Historial de Informes</h1>
+                    <p style={{ color: 'var(--text-muted)' }}>Módulo de consulta, seguimiento e impresión de reportes técnicos realizados.</p>
                 </div>
             </header>
 
-            {/* Filter Section */}
-            <div className="filter-bar glass" style={{ padding: '2rem', borderRadius: 'var(--radius-lg)', marginBottom: '3rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.5rem', alignItems: 'flex-end' }}>
-                <div className="filter-group">
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.6rem', color: 'var(--text-muted)' }}><Calendar size={14}/> FECHA INICIAL</label>
-                    <input type="date" className="form-input" style={{ width: '100%' }} value={filters.startDate} onChange={e => setFilters({ ...filters, startDate: e.target.value })} />
+            <div className="toolbar glass" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                    <Search size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <input 
+                        type="text" 
+                        placeholder="Buscar por ID, técnico, cliente o usuario..." 
+                        className="search-input"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ width: '100%', padding: '0.9rem 1rem 0.9rem 2.8rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', background: 'var(--surface)', fontSize: '1rem' }}
+                    />
                 </div>
-                <div className="filter-group">
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.6rem', color: 'var(--text-muted)' }}><Calendar size={14}/> FECHA FINAL</label>
-                    <input type="date" className="form-input" style={{ width: '100%' }} value={filters.endDate} onChange={e => setFilters({ ...filters, endDate: e.target.value })} />
-                </div>
-                <div className="filter-group">
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.6rem', color: 'var(--text-muted)' }}><Database size={14}/> CLIENTE</label>
-                    <select className="form-input" style={{ width: '100%' }} value={filters.client} onChange={e => setFilters({ ...filters, client: e.target.value, employee: 'Todos los Usuarios' })}>
-                        <option>Todos los Clientes</option>
-                        {clients.map((c: any) => (
-                            <option key={c.id} value={c.name}>{c.name}</option>
-                        ))}
-                    </select>
-                </div>
-                <div className="filter-group">
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.6rem', color: 'var(--text-muted)' }}><Users size={14}/> USUARIO SOLICITANTE</label>
-                    <select className="form-input" style={{ width: '100%' }} value={filters.employee} onChange={e => setFilters({ ...filters, employee: e.target.value })} disabled={filters.client === 'Todos los Clientes'}>
-                        <option value="Todos los Usuarios">Todos los Usuarios</option>
-                        {(() => {
-                            const selectedClient = clients.find(c => c.name === filters.client);
-                            if (!selectedClient) return null;
-                            return (selectedClient.employees || []).map((emp: any) => (
-                                <option key={emp.id} value={emp.name}>{emp.name}</option>
-                            ));
-                        })()}
-                    </select>
-                </div>
-                <div className="filter-group">
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.6rem', color: 'var(--text-muted)' }}><Database size={14}/> EQUIPO (ID)</label>
-                    <select className="form-input" style={{ width: '100%' }} value={filters.equipment} onChange={e => setFilters({ ...filters, equipment: e.target.value })}>
-                        <option value="Todos los Equipos">Todos los Equipos</option>
-                        {(() => {
-                            let filteredInv = inventory;
-                            if (filters.client !== 'Todos los Clientes') {
-                                filteredInv = filteredInv.filter((inv: any) => inv.clientName === filters.client);
-                            }
-                            return filteredInv.map((inv: any) => (
-                                <option key={inv.id} value={inv.equipment_id}>{inv.equipment_id} - {inv.brand} {inv.model}</option>
-                            ));
-                        })()}
-                    </select>
-                </div>
-                <div className="filter-group">
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.6rem', color: 'var(--text-muted)' }}><Users size={14}/> TÉCNICO ASIGNADO</label>
-                    <select className="form-input" style={{ width: '100%' }} value={filters.technician} onChange={e => setFilters({ ...filters, technician: e.target.value })}>
-                        <option>Todos los Técnicos</option>
-                        {technicians.map(tech => (
-                            <option key={tech} value={tech}>{tech}</option>
-                        ))}
-                    </select>
-                </div>
+                <button className="btn glass" style={{ height: '50px' }}><Calendar size={18} /> Filtrar Fecha</button>
             </div>
 
-            {/* Dashboard Simulation */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-                <div className="card glass" style={{ borderLeft: '4px solid var(--primary)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>TICKETS TOTALES</span>
-                        <TrendingUp size={18} color="var(--primary)" />
-                    </div>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: 800 }}>{getFilteredTickets().length}</h2>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Bajo los filtros actuales</p>
-                </div>
-                <div className="card glass" style={{ borderLeft: '4px solid var(--success)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>RESOLUCIÓN</span>
-                        <CheckCircle size={18} color="var(--success)" />
-                    </div>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: 800 }}>
-                        {(() => {
-                            const data = getFilteredTickets();
-                            if (data.length === 0) return '0%';
-                            const resolved = data.filter(t => ['Resuelto', 'Terminado', 'Finalizado', 'Cerrado'].includes(t.status)).length;
-                            return `${((resolved / data.length) * 100).toFixed(0)}%`;
-                        })()}
-                    </h2>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Efectividad en cierre</p>
-                </div>
-                <div className="card glass" style={{ borderLeft: '4px solid var(--warning)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>PRIORIDAD ALTA</span>
-                        <Clock size={18} color="var(--warning)" />
-                    </div>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: 800 }}>
-                        {getFilteredTickets().filter(t => t.priority === 'Alta' || t.priority === 'Crítica').length}
-                    </h2>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Casos urgentes</p>
-                </div>
-            </div>
-
-            <div className="card glass" style={{ padding: '0', overflow: 'hidden' }}>
-                <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--surface-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3 style={{ fontWeight: 700, fontSize: '1.1rem' }}>Vista Previa de Registros</h3>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Mostrando {getFilteredTickets().length} registros encontrados</span>
-                </div>
-                <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead style={{ background: 'var(--surface)', position: 'sticky', top: 0, zIndex: 10 }}>
-                            <tr>
-                                <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.8rem', borderBottom: '1px solid var(--surface-border)' }}>ID</th>
-                                <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.8rem', borderBottom: '1px solid var(--surface-border)' }}>CLIENTE</th>
-                                <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.8rem', borderBottom: '1px solid var(--surface-border)' }}>TÉCNICO</th>
-                                <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.8rem', borderBottom: '1px solid var(--surface-border)' }}>ESTADO</th>
-                                <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.8rem', borderBottom: '1px solid var(--surface-border)' }}>FECHA</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {getFilteredTickets().length === 0 ? (
-                                <tr>
-                                    <td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>No se encontraron registros bajo estos parámetros.</td>
+            <div className="table-container glass" style={{ padding: '1rem', borderRadius: 'var(--radius-md)', overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                        <tr style={{ borderBottom: '2px solid var(--surface-border)' }}>
+                            <th style={{ textAlign: 'left', padding: '1.2rem', fontSize: '0.85rem' }}>ID Reporte</th>
+                            <th style={{ textAlign: 'left', padding: '1.2rem', fontSize: '0.85rem' }}>Fecha / Hora</th>
+                            <th style={{ textAlign: 'left', padding: '1.2rem', fontSize: '0.85rem' }}>Cliente</th>
+                            <th style={{ textAlign: 'left', padding: '1.2rem', fontSize: '0.85rem' }}>Técnico</th>
+                            <th style={{ textAlign: 'left', padding: '1.2rem', fontSize: '0.85rem' }}>Equipo</th>
+                            <th style={{ textAlign: 'left', padding: '1.2rem', fontSize: '0.85rem' }}>Resolución</th>
+                            <th style={{ textAlign: 'center', padding: '1.2rem', fontSize: '0.85rem' }}>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            <tr><td colSpan={7} style={{ padding: '3rem', textAlign: 'center' }}>Cargando historial...</td></tr>
+                        ) : filteredReports.length === 0 ? (
+                            <tr><td colSpan={7} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>No se encontraron reportes.</td></tr>
+                        ) : (
+                            filteredReports.map(report => (
+                                <tr key={report.id} style={{ borderBottom: '1px solid var(--surface-border)', transition: '0.2s' }} className="report-row">
+                                    <td style={{ padding: '1.2rem', fontWeight: 800, color: 'var(--primary)' }}>{report.report_id}</td>
+                                    <td style={{ padding: '1.2rem', fontSize: '0.9rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <span style={{ fontWeight: 600 }}>{report.date}</span>
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{report.time}</span>
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '1.2rem', fontSize: '0.9rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <span style={{ fontWeight: 600 }}>{report.company?.name || '---'}</span>
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{report.employee?.name || 'N/A'}</span>
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '1.2rem', fontSize: '0.9rem', fontWeight: 600 }}>{report.technician_name}</td>
+                                    <td style={{ padding: '1.2rem', fontSize: '0.85rem' }}>{report.inventory?.equipment_id || 'Soporte General'}</td>
+                                    <td style={{ padding: '1.2rem' }}>
+                                        <span className={`badge-res badge-${report.is_resolved === 'Si' ? 'success' : report.is_resolved === 'Parcial' ? 'warning' : 'error'}`}>
+                                            {report.is_resolved === 'Si' ? 'Resuelto' : report.is_resolved === 'Parcial' ? 'Seguimiento' : 'No Resuelto'}
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '1.2rem' }}>
+                                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                            <button 
+                                                className="btn-icon" 
+                                                title="Ver y Descargar PDF"
+                                                onClick={() => {
+                                                    setSelectedReport(report);
+                                                    setShowDetailModal(true);
+                                                }}
+                                            >
+                                                <MonitorCheck size={20} />
+                                            </button>
+                                            {isAdmin && (
+                                                <button 
+                                                    className="btn-icon btn-icon-danger" 
+                                                    title="Eliminar del historial"
+                                                    onClick={() => handleDeleteReport(report.id, report.report_id)}
+                                                >
+                                                    <Trash2 size={20} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
                                 </tr>
-                            ) : (
-                                getFilteredTickets().map(t => (
-                                    <tr key={t.id} style={{ borderBottom: '1px solid var(--surface-border)' }}>
-                                        <td style={{ padding: '1rem', fontWeight: 700, color: 'var(--primary)' }}>{t.id}</td>
-                                        <td style={{ padding: '1rem', fontWeight: 600 }}>{t.client}</td>
-                                        <td style={{ padding: '1rem' }}>{t.assignedTo || 'Sin asignar'}</td>
-                                        <td style={{ padding: '1rem' }}>
-                                            <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '4px 8px', borderRadius: '4px', background: 'rgba(0,0,0,0.05)' }}>{t.status}</span>
-                                        </td>
-                                        <td style={{ padding: '1rem', fontSize: '0.85rem' }}>{t.date}</td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                            ))
+                        )}
+                    </tbody>
+                </table>
             </div>
+
+            {/* Detailed Report Modal (Same logic reused for consistency) */}
+            {showDetailModal && selectedReport && (
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
+                     <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative' }}>
+                        <div className="no-print" style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20, display: 'flex', gap: '8px' }}>
+                             <button className="btn btn-primary" onClick={() => window.print()} style={{ borderRadius: '10px' }}><Save size={18} /> Imprimir</button>
+                             <button className="icon-btn" onClick={() => setShowDetailModal(false)} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px', cursor: 'pointer' }}><X size={24} /></button>
+                        </div>
+
+                        <div id="printable-report" style={{ padding: '3.5rem' }}>
+                            <header style={{ marginBottom: '3.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div>
+                                    <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#94a3b8', margin: 0 }}>Reporte: {selectedReport.report_id}</h1>
+                                    <p style={{ fontSize: '1rem', color: '#cbd5e1', margin: '4px 0 0 0', fontWeight: 600 }}>Ticket: {selectedReport.ticket_id || 'Servicio Directo'}</p>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '50px', opacity: 0.8 }} />
+                                </div>
+                            </header>
+
+                            {/* Info Row */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0', marginBottom: '4rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '2.5rem' }}>
+                                <div style={{ borderLeft: '3px solid #3b82f6', paddingLeft: '1.2rem' }}>
+                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>FECHA DEL SERVICIO</p>
+                                    <p style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.date}</p>
+                                </div>
+                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: '#f1f5f9', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                                        {selectedReport.technician_photo ? (
+                                            <img src={selectedReport.technician_photo} alt="Tech" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : (
+                                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                                                <User size={20} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>TÉCNICO</p>
+                                        <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', lineHeight: 1.2 }}>{selectedReport.technician_name}</p>
+                                    </div>
+                                </div>
+                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem' }}>
+                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>CLIENTE</p>
+                                    <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.company?.name || selectedReport.company_name || 'Particular'}</p>
+                                </div>
+                                <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '1.2rem' }}>
+                                    <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', marginBottom: '6px', letterSpacing: '0.05em' }}>ESTADO</p>
+                                    <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b' }}>{selectedReport.is_resolved === 'Si' ? '✅ RESUELTO' : '⚠️ SEGUIMIENTO'}</p>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.3fr) minmax(0, 1fr)', gap: '3.5rem' }}>
+                                <div>
+                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
+                                        <User size={18} /> Detalles del Usuario
+                                    </h3>
+                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', marginBottom: '3rem', background: '#f8fafc' }}>
+                                        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Usuario Final: </span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.employee?.name || selectedReport.employee_name || 'N/A'}</span>
+                                        </div>
+                                        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Sede: </span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.sede?.name || selectedReport.sede_name || 'Principal'}</span>
+                                        </div>
+                                        <div style={{ padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Modalidad: </span>
+                                            <span style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>{selectedReport.modality}</span>
+                                        </div>
+                                    </div>
+
+                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
+                                        <Laptop size={18} /> Información de Hardware
+                                    </h3>
+                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', background: '#f8fafc' }}>
+                                        <div style={{ padding: '1.25rem', borderBottom: '1px solid #e2e8f0' }}>
+                                            <p style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Equipo Asignado</span>
+                                                <span style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: 700 }}>
+                                                    {selectedReport.inventory
+                                                        ? `${selectedReport.inventory.equipment_id} — ${selectedReport.inventory.brand} ${selectedReport.inventory.model}`
+                                                        : selectedReport.inventory_id || 'General / Soporte Periférico'
+                                                    }
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div style={{ padding: '1.25rem' }}>
+                                            <p style={{ margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#475569' }}>Mantenimiento: </span>
+                                                <span style={{ fontSize: '0.9rem', color: '#10b981', fontWeight: 700 }}>{selectedReport.maintenance_performed ? '✓ REALIZADO' : 'NO APLICA'}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Summary Column */}
+                                <div>
+                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
+                                        <Clock size={18} /> Resumen del Servicio
+                                    </h3>
+                                    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '20px', padding: '2.5rem', minHeight: '400px', fontSize: '1rem', color: '#334155', lineHeight: 2 }}>
+                                        <div style={{ marginBottom: '2rem' }}>
+                                            <p style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>Descripción del Problema</p>
+                                            <div style={{ whiteSpace: 'pre-wrap', color: '#64748b', fontSize: '0.95rem' }}>
+                                                {selectedReport.activities.split('--- ACTIVIDAD REALIZADA ---')[0]?.trim() || 'No especificada'}
+                                            </div>
+                                        </div>
+
+                                        <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '1.5rem' }}>
+                                            <p style={{ fontSize: '0.8rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>Actividad Realizada</p>
+                                            <div style={{ whiteSpace: 'pre-wrap', fontWeight: 500 }}>
+                                                {selectedReport.activities.includes('--- ACTIVIDAD REALIZADA ---') 
+                                                    ? selectedReport.activities.split('--- ACTIVIDAD REALIZADA ---')[1]?.trim()
+                                                    : 'Vea el detalle arriba'
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <footer style={{ marginTop: '6rem', paddingTop: '2.5rem', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                                <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                                    <p style={{ margin: 0 }}>© 2026 Help Soluciones Informáticas S.A.S</p>
+                                    <p style={{ margin: 0 }}>Sistema de Gestión de Soporte Técnico</p>
+                                </div>
+                                <div style={{ width: '250px', borderTop: '1px solid #cbd5e1', textAlign: 'center', paddingTop: '12px' }}>
+                                    <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', margin: 0 }}>Firma Responsable / Técnico</p>
+                                    <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>CC: ________________________</p>
+                                </div>
+                            </footer>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <style jsx>{`
-                .form-input { padding: 0.8rem; border-radius: 8px; border: 1px solid var(--surface-border); background: var(--surface); color: var(--text-main); font-family: inherit; }
-                .card { transition: 0.3s; }
-                .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+                .badge-res { font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 99px; }
+                .badge-success { background: #dcfce7; color: #15803d; }
+                .badge-warning { background: #fef3c7; color: #b45309; }
+                .badge-error { background: #fee2e2; color: #b91c1c; }
+                .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-muted); transition: 0.2s; padding: 10px; border-radius: 12px; }
+                .btn-icon:hover { color: var(--primary); background: rgba(99,102,241,0.08); transform: scale(1.1); }
+                .btn-icon-danger:hover { color: #ef4444 !important; background: rgba(239,68,68,0.08) !important; }
+                .report-row:hover { background: rgba(99, 102, 241, 0.03); }
+                
+                @media print {
+                   #printable-report { display: block !important; }
+                   .no-print { display: none !important; }
+                }
             `}</style>
         </div>
     );

@@ -716,7 +716,7 @@ export default function ServiceReports() {
 
                     <div className="card glass" style={{ background: 'rgba(37,99,235,0.03)', border: '1px solid var(--primary-glow)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', color: 'var(--primary)' }}>
-                            <AlertCircle size={18} />
+                        <AlertCircle size={18} />
                             <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Sincronización</h3>
                         </div>
                         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
@@ -725,74 +725,6 @@ export default function ServiceReports() {
                     </div>
                 </div>
             </form>
-
-            {!searchParams.get('ticketId') && isAdmin && (
-                <div className="reports-summary fade-in" style={{ marginTop: '4rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2rem' }}>
-                        <Database size={24} color="var(--primary)" />
-                        <h2 style={{ fontSize: '1.5rem' }}>Resumen de Reportes Técnicos (Administrador)</h2>
-                    </div>
-
-                    <div className="table-container glass" style={{ padding: '0.5rem', borderRadius: 'var(--radius-md)', overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '2px solid var(--surface-border)' }}>
-                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>ID Reporte</th>
-                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Ticket</th>
-                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Fecha</th>
-                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Cliente</th>
-                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Técnico</th>
-                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Estado</th>
-                                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.85rem' }}>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {reports.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={7} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No hay reportes registrados aún.</td>
-                                    </tr>
-                                ) : (
-                                    reports.map(report => (
-                                        <tr key={report.id} style={{ borderBottom: '1px solid var(--surface-border)', transition: '0.2s' }} className="report-row">
-                                            <td style={{ padding: '1rem', fontWeight: 700, color: 'var(--primary)' }}>{report.report_id}</td>
-                                            <td style={{ padding: '1rem', fontWeight: 600 }}>{report.ticket_id || '---'}</td>
-                                            <td style={{ padding: '1rem', fontSize: '0.9rem' }}>{report.date}</td>
-                                            <td style={{ padding: '1rem', fontSize: '0.9rem' }}>{report.company?.name || '---'}</td>
-                                            <td style={{ padding: '1rem', fontSize: '0.9rem' }}>{report.technician_name}</td>
-                                            <td style={{ padding: '1rem' }}>
-                                                <span className={`badge-res badge-${report.is_resolved === 'Si' ? 'success' : report.is_resolved === 'Parcial' ? 'warning' : 'error'}`}>
-                                                    {report.is_resolved === 'Si' ? 'Resuelto' : report.is_resolved === 'Parcial' ? 'Seguimiento' : 'No Resuelto'}
-                                                </span>
-                                            </td>
-                                            <td style={{ padding: '1rem' }}>
-                                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                                                    <button 
-                                                        className="btn-icon" 
-                                                        title="Ver detalles"
-                                                        onClick={() => {
-                                                            setSelectedReport(report);
-                                                            setShowDetailModal(true);
-                                                        }}
-                                                    >
-                                                        <MonitorCheck size={18} />
-                                                    </button>
-                                                    <button 
-                                                        className="btn-icon btn-icon-danger" 
-                                                        title="Eliminar reporte"
-                                                        onClick={() => handleDeleteReport(report.id, report.report_id)}
-                                                    >
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
 
             {/* Detailed Report Modal */}
             {showDetailModal && selectedReport && (
