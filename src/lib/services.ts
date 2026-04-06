@@ -271,6 +271,25 @@ export const ServiceReportService = {
         return data ? data[0] : null;
     },
 
+    async getNextId(companyId: string) {
+        if (!companyId) return 1;
+        const { data, error } = await supabase
+            .from('service_reports')
+            .select('report_id')
+            .eq('company_id', companyId);
+        
+        if (error || !data || data.length === 0) return 1;
+
+        const maxNum = data.reduce((max, r) => {
+            // Extract numerical part from the end of report_id (e.g., REP-001 -> 1)
+            const match = r.report_id?.match(/(\d+)$/);
+            const num = match ? parseInt(match[0], 10) : 0;
+            return num > max ? num : max;
+        }, 0);
+
+        return maxNum + 1;
+    },
+
     async delete(id: string) {
         const { error } = await supabase.from('service_reports').delete().eq('id', id);
         if (error) throw error;

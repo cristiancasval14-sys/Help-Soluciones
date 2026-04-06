@@ -195,8 +195,12 @@ export default function ServiceReports() {
                 formData.activitySummary ? `\n\n--- ACTIVIDAD REALIZADA ---\n${formData.activitySummary}` : ''
             ].filter(Boolean).join('');
 
+            const nextVal = await ServiceReportService.getNextId(selectedComp?.id || '');
+            const companyPrefix = (selectedComp?.name || 'GEN').trim().split(' ')[0].substring(0, 3).toUpperCase();
+            const reportId = `${companyPrefix}-${nextVal.toString().padStart(3, '0')}`;
+
             const payload = {
-                report_id: `REP-${Math.floor(1000 + Math.random() * 9000)}`,
+                report_id: reportId,
                 date: formData.date,
                 time: formData.time,
                 modality: formData.modality,
