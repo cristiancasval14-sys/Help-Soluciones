@@ -33,7 +33,10 @@ export default function ReportsHistory() {
         const fetchData = async () => {
             const session = localStorage.getItem('help_session');
             const user = session ? JSON.parse(session) : null;
-            setIsAdmin(user?.role === 'Administrador');
+            const userRole = user?.role;
+            const assignedId = user?.assignedTo;
+            
+            setIsAdmin(userRole === 'Administrador');
 
             try {
                 const [staffList, clientList, invList, reportsList] = await Promise.all([
@@ -43,8 +46,21 @@ export default function ReportsHistory() {
                     ServiceReportService.getAll()
                 ]);
 
-                // Enrichment logic (same as service-reports page)
-                const enriched = (reportsList as any[]).map(r => {
+                // Multi-tenancy filtering
+                let toEnrich = reportsList as any[];
+                if (userRole === 'Técnico' && assignedId) {
+                    toEnrich = toEnrich.filter(r => r.technician_id === assignedId);
+                } else if (userRole === 'Cliente' && assignedId) {
+                    toEnrich = toEnrich.filter(r => r.company_id === assignedId);
+                } else if (userRole === 'Empleado' && assignedId) {
+                     toEnrich = toEnrich.filter(r => r.employee_id === assignedId);
+                } else if (userRole !== 'Administrador') {
+                    // Safety: if not admin and role unrecognized, show nothing
+                    toEnrich = [];
+                }
+
+                // Enrichment logic
+                const enriched = toEnrich.map(r => {
                     const company = (clientList as any[]).find(c => c.id === r.company_id);
                     const invItem = (invList as any[]).find(i => i.id === r.inventory_id);
                     let employee: any = null;
@@ -166,8 +182,8 @@ export default function ReportsHistory() {
                                     </td>
                                     <td style={{ padding: '1.2rem', fontSize: '0.9rem' }}>
                                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <span style={{ fontWeight: 600 }}>{report.company?.name || '---'}</span>
-                                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{report.employee?.name || 'N/A'}</span>
+                                            <span style={{ fontWeight: 600 }}>{report.company?.name || report.company_name || 'Particular'}</span>
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{report.employee?.name || report.employee_name || 'N/A'}</span>
                                         </div>
                                     </td>
                                     <td style={{ padding: '1.2rem', fontSize: '0.9rem', fontWeight: 600 }}>{report.technician_name}</td>
@@ -207,7 +223,7 @@ export default function ReportsHistory() {
                 </table>
             </div>
 
-            {/* Detailed Report Modal (Same logic reused for consistency) */}
+            {/* Detailed Report Modal */}
             {showDetailModal && selectedReport && (
                 <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
                      <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative' }}>
