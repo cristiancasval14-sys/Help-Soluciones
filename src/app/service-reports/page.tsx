@@ -727,7 +727,7 @@ export default function ServiceReports() {
             </form>
 
             {/* Detailed Report Modal */}
-            {showDetailModal && selectedReport && (
+{showDetailModal && selectedReport && (
                 <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
                     <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative' }}>
                         <div className="no-print" style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20, display: 'flex', gap: '8px' }}>
@@ -735,15 +735,15 @@ export default function ServiceReports() {
                              <button className="icon-btn" onClick={() => setShowDetailModal(false)} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px', cursor: 'pointer' }}><X size={24} /></button>
                         </div>
 
-                        <div id="printable-report" style={{ padding: '3.5rem' }}>
-                            {/* Header: Report & Ticket IDs */}
-                            <header style={{ marginBottom: '3.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div>
-                                    <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#94a3b8', margin: 0 }}>Reporte: {selectedReport.report_id}</h1>
-                                    <p style={{ fontSize: '1rem', color: '#cbd5e1', margin: '4px 0 0 0', fontWeight: 600 }}>Ticket: {selectedReport.ticket_id || 'Servicio Directo'}</p>
+                        <div id="printable-report" style={{ padding: '4rem 5rem' }}>
+                            <header style={{ marginBottom: '4rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '72px', width: 'auto', objectFit: 'contain' }} />
                                 </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '50px', opacity: 0.8 }} />
+                                <div style={{ borderTop: '2px solid #f1f5f9', paddingTop: '1.5rem', width: '100%' }}>
+                                    <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#1e3a5f', margin: 0, letterSpacing: '-0.02em' }}>REPORTE TÉCNICO</h1>
+                                    <p style={{ fontSize: '1.1rem', color: '#64748b', fontWeight: 700, marginTop: '8px' }}>Certificado N°: <span style={{ color: 'var(--primary)' }}>{selectedReport.report_id}</span></p>
+                                    <p style={{ fontSize: '0.9rem', color: '#94a3b8', margin: '4px 0 0 0', fontWeight: 600 }}>Ticket Relacionado: {selectedReport.ticket_id || 'Servicio Programado / Directo'}</p>
                                 </div>
                             </header>
 
