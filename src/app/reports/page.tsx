@@ -244,22 +244,28 @@ export default function ReportsHistory() {
                 <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(15, 23, 42, 0.8)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', zIndex: 1000, backdropFilter: 'blur(8px)', overflowY: 'auto', padding: '40px 20px' }}>
                     <div className="modal-card print-container" style={{ width: '850px', maxWidth: '100%', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative', marginBottom: '40px' }}>
 
-                        <div className="no-print" style={{
-                            position: 'absolute',
-                            top: '30px',
-                            right: '30px',
-                            zIndex: 100,
-                            display: 'flex',
-                            gap: '8px'
+                        {/* Top Toolbar */}
+                        <div className="no-print" style={{ 
+                            display: 'flex', 
+                            justifyContent: 'flex-end',
+                            alignItems: 'center',
+                            padding: '1rem 2.5rem', 
+                            background: 'rgba(255, 255, 255, 0.95)',
+                            backdropFilter: 'blur(10px)',
+                            borderBottom: '1px solid #e2e8f0',
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 1000,
+                            gap: '12px'
                         }}>
                             <button
                                 onClick={() => window.print()}
                                 className="btn btn-primary"
                                 style={{
                                     borderRadius: '10px',
-                                    padding: '10px 20px',
+                                    padding: '8px 20px',
                                     fontWeight: 700,
-                                    fontSize: '0.9rem',
+                                    fontSize: '0.85rem',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '8px'
@@ -271,18 +277,23 @@ export default function ReportsHistory() {
                                 onClick={() => setShowDetailModal(false)}
                                 style={{
                                     background: 'white',
-                                    color: '#64748b',
-                                    border: '1px solid #e2e8f0',
+                                    color: '#ef4444',
+                                    border: '1px solid #fee2e2',
                                     borderRadius: '10px',
-                                    padding: '8px',
-                                    cursor: 'pointer'
+                                    padding: '8px 12px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 700
                                 }}
                             >
-                                <X size={22} />
+                                <X size={18} /> Cerrar
                             </button>
                         </div>
 
-                        <div id="printable-report" style={{ padding: '2rem 5rem' }}>
+                        <div id="printable-report" style={{ padding: '3.5rem 5rem' }}>
                             <header style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #334155', paddingBottom: '1.5rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                                     <img src="/logo.png" alt="Help Soluciones" style={{ height: '65px', width: 'auto', objectFit: 'contain' }} />

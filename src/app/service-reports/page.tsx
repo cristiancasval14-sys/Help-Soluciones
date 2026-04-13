@@ -564,7 +564,7 @@ export default function ServiceReports() {
                              </div>
                         </div>
 
-                        <div id="printable-report" style={{ padding: '2rem 5rem' }}>
+                        <div id="printable-report" style={{ padding: '3.5rem 5rem' }}>
                             <header style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #334155', paddingBottom: '1.5rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                                     <img src="/logo.png" alt="Help Soluciones" style={{ height: '65px', width: 'auto', objectFit: 'contain' }} />
