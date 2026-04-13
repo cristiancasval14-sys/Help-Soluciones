@@ -241,8 +241,8 @@ export default function ReportsHistory() {
 
             {/* Detailed Report Modal */}
             {showDetailModal && selectedReport && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.85)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', zIndex: 10000, backdropFilter: 'blur(10px)', overflowY: 'auto', padding: '40px 20px' }}>
-                    <div className="modal-card print-container" style={{ width: '800px', maxWidth: '100%', padding: '0', borderRadius: '24px', background: 'white', position: 'relative', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', marginBottom: '40px' }}>
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.8)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', zIndex: 10000, backdropFilter: 'blur(8px)', overflowY: 'auto', padding: '30px 20px' }}>
+                    <div className="modal-card print-container" style={{ width: '720px', maxWidth: '100%', padding: '0', borderRadius: '20px', background: 'white', position: 'relative', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.3)', marginBottom: '30px' }}>
 
                         {/* Top Toolbar */}
                         <div className="no-print" style={{ 
@@ -291,7 +291,7 @@ export default function ReportsHistory() {
                             </button>
                         </div>
 
-                        <div id="printable-report" style={{ padding: '3.5rem 5rem' }}>
+                        <div id="printable-report" style={{ padding: '3rem 3.5rem' }}>
                             <header style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #334155', paddingBottom: '1.5rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                                     <img src="/logo.png" alt="Help Soluciones" style={{ height: '65px', width: 'auto', objectFit: 'contain' }} />
