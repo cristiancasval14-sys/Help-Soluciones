@@ -241,7 +241,7 @@ export default function ReportsHistory() {
 
             {/* Detailed Report Modal */}
             {showDetailModal && selectedReport && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.8)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', zIndex: 10000, backdropFilter: 'blur(8px)', overflowY: 'auto', padding: '30px 20px' }}>
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.8)', display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-start', zIndex: 10000, backdropFilter: 'blur(8px)', overflowY: 'auto', padding: '30px 20px 30px 60px' }}>
                     <div className="modal-card print-container" style={{ width: '720px', maxWidth: '100%', padding: '0', borderRadius: '20px', background: 'white', position: 'relative', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.3)', marginBottom: '30px' }}>
 
                         {/* Top Toolbar */}
