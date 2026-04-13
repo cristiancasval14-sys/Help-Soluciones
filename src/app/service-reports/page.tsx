@@ -506,13 +506,10 @@ export default function ServiceReports() {
                             justifyContent: 'space-between',
                             alignItems: 'center',
                             padding: '1rem 3rem', 
-                            background: 'rgba(255, 255, 255, 0.95)',
-                            backdropFilter: 'blur(10px)',
+                            background: '#fff',
                             borderBottom: '1px solid #e2e8f0',
-                            position: 'sticky',
-                            top: 0,
-                            zIndex: 1000,
-                            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
+                            position: 'relative',
+                            zIndex: 1000
                         }}>
                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }} />

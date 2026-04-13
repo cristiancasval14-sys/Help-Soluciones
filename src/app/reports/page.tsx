@@ -250,11 +250,9 @@ export default function ReportsHistory() {
                             justifyContent: 'flex-end',
                             alignItems: 'center',
                             padding: '1rem 2.5rem', 
-                            background: 'rgba(255, 255, 255, 0.95)',
-                            backdropFilter: 'blur(10px)',
+                            background: '#fff',
                             borderBottom: '1px solid #e2e8f0',
-                            position: 'sticky',
-                            top: 0,
+                            position: 'relative',
                             zIndex: 1000,
                             gap: '12px'
                         }}>
