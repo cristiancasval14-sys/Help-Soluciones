@@ -26,7 +26,7 @@ export default function ReportsHistory() {
     const [selectedReport, setSelectedReport] = useState<any>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    
+
     const searchParams = useSearchParams();
 
     useEffect(() => {
@@ -35,7 +35,7 @@ export default function ReportsHistory() {
             const user = session ? JSON.parse(session) : null;
             const userRole = user?.role;
             const assignedId = user?.assignedTo;
-            
+
             setIsAdmin(userRole === 'Administrador');
 
             try {
@@ -52,22 +52,22 @@ export default function ReportsHistory() {
                     // Admins see everything
                 } else if (userRole === 'Técnico') {
                     // Technicians see only their reports by ID or Name
-                    const techFullName = user?.assignedTo || ''; 
-                    toEnrich = toEnrich.filter(r => 
-                        (r.technician_id && r.technician_id === assignedId) || 
+                    const techFullName = user?.assignedTo || '';
+                    toEnrich = toEnrich.filter(r =>
+                        (r.technician_id && r.technician_id === assignedId) ||
                         (r.technician_name === techFullName)
                     );
                 } else if (userRole === 'Cliente' || userRole === 'Empresa') {
                     // Clients see only their company's reports
                     const clientName = user?.assignedTo || '';
-                    toEnrich = toEnrich.filter(r => 
-                        (r.company_id && r.company_id === assignedId) || 
+                    toEnrich = toEnrich.filter(r =>
+                        (r.company_id && r.company_id === assignedId) ||
                         (r.company_name === clientName)
                     );
                 } else if (userRole === 'Empleado') {
                     const empName = user?.assignedTo || '';
-                    toEnrich = toEnrich.filter(r => 
-                        (r.employee_id && r.employee_id === assignedId) || 
+                    toEnrich = toEnrich.filter(r =>
+                        (r.employee_id && r.employee_id === assignedId) ||
                         (r.employee_name === empName)
                     );
                 } else {
@@ -105,7 +105,7 @@ export default function ReportsHistory() {
                         technician_photo: (staffList as any[]).find(s => s.id === r.technician_id || `${s.first_name} ${s.last_name}` === r.technician_name)?.photo
                     };
                 });
-                
+
                 setReports(enriched.reverse()); // Latest first
                 setLoading(false);
 
@@ -137,7 +137,7 @@ export default function ReportsHistory() {
         }
     };
 
-    const filteredReports = reports.filter(r => 
+    const filteredReports = reports.filter(r =>
         r.report_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (r.technician_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (r.company?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -156,9 +156,9 @@ export default function ReportsHistory() {
             <div className="toolbar glass" style={{ padding: '1.5rem', borderRadius: 'var(--radius-md)', marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                 <div style={{ flex: 1, position: 'relative' }}>
                     <Search size={20} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                    <input 
-                        type="text" 
-                        placeholder="Buscar por ID, técnico, cliente o usuario..." 
+                    <input
+                        type="text"
+                        placeholder="Buscar por ID, técnico, cliente o usuario..."
                         className="search-input"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -211,8 +211,8 @@ export default function ReportsHistory() {
                                     </td>
                                     <td style={{ padding: '1.2rem' }}>
                                         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                                            <button 
-                                                className="btn-icon" 
+                                            <button
+                                                className="btn-icon"
                                                 title="Ver y Descargar PDF"
                                                 onClick={() => {
                                                     setSelectedReport(report);
@@ -222,8 +222,8 @@ export default function ReportsHistory() {
                                                 <MonitorCheck size={20} />
                                             </button>
                                             {isAdmin && (
-                                                <button 
-                                                    className="btn-icon btn-icon-danger" 
+                                                <button
+                                                    className="btn-icon btn-icon-danger"
                                                     title="Eliminar del historial"
                                                     onClick={() => handleDeleteReport(report.id, report.report_id)}
                                                 >
@@ -242,21 +242,21 @@ export default function ReportsHistory() {
             {/* Detailed Report Modal */}
             {showDetailModal && selectedReport && (
                 <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
-                     <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative' }}>
-                        
-                        <div className="no-print" style={{ 
-                            position: 'absolute', 
-                            top: '30px', 
-                            right: '30px', 
-                            zIndex: 100, 
-                            display: 'flex', 
-                            gap: '8px' 
+                    <div className="modal-card print-container" style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '0', borderRadius: '24px', background: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', position: 'relative' }}>
+
+                        <div className="no-print" style={{
+                            position: 'absolute',
+                            top: '30px',
+                            right: '30px',
+                            zIndex: 100,
+                            display: 'flex',
+                            gap: '8px'
                         }}>
-                             <button 
-                                onClick={() => window.print()} 
+                            <button
+                                onClick={() => window.print()}
                                 className="btn btn-primary"
-                                style={{ 
-                                    borderRadius: '10px', 
+                                style={{
+                                    borderRadius: '10px',
                                     padding: '10px 20px',
                                     fontWeight: 700,
                                     fontSize: '0.9rem',
@@ -264,22 +264,22 @@ export default function ReportsHistory() {
                                     alignItems: 'center',
                                     gap: '8px'
                                 }}
-                             >
+                            >
                                 <Save size={18} /> Imprimir / PDF
-                             </button>
-                             <button 
-                                onClick={() => setShowDetailModal(false)} 
-                                style={{ 
-                                    background: 'white', 
-                                    color: '#64748b', 
-                                    border: '1px solid #e2e8f0', 
-                                    borderRadius: '10px', 
-                                    padding: '8px', 
-                                    cursor: 'pointer' 
+                            </button>
+                            <button
+                                onClick={() => setShowDetailModal(false)}
+                                style={{
+                                    background: 'white',
+                                    color: '#64748b',
+                                    border: '1px solid #e2e8f0',
+                                    borderRadius: '10px',
+                                    padding: '8px',
+                                    cursor: 'pointer'
                                 }}
-                             >
+                            >
                                 <X size={22} />
-                             </button>
+                            </button>
                         </div>
 
                         <div id="printable-report" style={{ padding: '2rem 5rem' }}>
@@ -324,11 +324,11 @@ export default function ReportsHistory() {
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '1px solid #cbd5e1', paddingLeft: '1.5rem' }}>
                                     <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0 }}>Estado Final</p>
-                                    <span style={{ 
-                                        fontSize: '0.8rem', 
-                                        fontWeight: 800, 
-                                        padding: '4px 10px', 
-                                        borderRadius: '8px', 
+                                    <span style={{
+                                        fontSize: '0.8rem',
+                                        fontWeight: 800,
+                                        padding: '4px 10px',
+                                        borderRadius: '8px',
                                         textAlign: 'center',
                                         background: selectedReport.is_resolved === 'Si' ? '#dcfce7' : '#fef3c7',
                                         color: selectedReport.is_resolved === 'Si' ? '#15803d' : '#92400e',
@@ -408,7 +408,7 @@ export default function ReportsHistory() {
                                         <div style={{ borderTop: '2px dashed #f1f5f9', paddingTop: '1.5rem' }}>
                                             <p style={{ fontSize: '0.75rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>Procedimiento y Solución Aplicada</p>
                                             <div style={{ whiteSpace: 'pre-wrap', fontWeight: 500, color: '#1e293b', fontSize: '1rem', lineHeight: '1.7' }}>
-                                                {selectedReport.activities.includes('--- ACTIVIDAD REALIZADA ---') 
+                                                {selectedReport.activities.includes('--- ACTIVIDAD REALIZADA ---')
                                                     ? selectedReport.activities.split('--- ACTIVIDAD REALIZADA ---')[1]?.trim()
                                                     : 'Vea el detalle del reporte técnico anterior.'
                                                 }
@@ -418,21 +418,9 @@ export default function ReportsHistory() {
                                 </div>
                             </div>
 
-                            <footer style={{ marginTop: '5rem', paddingTop: '2.5rem', borderTop: '2px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                                <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                            <footer style={{ marginTop: '5rem', paddingTop: '2.5rem', borderTop: '2px solid #f1f5f9', display: 'flex', justifyContent: 'center' }}>
+                                <div style={{ fontSize: '0.8rem', color: '#94a3b8', textAlign: 'center' }}>
                                     <p style={{ margin: 0, fontWeight: 700 }}>© 2026 Help Soluciones Informáticas S.A.S</p>
-                                    <p style={{ margin: 0 }}>Soporte Técnico Especializado / PBX: (604) XXX XXXX</p>
-                                    <p style={{ margin: 0 }}>Medellín - Antioquia</p>
-                                </div>
-                                <div style={{ display: 'flex', gap: '3rem' }}>
-                                    <div style={{ width: '220px', borderTop: '1px solid #cbd5e1', textAlign: 'center', paddingTop: '12px' }}>
-                                        <p style={{ fontSize: '0.85rem', fontWeight: 800, color: '#475569', margin: 0 }}>Firma del Técnico</p>
-                                        <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>Responsable del Servicio</p>
-                                    </div>
-                                    <div style={{ width: '220px', borderTop: '1px solid #cbd5e1', textAlign: 'center', paddingTop: '12px' }}>
-                                        <p style={{ fontSize: '0.85rem', fontWeight: 800, color: '#475569', margin: 0 }}>Recibido Conforme</p>
-                                        <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>Firma Cliente / Sello</p>
-                                    </div>
                                 </div>
                             </footer>
                         </div>

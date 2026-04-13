@@ -699,18 +699,9 @@ export default function ServiceReports() {
                                 </div>
                             </div>
 
-                            <footer style={{ marginTop: '5rem', paddingTop: '2.5rem', borderTop: '2px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                                <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                            <footer style={{ marginTop: '5rem', paddingTop: '2.5rem', borderTop: '2px solid #f1f5f9', display: 'flex', justifyContent: 'center' }}>
+                                <div style={{ fontSize: '0.8rem', color: '#94a3b8', textAlign: 'center' }}>
                                     <p style={{ margin: 0, fontWeight: 700 }}>© 2026 Help Soluciones Informáticas S.A.S</p>
-                                    <p style={{ margin: 0 }}>Medellín - Antioquia</p>
-                                </div>
-                                <div style={{ display: 'flex', gap: '3rem' }}>
-                                    <div style={{ width: '200px', borderTop: '1px solid #cbd5e1', textAlign: 'center', paddingTop: '10px' }}>
-                                        <p style={{ fontSize: '0.8rem', fontWeight: 800, color: '#475569', margin: 0 }}>Firma Técnico</p>
-                                    </div>
-                                    <div style={{ width: '200px', borderTop: '1px solid #cbd5e1', textAlign: 'center', paddingTop: '10px' }}>
-                                        <p style={{ fontSize: '0.8rem', fontWeight: 800, color: '#475569', margin: 0 }}>Firma Cliente</p>
-                                    </div>
                                 </div>
                             </footer>
                         </div>
