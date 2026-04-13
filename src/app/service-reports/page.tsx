@@ -564,15 +564,19 @@ export default function ServiceReports() {
                              </div>
                         </div>
 
-                        <div id="printable-report" style={{ padding: '4rem 6rem' }}>
-                            <header style={{ marginBottom: '4rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '72px', width: 'auto', objectFit: 'contain' }} />
+                        <div id="printable-report" style={{ padding: '2rem 5rem' }}>
+                            <header style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #334155', paddingBottom: '1.5rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '65px', width: 'auto', objectFit: 'contain' }} />
+                                    <div style={{ textAlign: 'left' }}>
+                                        <h2 style={{ color: '#2563eb', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>Help Soluciones</h2>
+                                        <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, fontWeight: 600 }}>Mesa de Ayuda Pro</p>
+                                    </div>
                                 </div>
-                                <div style={{ borderTop: '2px solid #334155', paddingTop: '1.5rem', width: '100%' }}>
-                                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO</h1>
-                                    <p style={{ fontSize: '1.1rem', color: '#475569', fontWeight: 700, marginTop: '8px', marginBottom: '4px' }}>Reporte N°: {selectedReport.report_id}</p>
-                                    <p style={{ fontSize: '1rem', color: '#94a3b8', margin: 0, fontWeight: 600 }}>Ticket Relacionado: {selectedReport.ticket_id || 'Servicio Programado / Directo'}</p>
+                                <div style={{ textAlign: 'right' }}>
+                                    <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO</h1>
+                                    <p style={{ fontSize: '1rem', color: '#1e293b', fontWeight: 700, margin: 0 }}>N°: {selectedReport.report_id}</p>
+                                    <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0, fontWeight: 600 }}>{selectedReport.ticket_id || 'Servicio Directo'}</p>
                                 </div>
                             </header>
 
