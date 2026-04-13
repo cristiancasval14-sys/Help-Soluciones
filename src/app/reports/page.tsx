@@ -241,8 +241,8 @@ export default function ReportsHistory() {
 
             {/* Detailed Report Modal */}
             {showDetailModal && selectedReport && (
-                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.9)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', zIndex: 10000, backdropFilter: 'blur(12px)', overflowY: 'auto', padding: '0' }}>
-                    <div className="modal-card print-container" style={{ width: '1000px', maxWidth: '100%', minHeight: '100vh', padding: '0', borderRadius: '0', background: 'white', position: 'relative', boxShadow: '0 0 100px rgba(0,0,0,0.5)' }}>
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(15, 23, 42, 0.85)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', zIndex: 10000, backdropFilter: 'blur(10px)', overflowY: 'auto', padding: '40px 20px' }}>
+                    <div className="modal-card print-container" style={{ width: '800px', maxWidth: '100%', padding: '0', borderRadius: '24px', background: 'white', position: 'relative', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', marginBottom: '40px' }}>
 
                         {/* Top Toolbar */}
                         <div className="no-print" style={{ 
