@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { TicketService, StaffService } from '@/lib/services';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface Ticket {
     id: string;
@@ -45,6 +46,7 @@ export default function AdministrativeManagement() {
     const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState<any>(null);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchSession = () => {
@@ -60,7 +62,11 @@ export default function AdministrativeManagement() {
                     StaffService.getAll()
                 ]);
 
-                setTickets(ticketData.map((t: any) => ({
+                const activeTickets = ticketData.filter((t: any) => 
+                    !['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(t.status)
+                );
+
+                setTickets(activeTickets.map((t: any) => ({
                     id: t.id,
                     client: t.company?.name || '---',
                     requester: t.requester_name,
@@ -92,7 +98,11 @@ export default function AdministrativeManagement() {
             await TicketService.update(id, updates);
             // Refresh
             const ticketData = await TicketService.getAll();
-            setTickets(ticketData.map((t: any) => ({
+            const activeTickets = ticketData.filter((t: any) => 
+                !['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(t.status)
+            );
+
+            setTickets(activeTickets.map((t: any) => ({
                 id: t.id,
                 client: t.company?.name || '---',
                 requester: t.requester_name,
@@ -142,6 +152,18 @@ export default function AdministrativeManagement() {
                 tech_notes: notes
             });
             setIsStatusModalOpen(false);
+
+            // If finished, redirect to reports
+            if (newStatus === 'Terminado' || newStatus === 'Finalizado') {
+                const params = new URLSearchParams({
+                    ticketId: selectedTicket.id,
+                    clientId: selectedTicket.client,
+                    requester: selectedTicket.requester,
+                    techName: selectedTicket.assignedTo || '',
+                    techNotes: notes || selectedTicket.progressNotes || '',
+                });
+                router.push(`/service-reports?${params.toString()}`);
+            }
         } catch (err) {
             // Error already handled
         }
@@ -287,12 +309,12 @@ export default function AdministrativeManagement() {
                             {[
                                 { label: 'Pendiente', color: 'var(--warning)', bg: 'rgba(245, 158, 11, 0.05)', icon: <Clock size={24} /> },
                                 { label: 'En Proceso', color: 'var(--info)', bg: 'rgba(59, 130, 246, 0.05)', icon: <PlayCircle size={24} /> },
-                                { label: 'Terminado', color: 'var(--success)', bg: 'rgba(16, 185, 129, 0.05)', icon: <CheckCircle size={24} /> }
+                                { label: 'Finalizado', color: 'var(--success)', bg: 'rgba(16, 185, 129, 0.05)', icon: <CheckCircle size={24} /> }
                             ].map(st => (
                                 <button
                                     key={st.label}
                                     className="status-btn"
-                                    onClick={() => handleStatusUpdate(st.label, (document.getElementById('prog-notes') as HTMLTextAreaElement).value)}
+                                    onClick={() => handleStatusUpdate(st.label === 'Finalizado' ? 'Terminado' : st.label, (document.getElementById('prog-notes') as HTMLTextAreaElement).value)}
                                     style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '1rem', borderRadius: '12px', border: `1px solid ${st.color}`, background: st.bg, color: st.color, transition: '0.2s' }}
                                 >
                                     {st.icon}

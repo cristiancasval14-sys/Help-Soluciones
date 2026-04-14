@@ -82,8 +82,8 @@ export default function TicketsList() {
                     }
                 }
                 
-                // Only show active tickets (exclude Finalizado/Resuelto as they go to Reports)
-                filtered = filtered.filter((t: any) => t.status !== 'Finalizado' && t.status !== 'Resuelto' && t.status !== 'Terminado');
+                // Only show active tickets (exclude Finalizado/Resuelto/Terminado/Cerrado/Solucionado as they go to Reports)
+                filtered = filtered.filter((t: any) => !['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(t.status));
                 setTickets(filtered as Ticket[]);
                 setStaffList(staffData);
 
