@@ -449,41 +449,61 @@ export default function ReportsHistory() {
                 
                 @media print {
                    @page { margin: 0; size: auto; }
-                   body { background: white !important; margin: 0 !important; padding: 0 !important; }
-                   .no-print, .sidebar, nav, header, .toolbar, .btn, .header-actions { display: none !important; }
-                   .modal-overlay { 
-                       position: absolute !important; 
-                       top: 0 !important; 
-                       left: 0 !important; 
-                       width: 100% !important; 
-                       height: auto !important;
-                       background: white !important;
-                       padding: 0 !important;
-                       margin: 0 !important;
-                       display: block !important;
-                       backdrop-filter: none !important;
-                       z-index: 9999 !important;
-                   }
-                   .modal-card { 
-                       width: 100% !important; 
-                       max-width: 100% !important; 
-                       height: auto !important;
-                       max-height: none !important;
-                       border-radius: 0 !important;
-                       box-shadow: none !important;
+                   html, body {
                        margin: 0 !important;
                        padding: 0 !important;
-                       overflow: visible !important;
                        background: white !important;
-                   }
-                   #printable-report { 
-                       display: block !important; 
-                       padding: 1.5cm 2cm !important;
+                       overflow: hidden !important;
                        width: 100% !important;
-                       -webkit-print-color-adjust: exact !important;
-                       print-color-adjust: exact !important;
+                       height: 100% !important;
                    }
-                   /* Ensure background colors print */
+                   /* Hide everything that is not the report */
+                   .no-print, .sidebar, nav, header, .toolbar, .btn, .header-actions, .btn-icon, .btn-icon-danger {
+                       display: none !important;
+                   }
+                   /* Ensure the overlay covers the whole page and is white */
+                   .modal-overlay {
+                       position: fixed !important;
+                       top: 0 !important;
+                       left: 0 !important;
+                       width: 100vw !important;
+                       height: 100vh !important;
+                       background: white !important;
+                       display: flex !important;
+                       justify-content: center !important;
+                       align-items: flex-start !important;
+                       padding: 0 !important;
+                       margin: 0 !important;
+                       z-index: 20000 !important;
+                       backdrop-filter: none !important;
+                       overflow: hidden !important;
+                   }
+                   /* The report card: scale it to fit A4/Letter perfectly */
+                   .modal-card {
+                       width: 720px !important;
+                       height: auto !important;
+                       min-height: 100vh !important;
+                       border: none !important;
+                       box-shadow: none !important;
+                       border-radius: 0 !important;
+                       padding: 0 !important;
+                       margin: 0 !important;
+                       background: white !important;
+                       zoom: 0.92; /* Adjust content to fit one page accurately */
+                       transform-origin: top center;
+                   }
+                   /* The content padding */
+                   #printable-report {
+                       padding: 2.5rem 3.5rem !important;
+                       width: 100% !important;
+                       display: block !important;
+                   }
+                   /* Force the header to look exactly like on screen */
+                   #printable-report header {
+                       margin-bottom: 2.5rem !important;
+                       border-bottom: 2px solid #334155 !important;
+                   }
+                   /* Re-enable colors for print */
                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                 }
             `}</style>
