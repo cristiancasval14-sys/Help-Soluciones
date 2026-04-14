@@ -54,6 +54,8 @@ export default function AccessControl() {
     const [showFormPass, setShowFormPass] = useState(false);
     const [visiblePasswords, setVisiblePasswords] = useState<{ [key: string]: boolean }>({});
     const [currentUser, setCurrentUser] = useState<any>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
     const [formData, setFormData] = useState<Omit<Credential, 'id'>>({
         username: '',
@@ -267,69 +269,115 @@ export default function AccessControl() {
             <div className="toolbar glass" style={{ padding: '1.2rem', borderRadius: 'var(--radius-md)', marginBottom: '2rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                 <div style={{ flex: 1, position: 'relative' }}>
                     <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                    <input type="text" placeholder="Buscar por usuario o asignación..." className="search-input" />
+                    <input type="text" placeholder="Buscar por usuario o asignación..." className="search-input" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                 </div>
             </div>
 
-            <div className="credentials-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
-                {credentials.map(cred => (
-                    <div key={cred.id} className="card glass cred-card">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: cred.type === 'Personal' ? 'rgba(37, 99, 235, 0.1)' : 'rgba(13, 148, 136, 0.1)', color: cred.type === 'Personal' ? 'var(--primary)' : 'var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    {cred.type === 'Personal' ? <UserIcon size={20} /> : <Building2 size={20} />}
-                                </div>
-                                <div style={{ overflow: 'hidden' }}>
-                                    <p style={{ fontSize: '0.85rem', fontWeight: 700, whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{cred.assignedTo}</p>
-                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{cred.type}</p>
-                                </div>
-                            </div>
-                            <span className={`status-badge ${cred.status.toLowerCase()}`}>{cred.status}</span>
-                        </div>
+            <div className="groups-container">
+                {[
+                    { title: 'Administradores', role: 'Administrador', icon: Shield, color: '#ef4444' },
+                    { title: 'Técnicos', role: 'Técnico', icon: Briefcase, color: '#2563eb' },
+                    { title: 'Empresas / Clientes', role: 'Cliente', icon: Building2, color: '#0d9488' }
+                ].map(group => {
+                    const groupUsers = credentials.filter(c => c.role === group.role && (
+                        c.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                        c.assignedTo.toLowerCase().includes(searchTerm.toLowerCase())
+                    ));
+                    if (groupUsers.length === 0) return null;
+                    const isCollapsed = searchTerm ? false : collapsedGroups[group.role] !== false;
 
-                        <div className="cred-info glass" style={{ padding: '1rem', borderRadius: '10px', marginBottom: '1.2rem', border: '1px dashed var(--surface-border)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Usuario:</span>
-                                <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{cred.username}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Perfil:</span>
-                                <span style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 700 }}>{cred.role}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Módulos:</span>
-                                <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>
-                                    {cred.role === 'Administrador' ? 'Acceso Total' : `${(cred.allowedModules || []).length} asignados`}
-                                </span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.4rem', borderTop: '1px solid var(--surface-border)', paddingTop: '0.4rem' }}>
-                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Contraseña:</span>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span style={{ fontSize: '0.9rem', fontFamily: 'monospace', fontWeight: 600 }}>
-                                        {visiblePasswords[cred.id] ? cred.password : '••••••••'}
-                                    </span>
-                                    <button type="button" onClick={() => toggleCardPass(cred.id)} style={{ color: 'var(--text-muted)', display: 'flex' }}>
-                                        {visiblePasswords[cred.id] ? <EyeOff size={14} /> : <Eye size={14} />}
-                                    </button>
+                    return (
+                        <div key={group.role} className="role-group fade-in" style={{ marginBottom: '1.5rem' }}>
+                            <div 
+                                className="glass"
+                                onClick={() => setCollapsedGroups(prev => ({ ...prev, [group.role]: prev[group.role] !== false ? false : true }))}
+                                style={{ 
+                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                                    padding: '1.25rem 1.5rem', borderRadius: '16px', cursor: 'pointer',
+                                    marginBottom: isCollapsed ? '0' : '1.5rem',
+                                    borderLeft: `5px solid ${group.color}`,
+                                    transition: 'var(--transition-normal)'
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <div style={{ width: '45px', height: '45px', borderRadius: '12px', background: `${group.color}15`, color: group.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <group.icon size={22} />
+                                    </div>
+                                    <div>
+                                        <h2 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>{group.title}</h2>
+                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>{groupUsers.length} {groupUsers.length === 1 ? 'usuario listado' : 'usuarios listados'}</p>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary)', background: 'var(--primary-glow)', padding: '6px 12px', borderRadius: '8px' }}>
+                                    {isCollapsed ? 'Desplegar ›' : 'Contraer ⌄'}
                                 </div>
                             </div>
-                        </div>
+                            
+                            {!isCollapsed && (
+                                <div className="credentials-grid fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem', paddingBottom: '1rem' }}>
+                                    {groupUsers.map(cred => (
+                                        <div key={cred.id} className="card glass cred-card">
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: cred.type === 'Personal' ? 'rgba(37, 99, 235, 0.1)' : 'rgba(13, 148, 136, 0.1)', color: cred.type === 'Personal' ? 'var(--primary)' : 'var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        {cred.type === 'Personal' ? <UserIcon size={20} /> : <Building2 size={20} />}
+                                                    </div>
+                                                    <div style={{ overflow: 'hidden' }}>
+                                                        <p style={{ fontSize: '0.85rem', fontWeight: 700, whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{cred.assignedTo}</p>
+                                                        <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{cred.type}</p>
+                                                    </div>
+                                                </div>
+                                                <span className={`status-badge ${cred.status.toLowerCase()}`}>{cred.status}</span>
+                                            </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.8rem' }}>
-                            <button className="icon-btn" onClick={() => openModal(cred)} title="Modificar"><Lock size={16} /></button>
-                            <button className="icon-btn delete" onClick={async () => {
-                                if (confirm('¿Seguro que desea revocar este acceso?')) {
-                                    try {
-                                        await UserService.delete(cred.id);
-                                        setCredentials(credentials.filter(c => c.id !== cred.id));
-                                    } catch (err) {
-                                        alert("Error al eliminar acceso");
-                                    }
-                                }
-                            }} title="Borrar"><Trash2 size={16} /></button>
+                                            <div className="cred-info glass" style={{ padding: '1rem', borderRadius: '10px', marginBottom: '1.2rem', border: '1px dashed var(--surface-border)' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Usuario:</span>
+                                                    <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{cred.username}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Perfil:</span>
+                                                    <span style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 700 }}>{cred.role}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Módulos:</span>
+                                                    <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                                                        {cred.role === 'Administrador' ? 'Acceso Total' : `${(cred.allowedModules || []).length} asignados`}
+                                                    </span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.4rem', borderTop: '1px solid var(--surface-border)', paddingTop: '0.4rem' }}>
+                                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Contraseña:</span>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <span style={{ fontSize: '0.9rem', fontFamily: 'monospace', fontWeight: 600 }}>
+                                                            {visiblePasswords[cred.id] ? cred.password : '••••••••'}
+                                                        </span>
+                                                        <button type="button" onClick={() => toggleCardPass(cred.id)} style={{ color: 'var(--text-muted)', display: 'flex' }}>
+                                                            {visiblePasswords[cred.id] ? <EyeOff size={14} /> : <Eye size={14} />}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.8rem' }}>
+                                                <button className="icon-btn" onClick={() => openModal(cred)} title="Modificar"><Lock size={16} /></button>
+                                                <button className="icon-btn delete" onClick={async () => {
+                                                    if (confirm('¿Seguro que desea revocar este acceso?')) {
+                                                        try {
+                                                            await UserService.delete(cred.id);
+                                                            setCredentials(credentials.filter(c => c.id !== cred.id));
+                                                        } catch (err) {
+                                                            alert("Error al eliminar acceso");
+                                                        }
+                                                    }
+                                                }} title="Borrar"><Trash2 size={16} /></button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {isModalOpen && (
