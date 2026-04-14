@@ -295,8 +295,8 @@ export default function ServiceReports() {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
                         <div className="form-group">
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
-                                <User size={18} color="var(--primary)" /> Técnico Responsable
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
+                                <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={16} /></div> Técnico Responsable
                             </label>
                             <select name="technician" value={formData.technician} onChange={handleInputChange} className="form-input" required style={{ borderRadius: '12px', padding: '12px' }}>
                                 <option value="">Seleccione al personal...</option>
@@ -304,8 +304,8 @@ export default function ServiceReports() {
                             </select>
                         </div>
                         <div className="form-group">
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
-                                <Building2 size={18} color="var(--primary)" /> Empresa / Cliente
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
+                                <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Building2 size={16} /></div> Empresa / Cliente
                             </label>
                             <select name="client" value={formData.client} onChange={(e) => { handleInputChange(e); setFormData(prev => ({ ...prev, sede: '', user: '', assetId: '' })); }} className="form-input" required style={{ borderRadius: '12px', padding: '12px' }}>
                                 <option value="">Seleccione cliente...</option>
@@ -316,8 +316,8 @@ export default function ServiceReports() {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
                         <div className="form-group">
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
-                                <MapPin size={18} color="var(--primary)" /> Sede
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
+                                <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MapPin size={16} /></div> Sede
                             </label>
                             <select name="sede" value={formData.sede} onChange={handleInputChange} className="form-input" disabled={!formData.client || clientSedes.length === 0} style={{ borderRadius: '12px', padding: '12px' }}>
                                 <option value="">Sede Principal</option>
@@ -325,8 +325,8 @@ export default function ServiceReports() {
                             </select>
                         </div>
                         <div className="form-group">
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
-                                <Users size={18} color="var(--primary)" /> Usuario Final
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
+                                <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Users size={16} /></div> Usuario Final
                             </label>
                             <select name="user" value={formData.user} onChange={(e) => {
                                 const newUserName = e.target.value;
@@ -341,19 +341,27 @@ export default function ServiceReports() {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.2fr 1fr', gap: '1.25rem', marginBottom: '2.5rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '16px', border: '1px dashed #cbd5e1' }}>
                         <div className="form-group">
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px' }}><FileText size={14} /> Ticket ID</label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px' }}>
+                                <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FileText size={14} /></div> Ticket ID
+                            </label>
                             <input type="text" name="ticketId" value={formData.ticketId} onChange={handleInputChange} className="form-input" placeholder="Opcional" style={{ borderRadius: '8px' }} />
                         </div>
                         <div className="form-group">
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px' }}><Calendar size={14} /> Fecha</label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px' }}>
+                                <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={14} /></div> Fecha
+                            </label>
                             <input type="date" name="date" value={formData.date} onChange={handleInputChange} className="form-input" required style={{ borderRadius: '8px' }} />
                         </div>
                         <div className="form-group">
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px' }}><Clock size={14} /> Hora</label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px' }}>
+                                <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Clock size={14} /></div> Hora
+                            </label>
                             <input type="time" name="time" value={formData.time} onChange={handleInputChange} className="form-input" required style={{ borderRadius: '8px' }} />
                         </div>
                         <div className="form-group">
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px' }}><MonitorCheck size={14} /> Modalidad</label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', fontWeight: 700, marginBottom: '8px' }}>
+                                <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MonitorCheck size={14} /></div> Modalidad
+                            </label>
                             <select name="modality" value={formData.modality} onChange={handleInputChange} className="form-input" style={{ borderRadius: '8px' }}>
                                 <option value="Soporte Remoto">Remoto</option>
                                 <option value="Visita Técnica Programada">Presencial</option>
@@ -378,8 +386,8 @@ export default function ServiceReports() {
 
                     <div style={{ background: '#f1f5f9', padding: '2rem', borderRadius: '20px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div className="form-group">
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
-                                <Laptop size={18} color="var(--primary)" /> Equipo (Inventario)
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 700 }}>
+                                <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Laptop size={16} /></div> Equipo (Inventario)
                             </label>
                             <select name="assetId" value={formData.assetId} onChange={handleInputChange} className="form-input" style={{ borderRadius: '12px' }}>
                                 <option value="">Soporte General / Sin equipo específico</option>
@@ -389,9 +397,11 @@ export default function ServiceReports() {
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                             <div style={{ background: 'white', padding: '1.25rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                                <label style={{ display: 'flex', gap: '12px', alignItems: 'center', cursor: 'pointer', fontWeight: 600 }}>
+                                <label style={{ display: 'flex', gap: '14px', alignItems: 'center', cursor: 'pointer', fontWeight: 600 }}>
                                     <input type="checkbox" name="maintenancePerformed" checked={formData.maintenancePerformed} onChange={handleInputChange} style={{ width: '20px', height: '20px' }} /> 
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Wrench size={18} color="#10b981" /> Mantenimiento</span>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(16,185,129,0.1)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Wrench size={16} /></div> Mantenimiento
+                                    </span>
                                 </label>
                                 {formData.maintenancePerformed && (
                                     <select style={{ width: '100%', marginTop: '12px', padding: '8px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}>
@@ -403,9 +413,11 @@ export default function ServiceReports() {
                                 )}
                             </div>
                             <div style={{ background: 'white', padding: '1.25rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                                <label style={{ display: 'flex', gap: '12px', alignItems: 'center', cursor: 'pointer', fontWeight: 600 }}>
+                                <label style={{ display: 'flex', gap: '14px', alignItems: 'center', cursor: 'pointer', fontWeight: 600 }}>
                                     <input type="checkbox" name="partsChanged" checked={formData.partsChanged} onChange={handleInputChange} style={{ width: '20px', height: '20px' }} /> 
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Cpu size={18} color="#f59e0b" /> Cambio de Piezas</span>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(245,158,11,0.1)', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Cpu size={16} /></div> Cambio de Piezas
+                                    </span>
                                 </label>
                                 {formData.partsChanged && (
                                     <input 
