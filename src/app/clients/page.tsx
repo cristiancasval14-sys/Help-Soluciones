@@ -286,24 +286,26 @@ export default function ClientsPage() {
                             </div>
                         </div>
 
-                        {/* Collapsed view indicator */}
-                        {expandedCompany !== company.id && (
-                            <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div style={{ display: 'flex', gap: '20px' }}>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <p style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Empleados</p>
-                                        <p style={{ fontSize: '1rem', fontWeight: 800 }}>{company.employees?.length || 0}</p>
-                                    </div>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <p style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Sedes</p>
-                                        <p style={{ fontSize: '1rem', fontWeight: 800 }}>{company.sedes?.length || 0}</p>
-                                    </div>
+                        {/* Always show indicator and toggle button */}
+                        <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', gap: '20px' }}>
+                                <div style={{ textAlign: 'center' }}>
+                                    <p style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Personal</p>
+                                    <p style={{ fontSize: '1rem', fontWeight: 800 }}>{company.employees?.length || 0}</p>
                                 </div>
-                                <button className="btn glass" style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }} onClick={() => setExpandedCompany(company.id)}>
-                                    Gestionar Detalles <ChevronRight size={14} />
-                                </button>
+                                <div style={{ textAlign: 'center' }}>
+                                    <p style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Sedes</p>
+                                    <p style={{ fontSize: '1rem', fontWeight: 800 }}>{company.sedes?.length || 0}</p>
+                                </div>
                             </div>
-                        )}
+                            <button className="btn glass" style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem', background: expandedCompany === company.id ? 'var(--primary-glow)' : '', color: expandedCompany === company.id ? 'var(--primary)' : '' }} onClick={() => setExpandedCompany(expandedCompany === company.id ? null : company.id)}>
+                                {expandedCompany === company.id ? (
+                                    <>Contraer <ChevronDown size={14} /></>
+                                ) : (
+                                    <>Desplegar <ChevronRight size={14} /></>
+                                )}
+                            </button>
+                        </div>
 
                         {expandedCompany === company.id && (
                             <div className="expanded-content fade-in" style={{ padding: '0 1.5rem 1.5rem 1.5rem' }}>
@@ -320,7 +322,6 @@ export default function ClientsPage() {
                                             </a>
                                         )}
                                     </div>
-                                    <button className="btn glass" style={{ fontSize: '0.75rem' }} onClick={() => setExpandedCompany(null)}>Cerrar</button>
                                 </div>
 
                                 {/* Tabs Navigation */}
