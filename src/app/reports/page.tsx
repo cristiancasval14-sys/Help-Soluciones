@@ -449,14 +449,12 @@ export default function ReportsHistory() {
                 
                 @media print {
                    @page { 
-                       margin-top: 4.5cm !important; 
-                       margin-bottom: 2cm !important;
-                       margin-left: 1.5cm !important;
-                       margin-right: 1.5cm !important;
+                       margin: 0.8cm !important; /* Margen mínimo de página para aprovechar espacio */
                        size: auto; 
                    }
                    
-                   html, body, main, div {
+                   html, body, main, div, p, span {
+                       /* Integridad total: nada se oculta o recorta */
                        overflow: visible !important;
                        height: auto !important;
                        max-height: none !important;
@@ -469,13 +467,13 @@ export default function ReportsHistory() {
                        width: 100% !important;
                    }
 
-                   /* Ocultar Interfaz */
+                   /* Ocultar Interfaz por completo */
                    .no-print, .sidebar, nav, .toolbar, .btn, .header-actions, .btn-icon, .btn-icon-danger, 
                    .reports-history-page > header, .table-container {
                        display: none !important;
                    }
 
-                   /* Limpieza Final modal - Fondo blanco puro, sin sombras ni superposiciones */
+                   /* Limpieza Modal: sin fondos oscuros o sobreposiciones */
                    .modal-overlay {
                        position: static !important;
                        width: 100% !important;
@@ -497,7 +495,8 @@ export default function ReportsHistory() {
                        border-radius: 0 !important;
                        padding: 0 !important;
                        background: white !important;
-                       zoom: 1 !important; /* Reset zoom to prevent weird scaling */
+                       /* ESCALADO PARA UNA SOLA HOJA: El zoom encoge visualmente todo el reporte */
+                       zoom: 0.82 !important; 
                    }
 
                    #printable-report {
@@ -507,38 +506,32 @@ export default function ReportsHistory() {
                        background: white !important;
                    }
 
-                   /* ENCABEZADO TIPO REPETICIÓN (Posición Fija + Flexbox) */
+                   /* ENCABEZADO: Empieza en el tope de la página orgánicamente */
                    #printable-report header {
                        display: flex !important;
                        justify-content: space-between !important;
-                       align-items: flex-start !important; /* Alinear al principio verticalmente */
-                       
-                       position: fixed !important;
-                       top: 0 !important;
-                       left: 0 !important;
-                       right: 0 !important;
-                       padding-top: 1cm !important; /* Espaciado desde el borde superior de la hoja */
-                       padding-left: 1.5cm !important; /* Alineado con el margen de la página */
-                       padding-right: 1.5cm !important;
-                       
-                       border-bottom: none !important; /* Eliminar línea negra */
-                       visibility: visible !important;
-                       opacity: 1 !important;
+                       align-items: flex-start !important; 
+                       position: relative !important; 
+                       top: auto !important;
+                       left: auto !important;
+                       right: auto !important;
+                       padding: 0 0 10px 0 !important;
+                       margin: 0 0 15px 0 !important;
+                       border-bottom: none !important;
                        background: white !important;
-                       z-index: 9999 !important;
                    }
 
-                   /* Reorganización: Logo y nombre al lado izquierdo (uno sobre el otro) */
+                   /* Reorganización estricta: Logo y texto alineados a la izq y uno sobre otro */
                    #printable-report header > div:first-child {
                        display: flex !important;
-                       flex-direction: column !important; /* Logo arriba, texto abajo */
+                       flex-direction: column !important;
                        align-items: flex-start !important;
-                       gap: 8px !important;
+                       gap: 2px !important; /* Mínimo espacio entre logo y empresa */
                    }
 
                    #printable-report header img {
                        display: block !important;
-                       height: 55px !important;
+                       height: 40px !important; /* Logo compacto */
                        object-fit: contain !important;
                    }
                    
@@ -546,7 +539,7 @@ export default function ReportsHistory() {
                        text-align: left !important;
                    }
 
-                   /* Reorganización: Título 'REPORTE TÉCNICO' alineado a la derecha */
+                   /* Reorganización: Título a la derecha */
                    #printable-report header > div:last-child {
                        display: flex !important;
                        flex-direction: column !important;
@@ -555,36 +548,70 @@ export default function ReportsHistory() {
                        text-align: right !important;
                    }
 
-                   /* Alineación y Fuentes para mantener equilibrio visual */
+                   /* Compactación de Fuentes del encabezado */
                    #printable-report header h1 {
-                       font-size: 1.8rem !important;
+                       font-size: 1.5rem !important;
                        font-weight: 900 !important;
                        color: #0f172a !important;
-                       margin: 0 0 5px 0 !important;
+                       margin: 0 0 2px 0 !important;
                        line-height: 1 !important;
                    }
                    
                    #printable-report header h2 {
-                       font-size: 1.4rem !important;
+                       font-size: 1.2rem !important;
                        font-weight: 800 !important;
                        color: #2563eb !important;
                        margin: 0 !important;
                    }
                    
                    #printable-report header p {
-                       font-size: 0.9rem !important;
+                       font-size: 0.8rem !important;
                        color: #64748b !important;
-                       margin: 2px 0 0 0 !important;
+                       margin: 0 !important;
                        font-weight: 600 !important;
                    }
 
-                   /* Control de salto de página */
+                   /* COMPACTACIÓN ESTRATÉGICA DE SECCIONES (Grid y Cajas) */
                    #printable-report > div {
-                       page-break-inside: auto !important;
-                       break-inside: auto !important;
+                       margin-bottom: 12px !important; /* Reduce márgenes externos */
+                       gap: 15px !important; /* Reduce brecha entre columnas */
+                       padding: 10px !important; /* Reduce relleno interno */
                    }
 
-                   /* Re-enable colors */
+                   /* Aplicar a todas las capas grid hijas si las hay */
+                   #printable-report div {
+                       gap: 12px !important;
+                   }
+
+                   /* Compactar títulos de sección (Datos Servicio, HW, Resumen) */
+                   #printable-report h3 {
+                       margin-bottom: 8px !important;
+                       padding-bottom: 4px !important;
+                       font-size: 0.9rem !important;
+                   }
+
+                   #printable-report p {
+                       margin-bottom: 2px !important;
+                   }
+
+                   /* INTEGRIDAD TOTAL: Asegurar que los bloques extensos no se cortan ni ocultan */
+                   #printable-report [style*="italic"], 
+                   #printable-report [style*="pre-wrap"] {
+                       font-size: 0.85rem !important;
+                       line-height: 1.4 !important;
+                       white-space: pre-wrap !important;
+                       word-break: break-word !important;
+                       overflow: visible !important;
+                       max-height: none !important;
+                   }
+
+                   /* Footer ultra compacto para no gastar hoja al final */
+                   #printable-report footer {
+                       margin-top: 15px !important;
+                       padding-top: 10px !important;
+                   }
+
+                   /* Exact color extraction */
                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
                 }
             `}</style>
