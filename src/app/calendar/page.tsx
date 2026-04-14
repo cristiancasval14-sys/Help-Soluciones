@@ -126,7 +126,7 @@ export default function CalendarPage() {
                 });
 
                 // --- Technician Role Logic ---
-                if (user && user.role === 'Personal') {
+                if (user && user.role === 'Técnico') {
                     // Find the staff entry for this user
                     const staffMember = loadedStaff.find(s =>
                         `${s.firstName} ${s.lastName}`.trim().toLowerCase() === user.assignedTo?.trim().toLowerCase()
