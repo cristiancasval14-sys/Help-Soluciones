@@ -26,7 +26,8 @@ export default function ReportsHistory() {
     const [selectedReport, setSelectedReport] = useState<any>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterDate, setFilterDate] = useState('');
+    const [filterStartDate, setFilterStartDate] = useState('');
+    const [filterEndDate, setFilterEndDate] = useState('');
 
     const searchParams = useSearchParams();
 
@@ -144,7 +145,14 @@ export default function ReportsHistory() {
             (r.company?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (r.employee?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
         
-        const matchesDate = filterDate ? r.date === filterDate : true;
+        let matchesDate = true;
+        if (filterStartDate && filterEndDate) {
+            matchesDate = r.date >= filterStartDate && r.date <= filterEndDate;
+        } else if (filterStartDate) {
+            matchesDate = r.date >= filterStartDate;
+        } else if (filterEndDate) {
+            matchesDate = r.date <= filterEndDate;
+        }
         
         return matchesSearch && matchesDate;
     });
@@ -170,19 +178,29 @@ export default function ReportsHistory() {
                         style={{ width: '100%', padding: '0.9rem 1rem 0.9rem 2.8rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', background: 'var(--surface)', fontSize: '1rem' }}
                     />
                 </div>
-                <div style={{ position: 'relative' }}>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', position: 'relative' }}>
                     <input 
                         type="date" 
-                        value={filterDate}
-                        onChange={(e) => setFilterDate(e.target.value)}
+                        value={filterStartDate}
+                        onChange={(e) => setFilterStartDate(e.target.value)}
                         className="btn glass" 
-                        style={{ height: '50px', padding: '0 1rem', fontFamily: 'inherit', color: filterDate ? 'var(--text-color)' : 'var(--text-muted)' }} 
+                        title="Fecha Inicio"
+                        style={{ height: '50px', padding: '0 1rem', fontFamily: 'inherit', color: filterStartDate ? 'var(--text-color)' : 'var(--text-muted)' }} 
                     />
-                    {filterDate && (
+                    <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>hasta</span>
+                    <input 
+                        type="date" 
+                        value={filterEndDate}
+                        onChange={(e) => setFilterEndDate(e.target.value)}
+                        className="btn glass" 
+                        title="Fecha Fin"
+                        style={{ height: '50px', padding: '0 1rem', fontFamily: 'inherit', color: filterEndDate ? 'var(--text-color)' : 'var(--text-muted)' }} 
+                    />
+                    {(filterStartDate || filterEndDate) && (
                         <button 
-                            onClick={() => setFilterDate('')}
-                            style={{ position: 'absolute', top: -8, right: -8, background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                            title="Limpiar fecha"
+                            onClick={() => { setFilterStartDate(''); setFilterEndDate(''); }}
+                            style={{ position: 'absolute', top: -8, right: -8, background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
+                            title="Limpiar rango de fechas"
                         >
                             <X size={12} />
                         </button>
