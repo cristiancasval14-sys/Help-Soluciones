@@ -297,8 +297,8 @@ export default function ReportsHistory() {
                                     <img src="/logo.png" alt="Help Soluciones" style={{ height: '55px', width: 'auto', objectFit: 'contain' }} />
                                 </div>
                                 <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                    <h2 style={{ color: '#2563eb', fontSize: '1.55rem', fontWeight: 900, margin: 0, letterSpacing: '0.05em' }}>Help Soluciones</h2>
-                                    <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Mesa de Ayuda Pro</p>
+                                    <h2 style={{ color: '#2563eb', fontSize: '1.85rem', fontWeight: 900, margin: '0', letterSpacing: '0.02em', lineHeight: '1.2' }}>Help Soluciones</h2>
+                                    <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '-2px 0 0 0', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' }}>Mesa de Ayuda Pro</p>
                                 </div>
                                 <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center' }}>
                                     <h1 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO</h1>
