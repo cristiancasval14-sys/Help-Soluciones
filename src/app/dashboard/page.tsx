@@ -37,6 +37,8 @@ interface Ticket {
     description?: string;
     imageUrl?: string;
     solution?: string; // Activities from service report
+    createdAt?: string;
+    resolvedAt?: string;
 }
 
 export default function Dashboard() {
@@ -77,7 +79,9 @@ export default function Dashboard() {
                         techNotes: t.tech_notes,
                         description: t.description,
                         imageUrl: t.image_url || t.imageUrl || t.evidence_url,
-                        solution: report?.activities || undefined // Here we map the solution!
+                        solution: report?.activities || undefined, // Here we map the solution!
+                        createdAt: t.created_at,
+                        resolvedAt: report?.created_at || (['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(t.status) ? t.updated_at || t.created_at : undefined)
                     };
                 });
 
@@ -106,11 +110,42 @@ export default function Dashboard() {
             !['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(t.status)
         );
 
+        let totalMinutes = 0;
+        let countedTickets = 0;
+
+        resolvedTickets.forEach((t) => {
+            if (t.createdAt && t.resolvedAt) {
+                const start = new Date(t.createdAt).getTime();
+                const end = new Date(t.resolvedAt).getTime();
+                const diffMins = (end - start) / (1000 * 60);
+                if (diffMins >= 0) {
+                    totalMinutes += diffMins;
+                    countedTickets++;
+                }
+            }
+        });
+
+        let avgText = '0m';
+        if (countedTickets > 0) {
+            const avgMins = Math.round(totalMinutes / countedTickets);
+            if (avgMins >= 1440) {
+                const days = Math.floor(avgMins / 1440);
+                const hours = Math.floor((avgMins % 1440) / 60);
+                avgText = hours > 0 ? `${days}d ${hours}h` : `${days}d`;
+            } else if (avgMins >= 60) {
+                const hours = Math.floor(avgMins / 60);
+                const mins = avgMins % 60;
+                avgText = mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+            } else {
+                avgText = `${avgMins}m`;
+            }
+        }
+
         return [
             { label: 'Tickets Abiertos', value: openTickets.length.toString(), icon: TicketIcon, sub: 'Pendientes de atención', type: 'info' },
             { label: 'Resueltos', value: resolvedTickets.length.toString(), icon: CheckCircle2, sub: 'Total finalizados', type: 'success' },
             { label: 'Riesgo SLA', value: highPriority.length.toString(), icon: AlertTriangle, sub: 'Alta prioridad', type: 'error' },
-            { label: 'Tiempos Promedio', value: '45m', icon: Clock, sub: 'Meta: <1h', type: 'warning' },
+            { label: 'Tiempos Promedio', value: avgText, icon: Clock, sub: 'Resolución Global', type: 'warning' },
         ];
     };
 
