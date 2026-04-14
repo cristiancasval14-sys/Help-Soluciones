@@ -561,24 +561,24 @@ export default function ServiceReports() {
                              </div>
                         </div>
 
-                        <div id="printable-report" style={{ padding: '3rem 3.5rem' }}>
-                            <header style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #334155', paddingBottom: '1.5rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '65px', width: 'auto', objectFit: 'contain' }} />
+                        <div id="printable-report" style={{ padding: '2rem 2.5rem' }}>
+                            <header style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: 'none', paddingBottom: '1rem' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '50px', width: 'auto', objectFit: 'contain' }} />
                                     <div style={{ textAlign: 'left' }}>
                                         <h2 style={{ color: '#2563eb', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>Help Soluciones</h2>
                                         <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, fontWeight: 600 }}>Mesa de Ayuda Pro</p>
                                     </div>
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
-                                    <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO</h1>
+                                    <h1 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO</h1>
                                     <p style={{ fontSize: '1rem', color: '#1e293b', fontWeight: 700, margin: 0 }}>N°: {selectedReport.report_id}</p>
                                     <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0, fontWeight: 600 }}>{selectedReport.ticket_id || 'Servicio Directo'}</p>
                                 </div>
                             </header>
 
                             {/* Row: Main Info Grid */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr 1fr', gap: '1.5rem', marginBottom: '3rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '20px', border: '1px solid #e2e8f0' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr 1fr', gap: '1.2rem', marginBottom: '1.5rem', background: '#f8fafc', padding: '1.25rem', borderRadius: '20px', border: '1px solid #e2e8f0' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                     <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Fecha del Servicio</p>
                                     <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>{selectedReport.date}</p>
@@ -620,10 +620,10 @@ export default function ServiceReports() {
                             </div>
 
                             {/* Row: Technical Details Matrix */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '2.5rem', marginBottom: '3rem' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                                     <div>
-                                        <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
+                                        <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
                                              Datos del Servicio
                                         </h3>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -647,7 +647,7 @@ export default function ServiceReports() {
                                     </div>
 
                                     <div>
-                                        <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
+                                        <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
                                              Información de Hardware
                                         </h3>
                                         <div style={{ background: '#fff', border: '1px solid #f1f5f9', padding: '1.25rem', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -673,10 +673,10 @@ export default function ServiceReports() {
 
                                 {/* Activities Area */}
                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
+                                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
                                         Resumen de Actividades
                                     </h3>
-                                    <div style={{ flex: 1, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '20px', padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                    <div style={{ flex: 1, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '20px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                                         <div>
                                             <p style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Requerimiento</p>
                                             <div style={{ whiteSpace: 'pre-wrap', color: '#475569', fontSize: '0.95rem', lineHeight: '1.6', fontStyle: 'italic' }}>
@@ -696,7 +696,7 @@ export default function ServiceReports() {
                                 </div>
                             </div>
 
-                            <footer style={{ marginTop: '5rem', paddingTop: '2.5rem', borderTop: '2px solid #f1f5f9', display: 'flex', justifyContent: 'center' }}>
+                            <footer style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '2px solid #f1f5f9', display: 'flex', justifyContent: 'center' }}>
                                 <div style={{ fontSize: '0.8rem', color: '#94a3b8', textAlign: 'center' }}>
                                     <p style={{ margin: 0, fontWeight: 700 }}>© 2026 Help Soluciones Informáticas S.A.S</p>
                                 </div>
