@@ -166,7 +166,7 @@ export default function StaffPage() {
     const filteredStaff = staffList.filter(s =>
         `${s.firstName} ${s.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.role.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    ).sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`));
 
     return (
         <div className="staff-page fade-in">

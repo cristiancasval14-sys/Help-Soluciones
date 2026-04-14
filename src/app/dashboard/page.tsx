@@ -150,7 +150,14 @@ export default function Dashboard() {
     };
 
     const kpiCards = getKPIs();
-    const recentTickets = tickets.filter(t => !['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(t.status)).slice(0, 8);
+    let recentTickets = tickets.filter(t => !['Resuelto', 'Terminado', 'Cerrado', 'Solucionado', 'Finalizado'].includes(t.status));
+    
+    // Sort alphabetically by client name if it's a Technician's view
+    if (currentUser?.role === 'Técnico') {
+        recentTickets.sort((a, b) => (a.client || '').localeCompare(b.client || ''));
+    }
+    
+    recentTickets = recentTickets.slice(0, 8);
 
     const openTicketDetail = (ticket: Ticket) => {
         setSelectedTicket(ticket);
