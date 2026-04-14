@@ -47,6 +47,17 @@ export function Sidebar() {
 
     const filteredItems = MODULES.filter(item => userModules.includes(item.label));
 
+    // Sort items alphabetically by their display label, but keep Dashboard at the top
+    const sortedItems = [...filteredItems].sort((a, b) => {
+        if (a.label === 'Dashboard') return -1;
+        if (b.label === 'Dashboard') return 1;
+
+        const labelA = a.label === 'Asignar Visita' && userRole !== 'Administrador' ? 'Visitas Programadas' : a.label;
+        const labelB = b.label === 'Asignar Visita' && userRole !== 'Administrador' ? 'Visitas Programadas' : b.label;
+        
+        return labelA.localeCompare(labelB);
+    });
+
     return (
         <aside className="sidebar glass" style={{ width: '280px', borderRight: '1px solid var(--surface-border)', padding: '2rem 1rem', display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0 }}>
             <div className="sidebar-header" style={{ marginBottom: '3rem', padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -64,7 +75,7 @@ export function Sidebar() {
 
             <nav className="sidebar-nav custom-scrollbar" style={{ flex: 1, overflowY: 'auto', paddingRight: '5px' }}>
                 <ul style={{ listStyle: 'none' }}>
-                    {filteredItems.map((item) => {
+                    {sortedItems.map((item) => {
                         const isActive = pathname === item.href;
                         let displayLabel = item.label;
                         if (item.label === 'Asignar Visita' && userRole !== 'Administrador') {
