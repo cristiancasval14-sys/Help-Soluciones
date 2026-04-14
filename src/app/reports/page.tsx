@@ -449,62 +449,109 @@ export default function ReportsHistory() {
                 
                 @media print {
                    @page { margin: 0; size: auto; }
+                   html, body, main, div {
+                       overflow: visible !important;
+                       height: auto !important;
+                       max-height: none !important;
+                   }
                    html, body {
                        margin: 0 !important;
                        padding: 0 !important;
                        background: white !important;
-                       overflow: hidden !important;
                        width: 100% !important;
-                       height: 100% !important;
                    }
-                   /* Hide everything that is not the report */
-                   .no-print, .sidebar, nav, header, .toolbar, .btn, .header-actions, .btn-icon, .btn-icon-danger {
+                   /* Hide UI elements */
+                   .no-print, .sidebar, nav, .toolbar, .btn, .header-actions, .btn-icon, .btn-icon-danger, .reports-history-page > header, .table-container {
                        display: none !important;
                    }
-                   /* Ensure the overlay covers the whole page and is white */
+                   /* Ensure overlay acts as absolute top layer for fluid printing */
                    .modal-overlay {
-                       position: fixed !important;
+                       position: absolute !important;
                        top: 0 !important;
                        left: 0 !important;
-                       width: 100vw !important;
-                       height: 100vh !important;
+                       width: 100% !important;
+                       height: auto !important;
                        background: white !important;
-                       display: flex !important;
-                       justify-content: center !important;
-                       align-items: flex-start !important;
+                       display: block !important;
                        padding: 0 !important;
                        margin: 0 !important;
-                       z-index: 20000 !important;
+                       z-index: 9999 !important;
                        backdrop-filter: none !important;
-                       overflow: hidden !important;
+                       overflow: visible !important;
+                       align-items: flex-start !important;
                    }
-                   /* The report card: scale it to fit A4/Letter perfectly */
+                   /* Modal card: Center and scale */
                    .modal-card {
-                       width: 720px !important;
+                       position: static !important;
+                       width: 100% !important;
+                       max-width: none !important;
+                       margin: 0 auto !important;
                        height: auto !important;
-                       min-height: 100vh !important;
+                       min-height: auto !important;
                        border: none !important;
                        box-shadow: none !important;
                        border-radius: 0 !important;
                        padding: 0 !important;
-                       margin: 0 !important;
                        background: white !important;
-                       zoom: 0.92; /* Adjust content to fit one page accurately */
-                       transform-origin: top center;
-                   }
-                   /* The content padding */
-                   #printable-report {
-                       padding: 2.5rem 3.5rem !important;
-                       width: 100% !important;
+                       zoom: 0.95; 
+                       overflow: visible !important;
                        display: block !important;
                    }
-                   /* Force the header to look exactly like on screen */
-                   #printable-report header {
-                       margin-bottom: 2.5rem !important;
-                       border-bottom: 2px solid #334155 !important;
+                   /* Report Content */
+                   #printable-report {
+                       padding: 0 !important; /* We will handle padding in page margins or inside */
+                       width: 100% !important;
+                       display: table !important; /* MAGIC: allows table-header-group to work */
+                       overflow: visible !important;
                    }
-                   /* Re-enable colors for print */
-                   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                   /* FORCE HEADER VISIBILITY, REPEAT ON NEXT PAGE, AND REMOVE BLACK LINE */
+                   #printable-report header {
+                       display: table-header-group !important;
+                       visibility: visible !important;
+                       opacity: 1 !important;
+                       border-bottom: none !important; /* ELIMINACIÓN DE LA LÍNEA NEGRA (PRUEBA) */
+                       margin-bottom: 2rem !important;
+                       padding-top: 1cm !important;
+                       padding-bottom: 1.5rem !important;
+                       padding-left: 2cm !important;
+                       padding-right: 2cm !important;
+                       overflow: visible !important;
+                       height: auto !important;
+                   }
+                   
+                   /* Forzar visibilidad de los elementos dentro del header (Logo, Textos) */
+                   #printable-report header > div {
+                       display: flex !important; /* Se mantiene flex para estructura interna */
+                       visibility: visible !important;
+                       opacity: 1 !important;
+                       overflow: visible !important;
+                       page-break-inside: avoid !important;
+                       break-inside: avoid !important;
+                   }
+                   #printable-report header img {
+                       display: block !important;
+                       visibility: visible !important;
+                       opacity: 1 !important;
+                       max-height: 65px !important;
+                   }
+                   #printable-report header h1, 
+                   #printable-report header h2, 
+                   #printable-report header p {
+                       display: block !important;
+                       visibility: visible !important;
+                       opacity: 1 !important;
+                   }
+                   
+                   /* Container para el contenido del reporte debajo de header */
+                   #printable-report > div {
+                       display: table-row-group !important;
+                       padding-left: 2cm !important;
+                       padding-right: 2cm !important;
+                       page-break-inside: auto !important;
+                   }
+
+                   /* Re-enable colors */
+                   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
                 }
             `}</style>
         </div>
