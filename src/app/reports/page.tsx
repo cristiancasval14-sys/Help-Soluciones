@@ -26,6 +26,7 @@ export default function ReportsHistory() {
     const [selectedReport, setSelectedReport] = useState<any>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterDate, setFilterDate] = useState('');
 
     const searchParams = useSearchParams();
 
@@ -137,12 +138,16 @@ export default function ReportsHistory() {
         }
     };
 
-    const filteredReports = reports.filter(r =>
-        r.report_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (r.technician_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (r.company?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (r.employee?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredReports = reports.filter(r => {
+        const matchesSearch = r.report_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (r.technician_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (r.company?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (r.employee?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+        
+        const matchesDate = filterDate ? r.date === filterDate : true;
+        
+        return matchesSearch && matchesDate;
+    });
 
     return (
         <div className="reports-history-page fade-in">
@@ -165,7 +170,24 @@ export default function ReportsHistory() {
                         style={{ width: '100%', padding: '0.9rem 1rem 0.9rem 2.8rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', background: 'var(--surface)', fontSize: '1rem' }}
                     />
                 </div>
-                <button className="btn glass" style={{ height: '50px' }}><Calendar size={18} /> Filtrar Fecha</button>
+                <div style={{ position: 'relative' }}>
+                    <input 
+                        type="date" 
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
+                        className="btn glass" 
+                        style={{ height: '50px', padding: '0 1rem', fontFamily: 'inherit', color: filterDate ? 'var(--text-color)' : 'var(--text-muted)' }} 
+                    />
+                    {filterDate && (
+                        <button 
+                            onClick={() => setFilterDate('')}
+                            style={{ position: 'absolute', top: -8, right: -8, background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                            title="Limpiar fecha"
+                        >
+                            <X size={12} />
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="table-container glass" style={{ padding: '1rem', borderRadius: 'var(--radius-md)', overflowX: 'auto' }}>
