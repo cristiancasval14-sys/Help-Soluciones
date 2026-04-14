@@ -390,14 +390,14 @@ export default function Inventory() {
                     const isBase = companyName === 'Inventario Base';
                     const repCount = companyAssets.filter(a => a.locationType === 'En Reparación').length;
                     const licCount = companyAssets.reduce((sum, a) => sum + a.licenses.length, 0);
-                    const isCollapsed = collapsedGroups[companyName];
+                    const isCollapsed = collapsedGroups[companyName] !== false;
 
                     return (
                         <div key={companyName} className="company-group fade-in">
                             {/* Company Header */}
                             <div
                                 className="company-header glass"
-                                onClick={() => setCollapsedGroups(prev => ({ ...prev, [companyName]: !prev[companyName] }))}
+                                onClick={() => setCollapsedGroups(prev => ({ ...prev, [companyName]: prev[companyName] !== false ? false : true }))}
                                 style={{
                                     display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.4rem',
                                     borderRadius: '14px', marginBottom: isCollapsed ? 0 : '1.2rem',
