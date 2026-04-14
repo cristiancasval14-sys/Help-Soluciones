@@ -286,7 +286,7 @@ export default function CalendarPage() {
         <div className="calendar-page fade-in">
             <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <h1 style={{ fontSize: '2rem' }}>{isAdmin ? 'Asignar Visita' : 'Mis Visitas Técnicas'}</h1>
+                    <h1 style={{ fontSize: '2rem' }}>{isAdmin ? 'Asignar Visita' : 'Visitas Programadas'}</h1>
                     <p style={{ color: 'var(--text-muted)' }}>{isAdmin ? 'Programación y asignación de visitas técnicas a empresas' : 'Visualización de sus visitas programadas'}</p>
                 </div>
                 {isAdmin && (

@@ -24,11 +24,13 @@ import { MODULES } from '@/lib/navigation';
 export function Sidebar() {
     const pathname = usePathname();
     const [userModules, setUserModules] = React.useState<string[]>([]);
+    const [userRole, setUserRole] = React.useState<string>('');
 
     React.useEffect(() => {
         const session = localStorage.getItem('help_session');
         if (session) {
             const user = JSON.parse(session);
+            setUserRole(user.role || '');
             // Si es admin, ve todo por defecto, o si tiene una lista de módulos permitidos
             if (user.role === 'Administrador') {
                 setUserModules(MODULES.map(m => m.label));
@@ -64,6 +66,10 @@ export function Sidebar() {
                 <ul style={{ listStyle: 'none' }}>
                     {filteredItems.map((item) => {
                         const isActive = pathname === item.href;
+                        let displayLabel = item.label;
+                        if (item.label === 'Asignar Visita' && userRole !== 'Administrador') {
+                            displayLabel = 'Visitas Programadas';
+                        }
 
                         return (
                             <li key={item.label} style={{ marginBottom: '0.5rem' }}>
@@ -80,7 +86,7 @@ export function Sidebar() {
                                         fontWeight: isActive ? 600 : 400
                                     }}>
                                         <item.icon size={20} color={isActive ? 'var(--primary)' : 'var(--text-muted)'} />
-                                        <span>{item.label}</span>
+                                        <span>{displayLabel}</span>
                                     </a>
                                 </Link>
                             </li>
