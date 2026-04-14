@@ -711,17 +711,13 @@ export default function ServiceReports() {
                 .btn-icon:hover { color: var(--primary); transform: scale(1.1); background: rgba(99,102,241,0.08); }
                 .report-row:hover { background: rgba(99, 102, 241, 0.03); }
                 @media print {
-                   @page { margin: 1cm; size: auto; }
-                   html, body { 
-                       background: white !important; 
-                       margin: 0 !important; 
-                       padding: 0 !important; 
-                       height: auto !important;
-                       overflow: visible !important;
-                   }
+                   @page { margin: 0; size: auto; }
+                   body { background: white !important; margin: 0 !important; padding: 0 !important; }
                    .no-print, .sidebar, nav, header, .toolbar, .btn, .header-actions { display: none !important; }
                    .modal-overlay { 
-                       position: static !important;
+                       position: absolute !important; 
+                       top: 0 !important; 
+                       left: 0 !important; 
                        width: 100% !important; 
                        height: auto !important;
                        background: white !important;
@@ -729,10 +725,9 @@ export default function ServiceReports() {
                        margin: 0 !important;
                        display: block !important;
                        backdrop-filter: none !important;
-                       overflow: visible !important;
+                       z-index: 9999 !important;
                    }
                    .modal-card { 
-                       position: static !important;
                        width: 100% !important; 
                        max-width: 100% !important; 
                        height: auto !important;
@@ -746,10 +741,8 @@ export default function ServiceReports() {
                    }
                    #printable-report { 
                        display: block !important; 
-                       padding: 0 !important;
+                       padding: 1.5cm 2cm !important;
                        width: 100% !important;
-                       height: auto !important;
-                       overflow: visible !important;
                        -webkit-print-color-adjust: exact !important;
                        print-color-adjust: exact !important;
                    }
