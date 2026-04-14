@@ -196,8 +196,7 @@ export default function ServiceReports() {
             ].filter(Boolean).join('');
 
             const nextVal = await ServiceReportService.getNextId(selectedComp?.id || '');
-            const companyPrefix = (selectedComp?.name || 'GEN').trim().split(' ')[0].substring(0, 3).toUpperCase();
-            const reportId = `${companyPrefix}-${nextVal.toString().padStart(3, '0')}`;
+            const reportId = nextVal.toString().padStart(2, '0');
 
             const payload = {
                 report_id: reportId,
