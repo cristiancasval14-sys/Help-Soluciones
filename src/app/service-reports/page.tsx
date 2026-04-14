@@ -711,106 +711,140 @@ export default function ServiceReports() {
                 .btn-icon:hover { color: var(--primary); transform: scale(1.1); background: rgba(99,102,241,0.08); }
                 .report-row:hover { background: rgba(99, 102, 241, 0.03); }
                 @media print {
-                   @page { margin: 0; size: auto; }
+                   @page { 
+                       margin-top: 4.5cm !important; 
+                       margin-bottom: 2cm !important;
+                       margin-left: 1.5cm !important;
+                       margin-right: 1.5cm !important;
+                       size: auto; 
+                   }
+                   
                    html, body, main, div {
                        overflow: visible !important;
                        height: auto !important;
                        max-height: none !important;
                    }
+                   
                    html, body {
                        margin: 0 !important;
                        padding: 0 !important;
                        background: white !important;
                        width: 100% !important;
                    }
-                   /* Hide UI elements */
-                   .no-print, .sidebar, nav, .toolbar, .btn, .header-actions, .btn-icon, .btn-icon-danger, .service-reports-page > header, .form-container {
+
+                   /* Ocultar Interfaz */
+                   .no-print, .sidebar, nav, .toolbar, .btn, .header-actions, .btn-icon, .btn-icon-danger, 
+                   .service-reports-page > header, .form-container {
                        display: none !important;
                    }
-                   /* Ensure overlay acts as absolute top layer for fluid printing */
+
+                   /* Limpieza Final modal - Fondo blanco puro, sin sombras ni superposiciones */
                    .modal-overlay {
-                       position: absolute !important;
-                       top: 0 !important;
-                       left: 0 !important;
+                       position: static !important;
                        width: 100% !important;
-                       height: auto !important;
                        background: white !important;
                        display: block !important;
                        padding: 0 !important;
                        margin: 0 !important;
-                       z-index: 9999 !important;
+                       z-index: 1 !important;
                        backdrop-filter: none !important;
-                       overflow: visible !important;
-                       align-items: flex-start !important;
                    }
-                   /* Modal card: Center and scale */
+
                    .modal-card {
                        position: static !important;
                        width: 100% !important;
                        max-width: none !important;
-                       margin: 0 auto !important;
-                       height: auto !important;
-                       min-height: auto !important;
+                       margin: 0 !important;
                        border: none !important;
                        box-shadow: none !important;
                        border-radius: 0 !important;
                        padding: 0 !important;
                        background: white !important;
-                       zoom: 0.95; 
-                       overflow: visible !important;
-                       display: block !important;
+                       zoom: 1 !important; /* Reset zoom to prevent weird scaling */
                    }
-                   /* Report Content */
+
                    #printable-report {
-                       padding: 0 !important; /* We handle padding via left/right inner styles */
+                       padding: 0 !important;
                        width: 100% !important;
-                       display: table !important; /* MAGIC: allows table-header-group to work */
-                       overflow: visible !important;
+                       display: block !important;
+                       background: white !important;
                    }
-                   /* FORCE HEADER VISIBILITY, REPEAT ON NEXT PAGE, AND REMOVE BLACK LINE */
+
+                   /* ENCABEZADO TIPO REPETICIÓN (Posición Fija + Flexbox) */
                    #printable-report header {
-                       display: table-header-group !important;
+                       display: flex !important;
+                       justify-content: space-between !important;
+                       align-items: flex-start !important; /* Alinear al principio verticalmente */
+                       
+                       position: fixed !important;
+                       top: 0 !important;
+                       left: 0 !important;
+                       right: 0 !important;
+                       padding-top: 1cm !important; /* Espaciado desde el borde superior de la hoja */
+                       padding-left: 1.5cm !important; /* Alineado con el margen de la página */
+                       padding-right: 1.5cm !important;
+                       
+                       border-bottom: none !important; /* Eliminar línea negra */
                        visibility: visible !important;
                        opacity: 1 !important;
-                       border-bottom: none !important; /* ELIMINACIÓN DE LA LÍNEA NEGRA (PRUEBA) */
-                       margin-bottom: 2rem !important;
-                       padding-top: 1cm !important;
-                       padding-bottom: 1.5rem !important;
-                       padding-left: 2cm !important;
-                       padding-right: 2cm !important;
-                       overflow: visible !important;
-                       height: auto !important;
+                       background: white !important;
+                       z-index: 9999 !important;
                    }
-                   
-                   /* Forzar visibilidad de los elementos dentro del header (Logo, Textos) */
-                   #printable-report header > div {
-                       display: flex !important; /* Se mantiene flex para estructura interna */
-                       visibility: visible !important;
-                       opacity: 1 !important;
-                       overflow: visible !important;
-                       page-break-inside: avoid !important;
-                       break-inside: avoid !important;
+
+                   /* Reorganización: Logo y nombre al lado izquierdo (uno sobre el otro) */
+                   #printable-report header > div:first-child {
+                       display: flex !important;
+                       flex-direction: column !important; /* Logo arriba, texto abajo */
+                       align-items: flex-start !important;
+                       gap: 8px !important;
                    }
+
                    #printable-report header img {
                        display: block !important;
-                       visibility: visible !important;
-                       opacity: 1 !important;
-                       max-height: 65px !important;
-                   }
-                   #printable-report header h1, 
-                   #printable-report header h2, 
-                   #printable-report header p {
-                       display: block !important;
-                       visibility: visible !important;
-                       opacity: 1 !important;
+                       height: 55px !important;
+                       object-fit: contain !important;
                    }
                    
-                   /* Container para el contenido del reporte debajo de header */
+                   #printable-report header > div:first-child > div {
+                       text-align: left !important;
+                   }
+
+                   /* Reorganización: Título 'REPORTE TÉCNICO' alineado a la derecha */
+                   #printable-report header > div:last-child {
+                       display: flex !important;
+                       flex-direction: column !important;
+                       justify-content: flex-start !important;
+                       align-items: flex-end !important;
+                       text-align: right !important;
+                   }
+
+                   /* Alineación y Fuentes para mantener equilibrio visual */
+                   #printable-report header h1 {
+                       font-size: 1.8rem !important;
+                       font-weight: 900 !important;
+                       color: #0f172a !important;
+                       margin: 0 0 5px 0 !important;
+                       line-height: 1 !important;
+                   }
+                   
+                   #printable-report header h2 {
+                       font-size: 1.4rem !important;
+                       font-weight: 800 !important;
+                       color: #2563eb !important;
+                       margin: 0 !important;
+                   }
+                   
+                   #printable-report header p {
+                       font-size: 0.9rem !important;
+                       color: #64748b !important;
+                       margin: 2px 0 0 0 !important;
+                       font-weight: 600 !important;
+                   }
+
+                   /* Control de salto de página */
                    #printable-report > div {
-                       display: table-row-group !important;
-                       padding-left: 2cm !important;
-                       padding-right: 2cm !important;
                        page-break-inside: auto !important;
+                       break-inside: auto !important;
                    }
 
                    /* Re-enable colors */
