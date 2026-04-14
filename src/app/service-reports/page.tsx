@@ -561,15 +561,15 @@ export default function ServiceReports() {
                         </div>
 
                         <div id="printable-report" style={{ padding: '2rem 2.5rem' }}>
-                            <header style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: 'none', paddingBottom: '1rem' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
-                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '50px', width: 'auto', objectFit: 'contain' }} />
-                                    <div style={{ textAlign: 'left' }}>
-                                        <h2 style={{ color: '#2563eb', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>Help Soluciones</h2>
-                                        <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0, fontWeight: 600 }}>Mesa de Ayuda Pro</p>
-                                    </div>
+                            <header style={{ marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)', alignItems: 'center', borderBottom: 'none', paddingBottom: '1rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                                    <img src="/logo.png" alt="Help Soluciones" style={{ height: '55px', width: 'auto', objectFit: 'contain' }} />
                                 </div>
-                                <div style={{ textAlign: 'right' }}>
+                                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    <h2 style={{ color: '#2563eb', fontSize: '1.55rem', fontWeight: 900, margin: 0, letterSpacing: '0.05em' }}>Help Soluciones</h2>
+                                    <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Mesa de Ayuda Pro</p>
+                                </div>
+                                <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center' }}>
                                     <h1 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0f172a', margin: 0, textTransform: 'uppercase' }}>REPORTE TÉCNICO</h1>
                                     <p style={{ fontSize: '1rem', color: '#1e293b', fontWeight: 700, margin: 0 }}>N°: {selectedReport.report_id}</p>
                                     <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0, fontWeight: 600 }}>{selectedReport.ticket_id || 'Servicio Directo'}</p>
@@ -774,9 +774,9 @@ export default function ServiceReports() {
 
                    /* ENCABEZADO: Empieza en el tope de la página orgánicamente */
                    #printable-report header {
-                       display: flex !important;
-                       justify-content: space-between !important;
-                       align-items: flex-start !important; 
+                       display: grid !important;
+                       grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+                       align-items: center !important; 
                        position: relative !important; 
                        top: auto !important;
                        left: auto !important;
@@ -789,25 +789,24 @@ export default function ServiceReports() {
                        box-sizing: border-box !important;
                    }
 
-                   /* Reorganización estricta: Logo y texto alineados a la izq y uno sobre otro */
                    #printable-report header > div:first-child {
                        display: flex !important;
-                       flex-direction: column !important;
-                       align-items: flex-start !important;
-                       gap: 2px !important; /* Mínimo espacio entre logo y empresa */
+                       justify-content: flex-start !important;
                    }
 
                    #printable-report header img {
                        display: block !important;
-                       height: 48px !important; /* Escalado visual del logo acorde al nuevo tamaño global */
+                       height: 52px !important; /* Buen volumen del logo pero ajustado al grid */
                        object-fit: contain !important;
                    }
                    
-                   #printable-report header > div:first-child > div {
-                       text-align: left !important;
+                   #printable-report header > div:nth-child(2) {
+                       display: flex !important;
+                       flex-direction: column !important;
+                       align-items: center !important;
+                       text-align: center !important;
                    }
 
-                   /* Reorganización: Título a la derecha */
                    #printable-report header > div:last-child {
                        display: flex !important;
                        flex-direction: column !important;
