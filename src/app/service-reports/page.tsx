@@ -712,7 +712,7 @@ export default function ServiceReports() {
                 .report-row:hover { background: rgba(99, 102, 241, 0.03); }
                 @media print {
                    @page { 
-                       margin: 0.8cm !important; /* Margen mínimo de página para aprovechar espacio */
+                       margin: 0 !important; /* Bordes blancos CERO para expandir al máximo ancho */
                        size: auto; 
                    }
                    
@@ -728,6 +728,7 @@ export default function ServiceReports() {
                        padding: 0 !important;
                        background: white !important;
                        width: 100% !important;
+                       max-width: none !important;
                    }
 
                    /* Ocultar Interfaz por completo */
@@ -758,14 +759,17 @@ export default function ServiceReports() {
                        border-radius: 0 !important;
                        padding: 0 !important;
                        background: white !important;
-                       /* ESCALADO PARA UNA SOLA HOJA: El zoom encoge visualmente todo el reporte */
-                       zoom: 0.82 !important; 
+                       /* ESCALADO VISUAL: Del 0.82 original, subimos a 0.94 para que el contenido abarque toda la estructura de la hoja vertical y horizontalmente */
+                       zoom: 0.94 !important; 
                    }
 
                    #printable-report {
-                       padding: 0 !important;
+                       /* En lugar de márgenes de hoja, usamos un padding interno calculadamente preciso para alejarlo del borde físico del papel pero usar el 100% */
+                       padding: 1.2cm 1.5cm !important; 
                        width: 100% !important;
+                       max-width: none !important;
                        display: block !important;
+                       box-sizing: border-box !important;
                        background: white !important;
                    }
 
@@ -782,6 +786,8 @@ export default function ServiceReports() {
                        margin: 0 0 15px 0 !important;
                        border-bottom: none !important;
                        background: white !important;
+                       width: 100% !important;
+                       box-sizing: border-box !important;
                    }
 
                    /* Reorganización estricta: Logo y texto alineados a la izq y uno sobre otro */
@@ -794,7 +800,7 @@ export default function ServiceReports() {
 
                    #printable-report header img {
                        display: block !important;
-                       height: 40px !important; /* Logo compacto */
+                       height: 48px !important; /* Escalado visual del logo acorde al nuevo tamaño global */
                        object-fit: contain !important;
                    }
                    
@@ -813,7 +819,7 @@ export default function ServiceReports() {
 
                    /* Compactación de Fuentes del encabezado */
                    #printable-report header h1 {
-                       font-size: 1.5rem !important;
+                       font-size: 1.6rem !important; /* Título imponente */
                        font-weight: 900 !important;
                        color: #0f172a !important;
                        margin: 0 0 2px 0 !important;
@@ -821,14 +827,14 @@ export default function ServiceReports() {
                    }
                    
                    #printable-report header h2 {
-                       font-size: 1.2rem !important;
+                       font-size: 1.3rem !important;
                        font-weight: 800 !important;
                        color: #2563eb !important;
                        margin: 0 !important;
                    }
                    
                    #printable-report header p {
-                       font-size: 0.8rem !important;
+                       font-size: 0.85rem !important;
                        color: #64748b !important;
                        margin: 0 !important;
                        font-weight: 600 !important;
@@ -836,21 +842,24 @@ export default function ServiceReports() {
 
                    /* COMPACTACIÓN ESTRATÉGICA DE SECCIONES (Grid y Cajas) */
                    #printable-report > div {
-                       margin-bottom: 12px !important; /* Reduce márgenes externos */
-                       gap: 15px !important; /* Reduce brecha entre columnas */
-                       padding: 10px !important; /* Reduce relleno interno */
+                       margin-bottom: 15px !important; /* Recuperamos un ligero respiro entre bloques sin pasarnos */
+                       gap: 15px !important; /* Separación vertical en grids */
+                       padding: 15px !important; /* Preservación de caja de diseño amplia que respira */
+                       width: 100% !important;
+                       box-sizing: border-box !important;
                    }
 
                    /* Aplicar a todas las capas grid hijas si las hay */
                    #printable-report div {
-                       gap: 12px !important;
+                       gap: 15px !important;
+                       box-sizing: border-box !important;
                    }
 
                    /* Compactar títulos de sección (Datos Servicio, HW, Resumen) */
                    #printable-report h3 {
-                       margin-bottom: 8px !important;
-                       padding-bottom: 4px !important;
-                       font-size: 0.9rem !important;
+                       margin-bottom: 10px !important;
+                       padding-bottom: 5px !important;
+                       font-size: 1rem !important; /* Refuerza la legibilidad visual */
                    }
 
                    #printable-report p {
@@ -860,8 +869,8 @@ export default function ServiceReports() {
                    /* INTEGRIDAD TOTAL: Asegurar que los bloques extensos no se cortan ni ocultan */
                    #printable-report [style*="italic"], 
                    #printable-report [style*="pre-wrap"] {
-                       font-size: 0.85rem !important;
-                       line-height: 1.4 !important;
+                       font-size: 0.95rem !important; /* Mayor legibilidad para actividades sin sobrellenar una página sola */
+                       line-height: 1.45 !important;
                        white-space: pre-wrap !important;
                        word-break: break-word !important;
                        overflow: visible !important;
@@ -872,6 +881,7 @@ export default function ServiceReports() {
                    #printable-report footer {
                        margin-top: 15px !important;
                        padding-top: 10px !important;
+                       width: 100% !important;
                    }
 
                    /* Exact color extraction */
