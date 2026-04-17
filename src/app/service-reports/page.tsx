@@ -770,6 +770,17 @@ export default function ServiceReports() {
                 .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-muted); transition: 0.2s; padding: 6px; border-radius: 8px; }
                 .btn-icon:hover { color: var(--primary); transform: scale(1.1); background: rgba(99,102,241,0.08); }
                 .report-row:hover { background: rgba(99, 102, 241, 0.03); }
+
+                @media screen and (max-height: 950px) {
+                    .modal-card { zoom: 0.85; }
+                }
+                @media screen and (max-height: 800px) {
+                    .modal-card { zoom: 0.75; }
+                }
+                @media screen and (max-height: 650px) {
+                    .modal-card { zoom: 0.65; }
+                }
+
                 @media print {
                    @page { 
                        margin: 0 !important; /* Bordes blancos CERO para expandir al máximo ancho */

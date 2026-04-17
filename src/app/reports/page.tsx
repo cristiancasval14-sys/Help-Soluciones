@@ -495,6 +495,16 @@ export default function ReportsHistory() {
                 .btn-icon:hover { color: var(--primary); background: rgba(99,102,241,0.08); transform: scale(1.1); }
                 .btn-icon-danger:hover { color: #ef4444 !important; background: rgba(239,68,68,0.08) !important; }
                 .report-row:hover { background: rgba(99, 102, 241, 0.03); }
+                                
+                @media screen and (max-height: 950px) {
+                    .modal-card { zoom: 0.85; }
+                }
+                @media screen and (max-height: 800px) {
+                    .modal-card { zoom: 0.75; }
+                }
+                @media screen and (max-height: 650px) {
+                    .modal-card { zoom: 0.65; }
+                }
                 
                 @media print {
                    @page { 
