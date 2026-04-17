@@ -52,7 +52,8 @@ export default function ServiceReports() {
         partsDetails: '',
         capacityUpgraded: false,
         upgradeDetails: '',
-        isResolved: 'Si'
+        isResolved: 'Si',
+        evidencePhoto: ''
     });
 
     const [staff, setStaff] = useState<any[]>([]);
@@ -171,6 +172,17 @@ export default function ServiceReports() {
         return true;
     });
 
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, evidencePhoto: reader.result as string }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target as any;
         const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
@@ -227,7 +239,8 @@ export default function ServiceReports() {
                 parts_details: formData.partsDetails,
                 capacity_upgraded: formData.capacityUpgraded,
                 upgrade_details: formData.upgradeDetails,
-                is_resolved: formData.isResolved
+                is_resolved: formData.isResolved,
+                evidence_photo: formData.evidencePhoto
             };
 
             await ServiceReportService.create(payload);
@@ -245,7 +258,7 @@ export default function ServiceReports() {
             setSuccess(true);
             setTimeout(() => {
                 setSuccess(false);
-                setFormData({ ...formData, activities: '', activitySummary: '', maintenancePerformed: false, partsChanged: false, partsDetails: '', capacityUpgraded: false, upgradeDetails: '', isResolved: 'Si' });
+                setFormData({ ...formData, activities: '', activitySummary: '', maintenancePerformed: false, partsChanged: false, partsDetails: '', capacityUpgraded: false, upgradeDetails: '', isResolved: 'Si', evidencePhoto: '' });
             }, 2000);
         } catch (err) {
             console.error("Error creating service report:", err);
@@ -390,6 +403,25 @@ export default function ServiceReports() {
                              Actividad Realizada por el Técnico *
                         </label>
                         <textarea name="activitySummary" value={formData.activitySummary} onChange={handleInputChange} className="form-input" rows={6} required placeholder="Describa a detalle la solución técnica aplicada o los procedimientos realizados..." style={{ borderRadius: '16px', padding: '1.5rem', width: '100%', border: '1px solid var(--primary-glow)', boxShadow: '0 4px 6px rgba(37, 99, 235, 0.05)' }}></textarea>
+                        
+                        <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'rgba(59,130,246,0.05)', borderRadius: '16px', border: '1px dashed rgba(59,130,246,0.3)' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', fontWeight: 700, marginBottom: '10px', color: 'var(--text-main)' }}>
+                                <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(59,130,246,0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Layers size={16} /></div>
+                                Evidencia Fotográfica (Opcional)
+                            </label>
+                            <input 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={handleImageUpload} 
+                                className="form-input" 
+                                style={{ background: 'white', borderRadius: '12px', padding: '10px', width: '100%' }}
+                            />
+                            {formData.evidencePhoto && (
+                                <div style={{ marginTop: '1rem', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--surface-border)', width: 'fit-content' }}>
+                                    <img src={formData.evidencePhoto} alt="Evidencia" style={{ maxHeight: '150px', objectFit: 'cover' }} />
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div style={{ background: '#f1f5f9', padding: '2rem', borderRadius: '20px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -711,6 +743,15 @@ export default function ServiceReports() {
                                                 }
                                             </div>
                                         </div>
+                                        
+                                        {selectedReport.evidence_photo && (
+                                            <div style={{ borderTop: '2px dashed #f1f5f9', paddingTop: '1.25rem' }}>
+                                                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Evidencia Fotográfica</p>
+                                                <div style={{ width: '100%', maxWidth: '300px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                                                    <img src={selectedReport.evidence_photo} alt="Evidencia Técnica" style={{ width: '100%', height: 'auto', objectFit: 'contain' }} />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
