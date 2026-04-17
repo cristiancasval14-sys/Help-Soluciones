@@ -281,11 +281,22 @@ export const ServiceReportService = {
         if (error || !data || data.length === 0) return 1;
 
         const maxNum = data.reduce((max, r) => {
-            // Ignorar los formatos antiguos que tenían prefijo (ej. REP-1698)
-            // Solo considerar los nuevos reportes que son estrictamente numéricos (ej. "01", "02")
-            if (r.report_id && /^\d+$/.test(r.report_id)) {
-                const num = parseInt(r.report_id, 10);
-                return num > max ? num : max;
+            if (r.report_id) {
+                let numStr = r.report_id;
+                
+                if (r.report_id.includes('-')) {
+                    const parts = r.report_id.split('-');
+                    numStr = parts[parts.length - 1];
+                    // Ignorar el formato antiguo global 'REP'
+                    if (parts[0] === 'REP') {
+                        return max;
+                    }
+                }
+                
+                if (/^\d+$/.test(numStr)) {
+                    const num = parseInt(numStr, 10);
+                    return num > max ? num : max;
+                }
             }
             return max;
         }, 0);
