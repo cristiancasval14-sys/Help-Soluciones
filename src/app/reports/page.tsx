@@ -463,6 +463,15 @@ export default function ReportsHistory() {
                                                 }
                                             </div>
                                         </div>
+
+                                        {selectedReport.evidence_photo && (
+                                            <div style={{ borderTop: '2px dashed #f1f5f9', paddingTop: '1.25rem' }}>
+                                                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>Evidencia Fotográfica</p>
+                                                <div style={{ width: '100%', maxWidth: '300px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                                                    <img src={selectedReport.evidence_photo} alt="Evidencia Técnica" style={{ width: '100%', height: 'auto', objectFit: 'contain' }} />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
